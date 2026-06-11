@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(curl -s \"https://api.github.com/users/Rrrayy/repos?sort=updated&per_page=10\")",
+      "Bash(curl -sv \"https://api.github.com/users/Rrrayy/repos?sort=updated&per_page=10\")",
+      "WebFetch(domain:github.com)",
+      "Bash(sed -n '500,594p' \"F:/r网站/index.html\")",
+      "Bash(sed -n '621,662p' \"F:/r网站/index.html\")",
+      "Bash(python3 *)",
+      "Bash(sed -i '500,594d' \"F:/r网站/index.html\")",
+      "Bash(sed -i '526,567d' \"F:/r网站/index.html\")",
+      "Bash(sed -i '610r /tmp/bs.txt' \"F:/r网站/index.html\")",
+      "Bash(rm /tmp/bs.txt /tmp/pj.txt)",
+      "Bash(cat)",
+      "Bash(sed -i '500,534d' \"F:/r网站/index.html\")",
+      "Bash(sed -i '499r /tmp/new_cards.txt' \"F:/r网站/index.html\")",
+      "Bash(rm /tmp/new_cards.txt)",
+      "Bash(sed -i ' *)"
+    ]
+  }
+}
