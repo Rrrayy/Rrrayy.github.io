@@ -192,6 +192,32 @@
 		.resume_item .r_title{font-size:0.88rem;color:var(--c-text-heading);font-weight:600;margin-bottom:3px;}
 		.resume_item .r_sub{font-size:0.75rem;color:var(--c-text-muted);}
 
+		/* 学习路线 */
+		.roadmap_item{position:relative;padding-left:28px;padding-bottom:18px;border-left:2px solid var(--c-border);}
+		.roadmap_item:last-child{border-left:2px solid transparent;padding-bottom:0;}
+		.roadmap_item::before{content:'';position:absolute;left:-5px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--c-text-dim);transition:background 0.3s ease,box-shadow 0.3s ease;}
+		/* 已完成 */
+		.roadmap_item.done{border-left-color:rgba(255,255,255,0.03);}
+		.roadmap_item.done::before{background:var(--c-text-dim);}
+		/* 进行中（当前阶段） */
+		.roadmap_item.active{border-left-color:rgba(239,68,68,0.3);}
+		.roadmap_item.active::before{background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,0.5);}
+		/* 待开始 */
+		.roadmap_item.upcoming{opacity:0.45;border-left-style:dashed;}
+		.roadmap_item.upcoming::before{background:var(--c-text-dim);}
+		/* 阶段标题行 */
+		.roadmap_item .rm_header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+		.roadmap_item .rm_title{font-size:0.85rem;color:var(--c-text-heading);font-weight:600;}
+		.roadmap_item.upcoming .rm_title{color:var(--c-text-muted);}
+		.rm_badge{font-size:0.56rem;padding:2px 8px;border-radius:99px;letter-spacing:0.04em;flex-shrink:0;}
+		.rm_badge.done{background:var(--c-book-done-bg);color:var(--c-book-done-text);}
+		.rm_badge.active{background:rgba(239,68,68,0.12);color:#f87171;}
+		.rm_badge.upcoming{background:var(--c-book-want-bg);color:var(--c-book-want-text);}
+		/* 阶段标签 */
+		.roadmap_item .rm_tags{display:flex;flex-wrap:wrap;gap:4px;}
+		.roadmap_item .rm_tags span{font-size:0.66rem;padding:2px 10px;border-radius:99px;color:var(--c-tag-text);background:var(--c-tag-bg);}
+		.roadmap_item .rm_tags span.rm_ongoing{border:1px solid rgba(239,68,68,0.25);color:#f87171;}
+
 		/* 书架 */
 		.book_card_wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
 		.book_card_item{background:var(--c-surface);border:1px solid var(--c-border-light);border-left:3px solid var(--c-book-done-text);border-radius:6px;padding:10px 12px;transition:border-color 0.25s ease,background 0.25s ease,transform 0.2s ease;}
@@ -332,15 +358,28 @@
 					</div>
 				</section>
 
-				<!-- 3. 关于我 -->
-				<section id="about" class="glass_section reveal">
-					<h2 class="section_title">关于我</h2>
-					<p class="para">南京邮电大学计算机科学与技术专业大二在读。对<b class="highlight_text">计算机系统</b>和<b class="highlight_text">底层编程</b>有浓厚兴趣，享受从源码和原理层面理解计算机的运作方式。</p>
-					<p class="para">课余时间通过经典 CS 教材自学：从 CS:APP 中学习机器级代码和执行模型，从 OSTEP 中理解进程调度和内存虚拟化，从 K&amp;R C 中体会简洁优雅的系统编程哲学。</p>
-					<p class="para">相信「根基决定高度」，正在扎扎实实打基础，目标成为一名<b class="highlight_text">基础扎实的系统开发者</b>。目前在积极寻找实习机会，渴望在真实工程环境中快速成长。</p>
-					<div class="flex flex-wrap gap-2 mt-5 pt-4 border_subtle" style="border-top-width:1px;border-top-style:solid;">
-						<span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">系统编程</span><span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">计算机网络</span>
-						<span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">操作系统</span><span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">C / C++</span>
+				<!-- 3. 学习路线 -->
+				<section id="roadmap" class="glass_section reveal">
+					<h2 class="section_title">学习路线</h2>
+					<!-- 阶段一：已完成 -->
+					<div class="roadmap_item done">
+						<div class="rm_header"><span class="rm_title">阶段一 · C++ 主线</span><span class="rm_badge done">已完成</span></div>
+						<div class="rm_tags"><span>C++ OOP</span><span>STL</span><span class="rm_ongoing">现代 C++</span><span>Python 基础</span><span class="rm_ongoing">数据结构</span><span class="rm_ongoing">算法</span><span>Git</span><span>Linux 基础</span></div>
+					</div>
+					<!-- 阶段二：进行中 -->
+					<div class="roadmap_item active">
+						<div class="rm_header"><span class="rm_title">阶段二 · 系统基础</span><span class="rm_badge active">进行中</span></div>
+						<div class="rm_tags"><span>计算机组成原理</span><span>操作系统</span><span>多线程编程</span><span>计算机网络</span><span>网络编程</span></div>
+					</div>
+					<!-- 阶段三：待开始 -->
+					<div class="roadmap_item upcoming">
+						<div class="rm_header"><span class="rm_title">阶段三 · 存储与设计</span><span class="rm_badge upcoming">待开始</span></div>
+						<div class="rm_tags"><span>数据库</span><span>Redis</span><span>设计模式</span></div>
+					</div>
+					<!-- 阶段四：待开始 -->
+					<div class="roadmap_item upcoming">
+						<div class="rm_header"><span class="rm_title">阶段四 · AI 底层</span><span class="rm_badge upcoming">待开始</span></div>
+						<div class="rm_tags"><span>CUDA 入门</span><span>推理引擎</span><span>向量数据库</span><span>通信框架</span></div>
 					</div>
 				</section>
 
