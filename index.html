@@ -6,13 +6,93 @@
 	<title>Rray · 个人网站</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://unpkg.com/lucide@0.294.0"></script>
+	<!-- 防闪烁：页面渲染前读取本地存储主题 -->
+	<script>
+		(function(){
+			var t=localStorage.getItem('theme');
+			if(t==='light'||(!t&&window.matchMedia('(prefers-color-scheme:light)').matches)){
+				document.documentElement.classList.add('light');
+			}
+		})();
+	</script>
 	<style>
+		/* ========== CSS 变量：暗黑模式（默认） ========== */
+		:root{
+			--c-bg:#0a0a0f;
+			--c-bg-alt:#0e0e18;
+			--c-bg-grad-1:rgba(25,5,5,0.6);
+			--c-bg-grad-2:rgba(40,5,5,0.5);
+			--c-orb-1:rgba(220,38,38,0.10);
+			--c-orb-2:rgba(220,38,38,0.06);
+			--c-grid:rgba(255,255,255,0.015);
+			--c-noise:0.15;
+			--c-spotlight:rgba(220,38,38,0.06);
+			--c-text:rgba(255,255,255,0.9);
+			--c-text-heading:rgba(255,255,255,0.82);
+			--c-text-body:rgba(255,255,255,0.62);
+			--c-text-muted:rgba(255,255,255,0.35);
+			--c-text-dim:rgba(255,255,255,0.18);
+			--c-text-ultra-dim:rgba(255,255,255,0.14);
+			--c-surface:rgba(255,255,255,0.025);
+			--c-surface-hover:rgba(255,255,255,0.03);
+			--c-border:rgba(255,255,255,0.05);
+			--c-border-light:rgba(255,255,255,0.04);
+			--c-tag-bg:rgba(255,255,255,0.04);
+			--c-tag-text:rgba(255,255,255,0.68);
+			--c-book-done-bg:rgba(255,255,255,0.04);
+			--c-book-done-text:rgba(255,255,255,0.4);
+			--c-book-want-bg:rgba(255,255,255,0.02);
+			--c-book-want-text:rgba(255,255,255,0.25);
+			--c-scrollbar:rgba(255,255,255,0.08);
+			--c-scrollbar-hover:rgba(255,255,255,0.16);
+			--c-resume-line:rgba(255,255,255,0.08);
+			--c-card-hover-border:rgba(239,68,68,0.18);
+			--c-card-hover-bg:rgba(239,68,68,0.04);
+			--c-section-hover-border:rgba(239,68,68,0.10);
+		}
+
+		/* ========== CSS 变量：明亮模式 ========== */
+		html.light{
+			--c-bg:#faf9f8;
+			--c-bg-alt:#f3f2f0;
+			--c-bg-grad-1:rgba(255,235,230,0.7);
+			--c-bg-grad-2:rgba(255,240,235,0.5);
+			--c-orb-1:rgba(220,38,38,0.04);
+			--c-orb-2:rgba(220,38,38,0.02);
+			--c-grid:rgba(0,0,0,0.04);
+			--c-noise:0.04;
+			--c-spotlight:rgba(220,38,38,0.08);
+			--c-text:rgba(0,0,0,0.85);
+			--c-text-heading:rgba(0,0,0,0.75);
+			--c-text-body:rgba(0,0,0,0.6);
+			--c-text-muted:rgba(0,0,0,0.4);
+			--c-text-dim:rgba(0,0,0,0.18);
+			--c-text-ultra-dim:rgba(0,0,0,0.10);
+			--c-surface:rgba(0,0,0,0.02);
+			--c-surface-hover:rgba(0,0,0,0.04);
+			--c-border:rgba(0,0,0,0.06);
+			--c-border-light:rgba(0,0,0,0.04);
+			--c-tag-bg:rgba(0,0,0,0.04);
+			--c-tag-text:rgba(0,0,0,0.6);
+			--c-book-done-bg:rgba(0,0,0,0.04);
+			--c-book-done-text:rgba(0,0,0,0.5);
+			--c-book-want-bg:rgba(0,0,0,0.02);
+			--c-book-want-text:rgba(0,0,0,0.3);
+			--c-scrollbar:rgba(0,0,0,0.10);
+			--c-scrollbar-hover:rgba(0,0,0,0.20);
+			--c-resume-line:rgba(0,0,0,0.08);
+			--c-card-hover-border:rgba(239,68,68,0.25);
+			--c-card-hover-bg:rgba(239,68,68,0.06);
+			--c-section-hover-border:rgba(239,68,68,0.15);
+		}
+
+		/* ========== 基础样式 ========== */
 		html,body{height:100%;overflow:hidden;}
 		html{scroll-behavior:smooth;}
 		body{
 			-webkit-font-smoothing:antialiased;
 			-moz-osx-font-smoothing:grayscale;
-			background:#0a0a0f;
+			background:var(--c-bg);
 			font-family:system-ui,-apple-system,sans-serif;
 		}
 		::selection{background:rgba(239,68,68,0.3);color:#fff;}
@@ -20,20 +100,39 @@
 		/* === 背景层 === */
 		.bg_base{
 			position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;
-			background:radial-gradient(ellipse at 20% 50%,rgba(25,5,5,0.6) 0%,transparent 50%),
-				radial-gradient(ellipse at 80% 20%,rgba(40,5,5,0.5) 0%,transparent 50%),
-				linear-gradient(180deg,#0a0a0f 0%,#0e0e18 50%,#0a0a0f 100%);
+			background:radial-gradient(ellipse at 20% 50%,var(--c-bg-grad-1) 0%,transparent 50%),
+				radial-gradient(ellipse at 80% 20%,var(--c-bg-grad-2) 0%,transparent 50%),
+				linear-gradient(180deg,var(--c-bg) 0%,var(--c-bg-alt) 50%,var(--c-bg) 100%);
 		}
 		.aurora_orbs{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;overflow:hidden;}
 		.aurora_orb{position:absolute;border-radius:50%;filter:blur(120px);will-change:transform;}
-		.aurora_orb:nth-child(1){width:500px;height:500px;background:radial-gradient(circle,rgba(220,38,38,0.10),transparent 70%);top:-20%;right:-10%;animation:drift_a 30s ease-in-out infinite;}
-		.aurora_orb:nth-child(2){width:400px;height:400px;background:radial-gradient(circle,rgba(220,38,38,0.06),transparent 70%);bottom:-15%;left:-5%;animation:drift_b 35s ease-in-out infinite;}
+		.aurora_orb:nth-child(1){width:500px;height:500px;background:radial-gradient(circle,var(--c-orb-1),transparent 70%);top:-20%;right:-10%;animation:drift_a 30s ease-in-out infinite;}
+		.aurora_orb:nth-child(2){width:400px;height:400px;background:radial-gradient(circle,var(--c-orb-2),transparent 70%);bottom:-15%;left:-5%;animation:drift_b 35s ease-in-out infinite;}
 		@keyframes drift_a{0%,100%{transform:translate(0,0) scale(1);}25%{transform:translate(-60px,80px) scale(1.1);}50%{transform:translate(-30px,-40px) scale(0.95);}75%{transform:translate(-90px,20px) scale(1.05);}}
 		@keyframes drift_b{0%,100%{transform:translate(0,0) scale(1);}25%{transform:translate(50px,-60px) scale(1.05);}50%{transform:translate(80px,30px) scale(0.9);}75%{transform:translate(30px,-80px) scale(1.1);}}
-		.bg_grid{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);background-size:60px 60px;}
-		.noise_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;opacity:0.15;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
-		#spotlight{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;background:radial-gradient(800px circle at 50% 50%,rgba(220,38,38,0.05),transparent 50%);transition:background 0.08s ease-out;}
+		.bg_grid{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--c-grid) 1px,transparent 1px),linear-gradient(90deg,var(--c-grid) 1px,transparent 1px);background-size:60px 60px;}
+		.noise_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;opacity:var(--c-noise);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px;}
+		#spotlight{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;background:radial-gradient(800px circle at var(--s-x,50%) var(--s-y,50%),var(--c-spotlight),transparent 50%);transition:background 0.08s ease-out;}
 		.scroll_progress{position:fixed;top:0;left:0;height:1.5px;z-index:60;background:linear-gradient(90deg,#ef4444,#dc2626);width:0%;transition:width 0.1s linear;}
+
+		/* === 主题切换按钮 === */
+		.theme_toggle_btn{
+			position:fixed;top:20px;right:20px;z-index:100;width:36px;height:36px;border-radius:50%;
+			border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);
+			cursor:pointer;display:flex;align-items:center;justify-content:center;
+			transition:all 0.3s ease;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+		}
+		.theme_toggle_btn:hover{color:#fca5a5;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.06);}
+		.theme_toggle_btn svg{width:17px;height:17px;stroke-width:1.5;}
+		/* 暗黑模式显示太阳（可切亮色），明亮模式显示月亮（可切暗色） */
+		html:not(.light) #icon_moon{display:none;}
+		html.light #icon_sun{display:none;}
+
+		/* === 文本颜色工具类（替代 Tailwind 颜色类） === */
+		.highlight_text{color:var(--c-text);font-weight:500;}
+		.text_sub{color:var(--c-text-body);}
+		.text_ultra_dim{color:var(--c-text-dim);}
+		.border_subtle{border-color:var(--c-border);}
 
 		/* === 分屏 === */
 		.split_layout{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden;}
@@ -46,75 +145,117 @@
 		.right_pane{flex:1;height:100vh;overflow-y:auto;overflow-x:hidden;padding:80px 52px 80px 20px;box-sizing:border-box;scroll-behavior:smooth;}
 		.right_pane::-webkit-scrollbar{width:4px;}
 		.right_pane::-webkit-scrollbar-track{background:transparent;}
-		.right_pane::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
-		.right_pane::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.16);}
+		.right_pane::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
+		.right_pane::-webkit-scrollbar-thumb:hover{background:var(--c-scrollbar-hover);}
 
 		/* Hero */
 		.avatar_wrapper{width:96px;height:96px;border-radius:9999px;overflow:hidden;border:2px solid rgba(239,68,68,0.4);transition:border-color 0.3s ease,box-shadow 0.3s ease;box-shadow:0 0 36px rgba(220,38,38,0.12);margin:0 auto 20px;}
 		.avatar_wrapper:hover{border-color:#fca5a5;box-shadow:0 0 56px rgba(220,38,38,0.22);}
 		.avatar_wrapper img{width:100%;height:100%;object-fit:cover;}
 		.name_accent_line{width:36px;height:2px;background:linear-gradient(90deg,#ef4444,#dc2626);border-radius:2px;margin:0 auto 12px;}
-		.gradient_name{color:rgba(255,255,255,0.9);}
-		.social_entry{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.55);transition:color 0.25s ease,transform 0.25s ease;text-decoration:none;font-size:0.875rem;}
+		.gradient_name{color:var(--c-text);}
+		.social_entry{display:flex;align-items:center;gap:8px;color:var(--c-text-muted);transition:color 0.25s ease,transform 0.25s ease;text-decoration:none;font-size:0.875rem;}
 		.social_entry:hover{color:#fca5a5;transform:translateX(3px);}
-		.social_entry i{width:18px;height:18px;stroke-width:1.5;}
-		.cta_btn{display:inline-flex;align-items:center;gap:8px;padding:10px 30px;font-size:0.8125rem;letter-spacing:0.06em;color:rgba(255,255,255,0.7);border-radius:9999px;border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.06);transition:all 0.3s ease;text-decoration:none;}
+		.social_entry svg{width:18px;height:18px;stroke-width:1.5;}
+		.cta_btn{display:inline-flex;align-items:center;gap:8px;padding:10px 30px;font-size:0.8125rem;letter-spacing:0.06em;color:var(--c-text-body);border-radius:9999px;border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.06);transition:all 0.3s ease;text-decoration:none;}
 		.cta_btn:hover{color:#fff;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.50);box-shadow:0 8px 36px rgba(220,38,38,0.14);}
-		.left_footer{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-size:0.65rem;color:rgba(255,255,255,0.18);letter-spacing:0.06em;}
+		.left_footer{position:absolute;bottom:24px;left:0;right:0;text-align:center;font-size:0.65rem;color:var(--c-text-dim);letter-spacing:0.06em;}
 
 		/* 模块 */
-		.glass_section{background:rgba(255,255,255,0.025);backdrop-filter:blur(28px) saturate(1.3);-webkit-backdrop-filter:blur(28px) saturate(1.3);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:32px 36px;box-shadow:0 4px 36px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.04);transition:border-color 0.35s ease,box-shadow 0.35s ease;}
-		.glass_section:hover{border-color:rgba(239,68,68,0.10);box-shadow:0 8px 52px rgba(0,0,0,0.25);}
-		.section_title{font-size:0.95rem;font-weight:600;color:rgba(255,255,255,0.82);letter-spacing:0.08em;margin-bottom:22px;padding-left:18px;position:relative;}
+		.glass_section{background:var(--c-surface);backdrop-filter:blur(28px) saturate(1.3);-webkit-backdrop-filter:blur(28px) saturate(1.3);border:1px solid var(--c-border);border-radius:16px;padding:32px 36px;box-shadow:0 4px 36px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.04);transition:border-color 0.35s ease,box-shadow 0.35s ease;}
+		.glass_section:hover{border-color:var(--c-section-hover-border);box-shadow:0 8px 52px rgba(0,0,0,0.25);}
+		.section_title{font-size:0.95rem;font-weight:600;color:var(--c-text-heading);letter-spacing:0.08em;margin-bottom:22px;padding-left:18px;position:relative;}
 		.section_title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:2.5px;background:linear-gradient(180deg,#fca5a5,#dc2626);border-radius:2px;}
-		.para{color:rgba(255,255,255,0.62);font-size:0.85rem;line-height:1.85;margin-bottom:10px;}
+		.para{color:var(--c-text-body);font-size:0.85rem;line-height:1.85;margin-bottom:10px;}
 
 		/* 标签 */
-		.tag_glow{display:inline-block;padding:5px 18px;font-size:0.8125rem;color:rgba(255,255,255,0.68);border-radius:9999px;position:relative;background:rgba(255,255,255,0.04);transition:color 0.3s ease,transform 0.25s ease,background 0.3s ease;cursor:default;overflow:hidden;}
+		.tag_glow{display:inline-block;padding:5px 18px;font-size:0.8125rem;color:var(--c-tag-text);border-radius:9999px;position:relative;background:var(--c-tag-bg);transition:color 0.3s ease,transform 0.25s ease,background 0.3s ease;cursor:default;overflow:hidden;}
 		.tag_glow::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:9999px;padding:1px;background:linear-gradient(135deg,rgba(239,68,68,0.25),rgba(220,38,38,0.10));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;transition:background 0.4s ease;}
 		.tag_glow:hover{color:#fff;transform:translateY(-2px);background:rgba(239,68,68,0.12);}
 		.tag_glow:hover::before{background:linear-gradient(135deg,#ef4444,#dc2626);}
 
 		/* 作品集 */
-		.project_card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:20px 24px;transition:border-color 0.3s ease,transform 0.3s ease,background 0.3s ease;text-decoration:none;display:block;}
-		.project_card:hover{border-color:rgba(239,68,68,0.18);background:rgba(239,68,68,0.04);transform:translateY(-3px);}
-		.project_card .proj_name{font-size:0.9rem;color:rgba(255,255,255,0.78);font-weight:600;margin-bottom:4px;}
-		.project_card .proj_desc{font-size:0.78rem;color:rgba(255,255,255,0.50);line-height:1.6;margin-bottom:10px;}
-		.project_card .proj_meta{display:flex;align-items:center;gap:12px;font-size:0.7rem;color:rgba(255,255,255,0.32);}
-		.project_card .proj_meta i{width:12px;height:12px;stroke-width:1.5;}
+		.project_card{background:var(--c-surface-hover);border:1px solid var(--c-border-light);border-radius:12px;padding:20px 24px;transition:border-color 0.3s ease,transform 0.3s ease,background 0.3s ease;text-decoration:none;display:block;}
+		.project_card:hover{border-color:var(--c-card-hover-border);background:var(--c-card-hover-bg);transform:translateY(-3px);}
+		.project_card .proj_name{font-size:0.9rem;color:var(--c-text-heading);font-weight:600;margin-bottom:4px;}
+		.project_card .proj_desc{font-size:0.78rem;color:var(--c-text-muted);line-height:1.6;margin-bottom:10px;}
+		.project_card .proj_meta{display:flex;align-items:center;gap:12px;font-size:0.7rem;color:var(--c-text-dim);}
+		.project_card .proj_meta svg{width:12px;height:12px;stroke-width:1.5;}
+		/* 项目卡片箭头图标颜色 */
+		.project_card .proj_arrow{color:var(--c-text-dim);}
 
 		/* 简历 */
-		.resume_item{position:relative;padding-left:22px;padding-bottom:22px;border-left:1px solid rgba(255,255,255,0.08);}
+		.resume_item{position:relative;padding-left:22px;padding-bottom:22px;border-left:1px solid var(--c-resume-line);}
 		.resume_item:last-child{border-left:1px solid transparent;padding-bottom:0;}
 		.resume_item::before{content:'';position:absolute;left:-4px;top:5px;width:7px;height:7px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,0.4);}
-		.resume_item .r_date{font-size:0.68rem;color:rgba(255,255,255,0.35);margin-bottom:3px;letter-spacing:0.06em;}
-		.resume_item .r_title{font-size:0.88rem;color:rgba(255,255,255,0.75);font-weight:600;margin-bottom:3px;}
-		.resume_item .r_sub{font-size:0.75rem;color:rgba(255,255,255,0.50);}
+		.resume_item .r_date{font-size:0.68rem;color:var(--c-text-muted);margin-bottom:3px;letter-spacing:0.06em;}
+		.resume_item .r_title{font-size:0.88rem;color:var(--c-text-heading);font-weight:600;margin-bottom:3px;}
+		.resume_item .r_sub{font-size:0.75rem;color:var(--c-text-muted);}
 
 		/* 书架 */
-		.book_card_wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-		.book_card_item{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:14px 16px;transition:border-color 0.25s ease,background 0.25s ease;}
-		.book_card_item:hover{border-color:rgba(239,68,68,0.15);background:rgba(239,68,68,0.03);}
-		.book_card_item .bc_status{display:inline-flex;align-items:center;gap:5px;font-size:0.6rem;letter-spacing:0.06em;margin-bottom:6px;padding:2px 8px;border-radius:99px;}
-		.bc_status.reading{background:rgba(239,68,68,0.10);color:#f87171;}
-		.bc_status.done{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.4);}
-		.bc_status.want{background:rgba(255,255,255,0.02);color:rgba(255,255,255,0.25);}
-		.bc_status .bc_dot{width:4px;height:4px;border-radius:50%;}
-		.bc_status.reading .bc_dot{background:#ef4444;}
-		.bc_status.done .bc_dot{background:rgba(255,255,255,0.4);}
-		.bc_status.want .bc_dot{background:rgba(255,255,255,0.25);}
-		.book_card_item .bc_title{font-size:0.85rem;color:rgba(255,255,255,0.75);font-weight:600;margin-bottom:4px;}
-		.book_card_item .bc_note{font-size:0.72rem;color:rgba(255,255,255,0.35);line-height:1.5;margin-bottom:6px;}
-		.book_card_item .bc_author{font-size:0.63rem;color:rgba(255,255,255,0.2);}
+		.book_card_wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+		.book_card_item{background:var(--c-surface);border:1px solid var(--c-border-light);border-left:3px solid var(--c-book-done-text);border-radius:6px;padding:10px 12px;transition:border-color 0.25s ease,background 0.25s ease,transform 0.2s ease;}
+		.book_card_item:hover{border-color:var(--c-card-hover-border);border-left-color:#ef4444;background:var(--c-card-hover-bg);transform:translateY(-2px);}
+		/* 阅读状态左侧色条 */
+		.book_card_item.status_reading{border-left-color:#ef4444;}
+		.book_card_item.status_done{border-left-color:var(--c-book-done-text);}
+		.book_card_item.status_want{border-left-color:var(--c-book-want-text);}
+		/* 书名 */
+		.book_card_item .bc_title{font-size:0.8rem;color:var(--c-text-heading);font-weight:600;margin-bottom:1px;line-height:1.3;}
+		/* 作者 */
+		.book_card_item .bc_author{font-size:0.6rem;color:var(--c-text-dim);margin-bottom:5px;}
+		/* 笔记 */
+		.book_card_item .bc_note{font-size:0.66rem;color:var(--c-text-muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px;}
+		/* 状态标签（紧凑，无背景） */
+		.book_card_item .bc_status{display:inline-flex;align-items:center;gap:3px;font-size:0.56rem;letter-spacing:0.04em;color:var(--c-book-done-text);}
+		.book_card_item .bc_status .bc_dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+		.book_card_item.status_reading .bc_status{color:#f87171;}
+		.book_card_item.status_reading .bc_status .bc_dot{background:#ef4444;}
+		.book_card_item.status_done .bc_status{color:var(--c-book-done-text);}
+		.book_card_item.status_done .bc_status .bc_dot{background:var(--c-book-done-text);}
+		.book_card_item.status_want .bc_status{color:var(--c-book-want-text);}
+		.book_card_item.status_want .bc_status .bc_dot{background:var(--c-book-want-text);}
 
 		/* 动画 */
 		.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.55s cubic-bezier(0.22,1,0.36,1),transform 0.55s cubic-bezier(0.22,1,0.36,1);}
 		.reveal.visible{opacity:1;transform:translateY(0);}
-		.right_footer{text-align:left;color:rgba(255,255,255,0.14);font-size:0.68rem;padding:36px 0 8px;letter-spacing:0.06em;}
+		.right_footer{text-align:left;color:var(--c-text-ultra-dim);font-size:0.68rem;padding:36px 0 8px;letter-spacing:0.06em;}
 
 		/* 响应式 */
-		@media(max-width:768px){html,body{overflow:auto;}.split_layout{display:block;height:auto;overflow:visible;}.left_pane{width:100%;height:auto;min-height:100vh;padding:56px 32px;}.left_footer{position:static;margin-top:36px;}.right_pane{width:100%;height:auto;overflow-y:visible;padding:0 24px 72px;}}
-		@media(max-width:640px){.avatar_wrapper{width:80px;height:80px;}.aurora_orb:nth-child(1){width:300px;height:300px;}.aurora_orb:nth-child(2){width:250px;height:250px;}}
+		@media(max-width:768px){
+			html,body{overflow:auto;}
+			.split_layout{display:block;height:auto;overflow:visible;}
+			.left_pane{width:100%;height:auto;min-height:100vh;padding:56px 32px;}
+			.left_footer{position:static;margin-top:36px;}
+			.right_pane{width:100%;height:auto;overflow-y:visible;padding:0 24px 72px;}
+		}
+		@media(max-width:640px){
+			.avatar_wrapper{width:80px;height:80px;}
+			.aurora_orb:nth-child(1){width:300px;height:300px;}
+			.aurora_orb:nth-child(2){width:250px;height:250px;}
+		}
+	/* === 留言板 === */
+	.guestbook_trigger:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.35) !important;}
+	.gb_close_btn:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.3) !important;}
+	.gb_submit_btn:hover{background:#dc2626 !important;}
+	.guestbook_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
+	.guestbook_overlay.open{opacity:1;pointer-events:auto;}
+	.guestbook_modal{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:16px;padding:24px 28px;width:92%;max-width:400px;max-height:85vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,0.35);transform:translateY(12px);transition:transform 0.28s ease;}
+	.guestbook_overlay.open .guestbook_modal{transform:translateY(0);}
+	.guestbook_modal::-webkit-scrollbar{width:3px;}
+	.guestbook_modal::-webkit-scrollbar-track{background:transparent;}
+	.guestbook_modal::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
+	#guestbookForm input:focus,#guestbookForm textarea:focus{border-color:rgba(239,68,68,0.3) !important;}
+	/* 留言列表项 */
+	.gb_msg_item{padding:10px 0;border-bottom:1px solid var(--c-border);}
+	.gb_msg_item:last-child{border-bottom:none;}
+	.gb_msg_item .gb_meta{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+	.gb_msg_item .gb_name{font-size:0.72rem;color:var(--c-text-heading);font-weight:600;}
+	.gb_msg_item .gb_time{font-size:0.58rem;color:var(--c-text-dim);}
+	.gb_msg_item .gb_text{font-size:0.75rem;color:var(--c-text-body);line-height:1.5;word-break:break-word;}
+	#gbList::-webkit-scrollbar{width:3px;}
+	#gbList::-webkit-scrollbar-track{background:transparent;}
+	#gbList::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
 	</style>
 </head>
 <body>
@@ -126,6 +267,12 @@
 	<div id="spotlight" aria-hidden="true"></div>
 	<div id="scrollProgress" class="scroll_progress" aria-hidden="true"></div>
 
+	<!-- 主题切换按钮 -->
+	<button id="themeToggle" class="theme_toggle_btn" aria-label="切换主题">
+		<span id="icon_sun"><i data-lucide="sun"></i></span>
+		<span id="icon_moon"><i data-lucide="moon"></i></span>
+	</button>
+
 	<div class="split_layout">
 
 		<!-- ========== 左面板：个人信息固定 ========== -->
@@ -136,12 +283,13 @@
 				</div>
 				<h1 class="text-3xl sm:text-4xl font-light gradient_name mb-3 tracking-wide">Rray</h1>
 				<div class="name_accent_line"></div>
-				<p class="text-sm sm:text-base text-white/50 font-light tracking-wide mt-3 mb-10">NUPT CS 大二 · 持续学习</p>
+				<p class="text-sm sm:text-base font-light tracking-wide mt-3 mb-10 text_sub">NJUPT CS 大二 · 持续学习</p>
 				<div class="flex justify-center gap-6 mb-12">
 					<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="social_entry" aria-label="GitHub"><i data-lucide="github"></i><span>GitHub</span></a>
 					<a href="mailto:3111937934@qq.com" class="social_entry" aria-label="邮箱"><i data-lucide="mail"></i><span>邮箱</span></a>
 				</div>
 				<a href="javascript:void(0)" class="cta_btn" id="ctaBtn">查看技术栈 <i data-lucide="arrow-right" style="width:15px;height:15px;stroke-width:2;"></i></a>
+					<button id="guestbookTrigger" class="guestbook_trigger" style="display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:8px 20px;font-size:0.75rem;letter-spacing:0.05em;color:var(--c-text-muted);border-radius:9999px;border:1px solid var(--c-border);background:transparent;cursor:pointer;transition:all 0.3s ease;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke-width:1.5;"></i>给我留言</button>
 			</div>
 			<div class="left_footer">&copy; 2026 Rray</div>
 		</aside>
@@ -167,14 +315,14 @@
 						<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" class="project_card">
 							<div class="flex items-center justify-between">
 								<div class="flex-1"><div class="proj_name">⚡ Cache-System</div><div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div></div>
-								<i data-lucide="arrow-up-right" style="width:16px;height:16px;color:rgba(255,255,255,0.25);"></i>
+								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
 							</div>
 							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
 						</a>
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="project_card">
 							<div class="flex items-center justify-between">
 								<div class="flex-1"><div class="proj_name">📦 了解更多项目</div><div class="proj_desc">更多项目正在开发中，欢迎关注我的 GitHub。</div></div>
-								<i data-lucide="arrow-up-right" style="width:16px;height:16px;color:rgba(255,255,255,0.25);"></i>
+								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
 							</div>
 							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
 						</a>
@@ -187,40 +335,35 @@
 				<!-- 3. 关于我 -->
 				<section id="about" class="glass_section reveal">
 					<h2 class="section_title">关于我</h2>
-					<p class="para">南京邮电大学计算机科学与技术专业大二在读。对<b class="text-white/80 font-medium">计算机系统</b>和<b class="text-white/80 font-medium">底层编程</b>有浓厚兴趣，享受从源码和原理层面理解计算机的运作方式。</p>
+					<p class="para">南京邮电大学计算机科学与技术专业大二在读。对<b class="highlight_text">计算机系统</b>和<b class="highlight_text">底层编程</b>有浓厚兴趣，享受从源码和原理层面理解计算机的运作方式。</p>
 					<p class="para">课余时间通过经典 CS 教材自学：从 CS:APP 中学习机器级代码和执行模型，从 OSTEP 中理解进程调度和内存虚拟化，从 K&amp;R C 中体会简洁优雅的系统编程哲学。</p>
-					<p class="para">相信「根基决定高度」，正在扎扎实实打基础，目标成为一名<b class="text-white/80 font-medium">基础扎实的系统开发者</b>。目前在积极寻找实习机会，渴望在真实工程环境中快速成长。</p>
-					<div class="flex flex-wrap gap-2 mt-5 pt-4 border-t border-white/5">
+					<p class="para">相信「根基决定高度」，正在扎扎实实打基础，目标成为一名<b class="highlight_text">基础扎实的系统开发者</b>。目前在积极寻找实习机会，渴望在真实工程环境中快速成长。</p>
+					<div class="flex flex-wrap gap-2 mt-5 pt-4 border_subtle" style="border-top-width:1px;border-top-style:solid;">
 						<span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">系统编程</span><span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">计算机网络</span>
 						<span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">操作系统</span><span class="tag_glow" style="font-size:0.72rem;padding:4px 14px;">C / C++</span>
 					</div>
 				</section>
 
-				<!-- 4. 简历 -->
+								<!-- 4. 简历 -->
 				<section id="resume" class="glass_section reveal">
 					<h2 class="section_title">简历</h2>
-					<div class="resume_item"><div class="r_date">2024 . 09 — 至今</div><div class="r_title">计算机科学与技术 · 本科</div><div class="r_sub">南京邮电大学 (NJUPT) — 计算机学院</div></div>
-					<div class="resume_item"><div class="r_title" style="margin-bottom:8px;">专业技能</div><div class="flex flex-wrap gap-1.5"><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">C / C++</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">STL</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">数据结构</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">算法</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">操作系统</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">计算机网络</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">Python</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">Linux</span><span class="tag_glow" style="font-size:0.68rem;padding:3px 12px;">Git</span></div></div>
-					<div class="resume_item"><div class="r_title" style="margin-bottom:6px;">阅读清单</div><div class="r_sub">CS:APP · OSTEP · TCP/IP 详解 · K&R C · Effective C++ · 算法导论 · 计算机网络（自顶向下）</div></div>
-					<div class="resume_item"><div class="r_title" style="margin-bottom:6px;">实习意向</div><div class="r_sub">系统开发 / 后端开发 — 随时到岗</div></div>
-					<div class="flex items-center gap-2 justify-end mt-5 pt-4 border-t border-white/5"><span class="text-white/20 text-[11px] tracking-wider">最后更新 2026 . 06</span></div>
+					<p class="para" style="color:var(--c-text-dim);text-align:center;padding:20px 0;">简历即将上线，敬请期待。</p>
 				</section>
 
 				<!-- 5. 书架 -->
 				<section id="bookshelf" class="glass_section reveal">
 					<h2 class="section_title">读过的书</h2>
 					<div class="book_card_wrap">
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">C++ Primer</div><div class="bc_note">C++ 入门圣经，系统学习语法和标准库的第一本书。</div><div class="bc_author">Stanley B. Lippman</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">C++ Primer Plus</div><div class="bc_note">C++ 入门首选，前半部分覆盖 C 语言基础，循序渐进。</div><div class="bc_author">Stephen Prata</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">深入理解计算机系统</div><div class="bc_note">CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。</div><div class="bc_author">R.E. Bryant / D.R. O&apos;Hallaron</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">现代操作系统</div><div class="bc_note">Tanenbaum 经典之作，进程调度和内存管理部分写得很透彻。</div><div class="bc_author">Andrew S. Tanenbaum</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">计算机网络 · 深入浅出</div><div class="bc_note">从物理层到应用层逐层讲解，图解很多，入门友好。</div><div class="bc_author">—</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">代码随想录</div><div class="bc_note">Carl 的算法刷题指南，配合 LeetCode 刷题效率很高。</div><div class="bc_author">Carl</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">大话数据结构</div><div class="bc_note">用生活化语言讲链表、树、图，入门数据结构的友好读物。</div><div class="bc_author">程杰</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">Linux 私房菜</div><div class="bc_note">鸟哥经典，手把手从命令行学到 Shell 脚本，实操性强。</div><div class="bc_author">鸟哥</div></div>
-						<div class="book_card_item"><span class="bc_status done"><span class="bc_dot"></span>已读</span><div class="bc_title">STL 源码剖析</div><div class="bc_note">侯捷经典，深入 allocator、iterator、容器底层实现。</div><div class="bc_author">侯捷</div></div>
-					</div>
-					<div class="flex items-center gap-1.5 mt-4 text-white/20 text-[10px]"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
+													<div class="book_card_item status_done"><div class="bc_title">C++ Primer</div><div class="bc_author">Stanley B. Lippman</div><div class="bc_note">C++ 入门圣经，系统学习语法和标准库的第一本书。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">C++ Primer Plus</div><div class="bc_author">Stephen Prata</div><div class="bc_note">C++ 入门首选，前半部分覆盖 C 语言基础，循序渐进。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">深入理解计算机系统</div><div class="bc_author">R.E. Bryant / D.R. O'Hallaron</div><div class="bc_note">CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">现代操作系统</div><div class="bc_author">Andrew S. Tanenbaum</div><div class="bc_note">Tanenbaum 经典之作，进程调度和内存管理部分写得很透彻。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">计算机网络 · 深入浅出</div><div class="bc_author">—</div><div class="bc_note">从物理层到应用层逐层讲解，图解很多，入门友好。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">代码随想录</div><div class="bc_author">Carl</div><div class="bc_note">Carl 的算法刷题指南，配合 LeetCode 刷题效率很高。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">大话数据结构</div><div class="bc_author">程杰</div><div class="bc_note">用生活化语言讲链表、树、图，入门数据结构的友好读物。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">Linux 私房菜</div><div class="bc_author">鸟哥</div><div class="bc_note">鸟哥经典，手把手从命令行学到 Shell 脚本，实操性强。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_done"><div class="bc_title">STL 源码剖析</div><div class="bc_author">侯捷</div><div class="bc_note">侯捷经典，深入 allocator、iterator、容器底层实现。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+					<div class="flex items-center gap-1.5 mt-4 text_ultra_dim" style="font-size:10px;"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
 				</section>
 
 			</div>
@@ -231,13 +374,248 @@
 	<script>
 		lucide.createIcons();
 		// 鼠标聚光灯
-		(function(){var el=document.getElementById('spotlight');if(!el)return;document.addEventListener('mousemove',function(e){var x=(e.clientX/window.innerWidth)*100,y=(e.clientY/window.innerHeight)*100;el.style.background='radial-gradient(800px circle at '+x+'% '+y+'%,rgba(220,38,38,0.06),transparent 50%)';});})();
+		(function(){
+			var el=document.getElementById('spotlight');
+			if(!el)return;
+			document.addEventListener('mousemove',function(e){
+				var x=(e.clientX/window.innerWidth)*100,y=(e.clientY/window.innerHeight)*100;
+				el.style.setProperty('--s-x',x+'%');
+				el.style.setProperty('--s-y',y+'%');
+			});
+		})();
 		// CTA 滚动到技术栈
-		(function(){var btn=document.getElementById('ctaBtn'),tech=document.getElementById('techstack');if(!btn||!tech)return;btn.addEventListener('click',function(){tech.scrollIntoView({behavior:'smooth',block:'start'});});})();
+		(function(){
+			var btn=document.getElementById('ctaBtn'),tech=document.getElementById('techstack');
+			if(!btn||!tech)return;
+			btn.addEventListener('click',function(){tech.scrollIntoView({behavior:'smooth',block:'start'});});
+		})();
 		// 右面板滚动进度条
-		(function(){var bar=document.getElementById('scrollProgress'),rp=document.getElementById('rightPane');if(!bar||!rp)return;rp.addEventListener('scroll',function(){var st=rp.scrollTop,dh=rp.scrollHeight-rp.clientHeight;if(dh>0)bar.style.width=((st/dh)*100)+'%';});})();
+		(function(){
+			var bar=document.getElementById('scrollProgress'),rp=document.getElementById('rightPane');
+			if(!bar||!rp)return;
+			rp.addEventListener('scroll',function(){
+				var st=rp.scrollTop,dh=rp.scrollHeight-rp.clientHeight;
+				if(dh>0)bar.style.width=((st/dh)*100)+'%';
+			});
+		})();
 		// 渐入动画
-		(function(){var els=document.querySelectorAll('.reveal');if(!els.length)return;var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});els.forEach(function(el){obs.observe(el);});})();
-	</script>
-</body>
-</html>
+		(function(){
+			var els=document.querySelectorAll('.reveal');
+			if(!els.length)return;
+			var obs=new IntersectionObserver(function(entries){
+				entries.forEach(function(e){
+					if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}
+				});
+			},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
+			els.forEach(function(el){obs.observe(el);});
+		})();
+		// 主题切换
+		(function(){
+			var btn=document.getElementById('themeToggle');
+			if(!btn)return;
+			btn.addEventListener('click',function(){
+				var html=document.documentElement;
+				var isLight=html.classList.toggle('light');
+				localStorage.setItem('theme',isLight?'light':'dark');
+			});
+		})();
+	
+		</script>
+
+		<!-- ========== 留言板弹窗 ========== -->
+		<div class="guestbook_overlay" id="guestbookOverlay">
+			<div class="guestbook_modal" id="guestbookModal">
+				<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+					<h3 style="font-size:0.95rem;color:var(--c-text-heading);font-weight:600;letter-spacing:0.06em;">💬 留言板 <span id="adminLock" style="cursor:pointer;font-size:0.6rem;opacity:0.35;transition:opacity 0.2s;margin-left:2px;" title="管理员入口">🔒</span></h3>
+					<button id="guestbookClose" class="gb_close_btn" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;font-size:0.85rem;font-family:inherit;">✕</button>
+				</div>
+				<form id="guestbookForm" style="margin-bottom:18px;" autocomplete="off">
+					<input type="text" id="gbName" placeholder="你的名字（选填）" maxlength="20" style="width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:8px;font-size:0.78rem;color:var(--c-text-body);background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;outline:none;transition:border-color 0.25s ease;font-family:inherit;">
+					<textarea id="gbMsg" placeholder="说点什么..." maxlength="200" rows="2" required style="width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:8px;font-size:0.78rem;color:var(--c-text-body);background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;outline:none;resize:none;transition:border-color 0.25s ease;font-family:inherit;"></textarea>
+					<div style="display:flex;justify-content:flex-end;">
+						<button type="submit" class="gb_submit_btn" id="gbSubmitBtn" style="padding:6px 22px;font-size:0.72rem;letter-spacing:0.05em;color:#fff;background:#ef4444;border:none;border-radius:9999px;cursor:pointer;transition:all 0.25s ease;font-family:inherit;">发送留言</button>
+					</div>
+				</form>
+				<div id="gbList" style="max-height:240px;overflow-y:auto;">
+					<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>
+				</div>
+				<div id="gbFooter" style="text-align:center;margin-top:8px;font-size:0.55rem;color:var(--c-text-dim);"></div>
+			</div>
+		</div>
+
+		<script>
+			// ===== 留言板（Supabase 云端 + localStorage 兜底） =====
+			(function(){
+				// ★ 启用云端留言：前往 https://supabase.com 创建免费项目
+				//   执行下方 SQL 建表，然后替换 URL 和 Key
+				/* 建表 SQL（在 Supabase SQL Editor 执行）：
+				   CREATE TABLE guestbook (
+				     id BIGSERIAL PRIMARY KEY,
+				     name TEXT DEFAULT '',
+				     text TEXT NOT NULL,
+				     created_at TIMESTAMPTZ DEFAULT NOW()
+				   );
+				   ALTER TABLE guestbook ENABLE ROW LEVEL SECURITY;
+				   CREATE POLICY "anon_read" ON guestbook FOR SELECT USING (true);
+				   CREATE POLICY "anon_insert" ON guestbook FOR INSERT WITH CHECK (true);
+				*/
+				var SUPABASE_URL='https://leoemzernexgpsngortl.supabase.co';
+				var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDk5NDQsImV4cCI6MjA5NjgyNTk0NH0.GnmozyaMQTYl_5UKhK2PW5iwvHFO8OQ3ya7nGio0jB0';
+				var ADMIN_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTI0OTk0NCwiZXhwIjoyMDk2ODI1OTQ0fQ.7RY7YsflJNWY_q3GKmi3NXvKqrStdUO2S1gC2Jdgie4'; // ★ 填入 Supabase service_role key（Settings→API→service_role secret）
+				var ADMIN_PASS='cfr20060419'; // ★ 改成你自己的管理密码
+				var isAdmin=false; // 当前会话是否为管理员
+				var showAll=false; // 是否展开全部留言
+				var allMsgs=[]; // 缓存当前全部留言数据
+				var TABLE='guestbook';
+				var STORAGE_KEY='gb_messages';
+				var useCloud=!!(SUPABASE_URL&&SUPABASE_KEY&&SUPABASE_URL.indexOf('your-project')===-1);
+				var overlay=document.getElementById('guestbookOverlay');
+				var trigger=document.getElementById('guestbookTrigger');
+				var closeBtn=document.getElementById('guestbookClose');
+				var form=document.getElementById('guestbookForm');
+				var list=document.getElementById('gbList');
+				var footer=document.getElementById('gbFooter');
+				var nameInp=document.getElementById('gbName');
+				var msgInp=document.getElementById('gbMsg');
+				var submitBtn=document.getElementById('gbSubmitBtn');
+				var adminLock=document.getElementById('adminLock');
+				if(!overlay||!trigger)return;
+				// 管理员入口：点击🔒输入密码
+				adminLock.addEventListener('click',function(e){
+					e.stopPropagation();
+					if(isAdmin){isAdmin=false;adminLock.textContent='🔒';adminLock.style.opacity='0.35';loadAndRender();return;}
+					var pw=prompt('管理员密码：');
+					if(pw===ADMIN_PASS){isAdmin=true;adminLock.textContent='🔓';adminLock.style.opacity='0.8';loadAndRender();}
+					else if(pw!==null){alert('密码错误');}
+				});
+				// 删除留言（用 service_role key 跳过 RLS）
+				function deleteMsg(id){
+					if(!ADMIN_KEY){alert('未配置 ADMIN_KEY（service_role key），请先在代码中填入');return;}
+					if(!confirm('确定删除这条留言？'))return;
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?id=eq.'+encodeURIComponent(id),{
+						method:'DELETE',
+						headers:{'apikey':ADMIN_KEY,'Authorization':'Bearer '+ADMIN_KEY}
+					})
+					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);loadAndRender();})
+					.catch(function(err){alert('删除失败: '+err.message);});
+				}
+				footer.innerHTML=useCloud?'📡 云端同步 \u00b7 所有人可见':'📌 离线模式 \u00b7 留言仅保存在本地浏览器';
+				function timeAgo(ts){
+					var diff=Date.now()-ts;
+					if(diff<60000)return '刚刚';
+					if(diff<3600000)return Math.floor(diff/60000)+'分钟前';
+					if(diff<86400000)return Math.floor(diff/3600000)+'小时前';
+					if(diff<2592000000)return Math.floor(diff/86400000)+'天前';
+					return new Date(ts).toLocaleDateString('zh-CN');
+				}
+				function escHTML(s){
+					return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+				}
+				function loadLocal(){
+					try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}
+					catch(e){return[];}
+				}
+				function saveLocal(msgs){
+					if(msgs.length>50)msgs=msgs.slice(0,50);
+					localStorage.setItem(STORAGE_KEY,JSON.stringify(msgs));
+				}
+				function loadCloud(callback){
+					list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>';
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=*&order=created_at.desc&limit=20',{
+						headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+					})
+					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+					.then(function(data){callback(data);})
+					.catch(function(){callback(loadLocal());});
+				}
+				function saveCloud(msg,callback){
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE,{
+						method:'POST',
+						headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+						body:JSON.stringify({name:msg.name,text:msg.text,created_at:new Date().toISOString()})
+					})
+					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+					.then(function(data){callback(null,data);})
+					.catch(function(err){var msgs=loadLocal();msgs.unshift(msg);saveLocal(msgs);callback(err,loadLocal());});
+				}
+				function render(msgs){
+					allMsgs=msgs||[];
+					if(!allMsgs.length){list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">还没有留言，来说点什么吧 👋</div>';return;}
+					var display=showAll?allMsgs:allMsgs.slice(0,3);
+					var html='';
+					display.forEach(function(m){
+						var name=m.name||'匿名';
+						var ts=m.created_at?new Date(m.created_at).getTime():m.time;
+						html+='<div class="gb_msg_item"><div class="gb_meta"><span class="gb_name">'+escHTML(name)+'</span><span class="gb_time">'+timeAgo(ts)+'</span>';
+						if(isAdmin)html+=' <span data-del="'+m.id+'" style="cursor:pointer;color:#ef4444;font-size:0.65rem;opacity:0.6;" title="删除">✕</span>';
+						html+='</div><div class="gb_text">'+escHTML(m.text)+'</div></div>';
+					});
+					// 超过3条且未展开时，追加「查看全部」按钮
+					if(!showAll&&allMsgs.length>3){
+						html+='<div id="gbExpandBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">查看全部留言 ('+allMsgs.length+' 条) ▾</div>';
+					}
+					if(showAll&&allMsgs.length>3){
+						html+='<div id="gbCollapseBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">收起 ▴</div>';
+					}
+					list.innerHTML=html;
+					// 删除按钮事件
+					if(isAdmin){
+						var dels=list.querySelectorAll('[data-del]');
+						dels.forEach(function(el){
+							el.addEventListener('click',function(e){
+								e.stopPropagation();
+								deleteMsg(parseInt(this.getAttribute('data-del')));
+							});
+						});
+					}
+					// 展开/收起按钮事件
+					var expandBtn=document.getElementById('gbExpandBtn');
+					var collapseBtn=document.getElementById('gbCollapseBtn');
+					if(expandBtn)expandBtn.addEventListener('click',function(){showAll=true;render(allMsgs);list.scrollTop=0;});
+					if(collapseBtn)collapseBtn.addEventListener('click',function(){showAll=false;render(allMsgs);list.scrollTop=0;});
+				}
+				function loadAndRender(){
+					list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>';
+					if(useCloud){loadCloud(function(msgs){render(msgs);});}
+					else{render(loadLocal());}
+				}
+				trigger.addEventListener('click',function(){
+					overlay.classList.add('open');
+					loadAndRender();
+					setTimeout(function(){msgInp.focus();},200);
+				});
+				function closeModal(){overlay.classList.remove('open');form.reset();showAll=false;}
+				closeBtn.addEventListener('click',closeModal);
+				overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
+				form.addEventListener('submit',function(e){
+					e.preventDefault();
+					var text=msgInp.value.trim();
+					if(!text)return;
+					if(submitBtn.disabled)return;
+					submitBtn.disabled=true;
+					submitBtn.textContent='发送中...';
+					var msg={name:nameInp.value.trim(),text:text,time:Date.now()};
+					if(useCloud){
+						saveCloud(msg,function(err,msgs){
+							submitBtn.disabled=false;
+							submitBtn.textContent='发送留言';
+							form.reset();
+							render(msgs);
+							list.scrollTop=0;
+						});
+					}else{
+						var msgs=loadLocal();msgs.unshift(msg);saveLocal(msgs);
+						submitBtn.disabled=false;
+						submitBtn.textContent='发送留言';
+						form.reset();
+						render(msgs);
+						list.scrollTop=0;
+					}
+				});
+				document.addEventListener('keydown',function(e){
+					if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();
+				});
+			})();
+		</script>
+	</body>
+	</html>
