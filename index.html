@@ -221,7 +221,7 @@
 		/* 书架 */
 		.book_card_wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
 		.book_card_item{background:var(--c-surface);border:1px solid var(--c-border-light);border-left:3px solid var(--c-book-done-text);border-radius:6px;padding:10px 12px;transition:border-color 0.25s ease,background 0.25s ease,transform 0.2s ease;}
-		.book_card_item:hover{border-color:var(--c-card-hover-border);border-left-color:#ef4444;background:var(--c-card-hover-bg);transform:translateY(-2px);}
+		.book_card_item{cursor:pointer;}.book_card_item:hover{border-color:var(--c-card-hover-border);border-left-color:#ef4444;background:var(--c-card-hover-bg);transform:translateY(-2px);}
 		/* 阅读状态左侧色条 */
 		.book_card_item.status_reading{border-left-color:#ef4444;}
 		.book_card_item.status_done{border-left-color:var(--c-book-done-text);}
@@ -241,6 +241,32 @@
 		.book_card_item.status_done .bc_status .bc_dot{background:var(--c-book-done-text);}
 		.book_card_item.status_want .bc_status{color:var(--c-book-want-text);}
 		.book_card_item.status_want .bc_status .bc_dot{background:var(--c-book-want-text);}
+		/* 二刷 */
+		.book_card_item.status_reread{border-left-color:#f59e0b;}
+		.book_card_item.status_reread .bc_status{color:#fbbf24;}
+		.book_card_item.status_reread .bc_status .bc_dot{background:#f59e0b;}
+
+		/* 书架弹窗 */
+		.book_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
+		.book_overlay.open{opacity:1;pointer-events:auto;}
+		.book_modal{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:16px;padding:28px 30px;width:88%;max-width:360px;box-shadow:0 12px 60px rgba(0,0,0,0.35);transform:translateY(12px) scale(0.96);transition:transform 0.28s ease;}
+		.book_overlay.open .book_modal{transform:translateY(0) scale(1);}
+		.book_modal_head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+		.book_modal_title{font-size:1.05rem;color:var(--c-text-heading);font-weight:700;line-height:1.35;margin:0;}
+		.book_modal_close{width:28px;height:28px;border-radius:50%;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;font-size:0.85rem;font-family:inherit;flex-shrink:0;}
+		.book_modal_close:hover{color:#fca5a5;border-color:rgba(239,68,68,0.3);}
+		.book_modal_author{font-size:0.78rem;color:var(--c-text-dim);margin-bottom:12px;line-height:1.4;}
+		.book_modal_note{font-size:0.82rem;color:var(--c-text-muted);line-height:1.65;margin-bottom:18px;}
+		.book_modal_status{display:inline-flex;align-items:center;gap:4px;font-size:0.65rem;letter-spacing:0.04em;padding:4px 12px;border-radius:99px;border:1px solid;}
+		.book_modal_status .bc_dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+		.book_modal_status.status_reading{color:#f87171;border-color:rgba(239,68,68,0.25);}
+		.book_modal_status.status_reading .bc_dot{background:#ef4444;}
+		.book_modal_status.status_done{color:var(--c-book-done-text);border-color:rgba(255,255,255,0.08);}
+		.book_modal_status.status_done .bc_dot{background:var(--c-book-done-text);}
+		.book_modal_status.status_want{color:var(--c-book-want-text);border-color:rgba(255,255,255,0.05);}
+		.book_modal_status.status_want .bc_dot{background:var(--c-book-want-text);}
+		.book_modal_status.status_reread{color:#fbbf24;border-color:rgba(245,158,11,0.25);}
+		.book_modal_status.status_reread .bc_dot{background:#f59e0b;}
 
 		/* 动画 */
 		.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.55s cubic-bezier(0.22,1,0.36,1),transform 0.55s cubic-bezier(0.22,1,0.36,1);}
@@ -395,13 +421,13 @@
 					<div class="book_card_wrap">
 													<div class="book_card_item status_done"><div class="bc_title">C++ Primer</div><div class="bc_author">Stanley B. Lippman</div><div class="bc_note">C++ 入门圣经，系统学习语法和标准库的第一本书。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
 							<div class="book_card_item status_done"><div class="bc_title">C++ Primer Plus</div><div class="bc_author">Stephen Prata</div><div class="bc_note">C++ 入门首选，前半部分覆盖 C 语言基础，循序渐进。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">深入理解计算机系统</div><div class="bc_author">R.E. Bryant / D.R. O'Hallaron</div><div class="bc_note">CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_reading"><div class="bc_title">深入理解计算机系统</div><div class="bc_author">R.E. Bryant / D.R. O'Hallaron</div><div class="bc_note">CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
 							<div class="book_card_item status_done"><div class="bc_title">现代操作系统</div><div class="bc_author">Andrew S. Tanenbaum</div><div class="bc_note">Tanenbaum 经典之作，进程调度和内存管理部分写得很透彻。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">计算机网络 · 深入浅出</div><div class="bc_author">—</div><div class="bc_note">从物理层到应用层逐层讲解，图解很多，入门友好。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">代码随想录</div><div class="bc_author">Carl</div><div class="bc_note">Carl 的算法刷题指南，配合 LeetCode 刷题效率很高。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_reading"><div class="bc_title">计算机网络 · 深入浅出</div><div class="bc_author">—</div><div class="bc_note">从物理层到应用层逐层讲解，图解很多，入门友好。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
+							<div class="book_card_item status_reread"><div class="bc_title">代码随想录</div><div class="bc_author">Carl</div><div class="bc_note">Carl 的算法刷题指南，配合 LeetCode 刷题效率很高。</div><span class="bc_status"><span class="bc_dot"></span>二刷</span></div>
 							<div class="book_card_item status_done"><div class="bc_title">大话数据结构</div><div class="bc_author">程杰</div><div class="bc_note">用生活化语言讲链表、树、图，入门数据结构的友好读物。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
 							<div class="book_card_item status_done"><div class="bc_title">Linux 私房菜</div><div class="bc_author">鸟哥</div><div class="bc_note">鸟哥经典，手把手从命令行学到 Shell 脚本，实操性强。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">STL 源码剖析</div><div class="bc_author">侯捷</div><div class="bc_note">侯捷经典，深入 allocator、iterator、容器底层实现。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
+							<div class="book_card_item status_reading"><div class="bc_title">STL 源码剖析</div><div class="bc_author">侯捷</div><div class="bc_note">侯捷经典，深入 allocator、iterator、容器底层实现。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
 					<div class="flex items-center gap-1.5 mt-4 text_ultra_dim" style="font-size:10px;"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
 				</section>
 
@@ -482,6 +508,18 @@
 			</div>
 		</div>
 
+		<!-- ========== 书本详情弹窗 ========== -->
+		<div class="book_overlay" id="bookOverlay">
+			<div class="book_modal">
+				<div class="book_modal_head">
+					<h3 class="book_modal_title" id="bookModalTitle"></h3>
+					<button class="book_modal_close" id="bookCloseBtn">✕</button>
+				</div>
+				<div class="book_modal_author" id="bookModalAuthor"></div>
+				<div class="book_modal_note" id="bookModalNote"></div>
+				<span class="book_modal_status" id="bookModalStatus"><span class="bc_dot"></span></span>
+			</div>
+		</div>
 		<script>
 			// ===== 留言板（Supabase 云端 + localStorage 兜底） =====
 			(function(){
@@ -492,6 +530,7 @@
 				     id BIGSERIAL PRIMARY KEY,
 				     name TEXT DEFAULT '',
 				     text TEXT NOT NULL,
+				     parent_id BIGINT DEFAULT NULL,
 				     created_at TIMESTAMPTZ DEFAULT NOW()
 				   );
 				   ALTER TABLE guestbook ENABLE ROW LEVEL SECURITY;
@@ -558,56 +597,116 @@
 					if(msgs.length>50)msgs=msgs.slice(0,50);
 					localStorage.setItem(STORAGE_KEY,JSON.stringify(msgs));
 				}
+				// 从云端加载留言（按时间正序取200条，便于构建回复树）
 				function loadCloud(callback){
 					list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>';
-					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=*&order=created_at.desc&limit=20',{
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=*&order=created_at.asc&limit=200',{
 						headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
 					})
 					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
 					.then(function(data){callback(data);})
 					.catch(function(){callback(loadLocal());});
 				}
+				// 保存留言到云端（支持 parent_id 实现回复）
 				function saveCloud(msg,callback){
+					var body={name:msg.name,text:msg.text,created_at:new Date().toISOString()};
+					if(msg.parent_id)body.parent_id=msg.parent_id;
 					fetch(SUPABASE_URL+'/rest/v1/'+TABLE,{
 						method:'POST',
 						headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-						body:JSON.stringify({name:msg.name,text:msg.text,created_at:new Date().toISOString()})
+						body:JSON.stringify(body)
 					})
 					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
 					.then(function(data){callback(null,data);})
 					.catch(function(err){var msgs=loadLocal();msgs.unshift(msg);saveLocal(msgs);callback(err,loadLocal());});
 				}
+				// 将平铺留言数组构建为嵌套树（parent_id 关联父子关系）
+				function buildTree(msgs){
+					var map={},roots=[];
+					msgs.forEach(function(m){m.replies=[];map[m.id]=m;});
+					msgs.forEach(function(m){
+						if(m.parent_id&&map[m.parent_id]){
+							map[m.parent_id].replies.push(m);
+						}else if(!m.parent_id){
+							roots.push(m);
+						}
+					});
+					roots.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);});
+					roots.forEach(function(r){
+						r.replies.sort(function(a,b){return new Date(a.created_at)-new Date(b.created_at);});
+					});
+					return roots;
+				}
+				// 递归渲染单条留言及所有子回复（depth 控制缩进层级）
+				function renderMsg(m,depth){
+					var name=m.name||'匿名';
+					var ts=m.created_at?new Date(m.created_at).getTime():m.time;
+					var ml=depth*28;
+					var html='<div class="gb_msg_item" style="'+(depth?'border-left:1px solid var(--c-border);padding-left:12px;margin-left:'+ml+'px;':'')+'">';
+					html+='<div class="gb_meta"><span class="gb_name">'+escHTML(name)+'</span><span class="gb_time">'+timeAgo(ts)+'</span>';
+					if(isAdmin&&m.id)html+=' <span data-del="'+m.id+'" style="cursor:pointer;color:#ef4444;font-size:0.65rem;opacity:0.6;" title="删除">✕</span>';
+					html+=' <span class="gb_reply_btn" data-reply="'+(m.id||'')+'" style="cursor:pointer;color:var(--c-text-muted);font-size:0.65rem;opacity:0.5;" title="回复">↩ 回复</span>';
+					html+='</div><div class="gb_text">'+escHTML(m.text)+'</div>';
+					html+='<div class="gb_reply_form" id="replyForm_'+m.id+'" style="display:none;margin:6px 0 4px;"></div>';
+					if(m.replies&&m.replies.length)m.replies.forEach(function(r){html+=renderMsg(r,depth+1);});
+					html+='</div>';
+					return html;
+				}
+				// 显示内联回复表单
+				function showReplyForm(parentId){
+					document.querySelectorAll('.gb_reply_form').forEach(function(f){f.style.display='none';f.innerHTML='';});
+					var c=document.getElementById('replyForm_'+parentId);
+					if(!c)return;
+					c.style.display='block';
+					c.innerHTML='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">'
+						+'<input type="text" class="reply_name" placeholder="昵称" maxlength="20" style="flex:1;min-width:60px;padding:4px 8px;font-size:0.7rem;border:1px solid var(--c-border);border-radius:6px;background:transparent;color:var(--c-text);outline:none;font-family:inherit;">'
+						+'<input type="text" class="reply_msg" placeholder="写回复..." maxlength="500" style="flex:2;min-width:100px;padding:4px 8px;font-size:0.7rem;border:1px solid var(--c-border);border-radius:6px;background:transparent;color:var(--c-text);outline:none;font-family:inherit;">'
+						+'<button class="reply_submit" data-parent="'+parentId+'" style="padding:4px 14px;font-size:0.7rem;color:#fff;background:#ef4444;border:none;border-radius:9999px;cursor:pointer;font-family:inherit;">回复</button></div>';
+					c.querySelector('.reply_msg').focus();
+					c.querySelector('.reply_msg').addEventListener('keydown',function(e){
+						if(e.key==='Enter'){e.preventDefault();c.querySelector('.reply_submit').click();}
+					});
+					c.querySelector('.reply_submit').addEventListener('click',function(){
+						var name=c.querySelector('.reply_name').value.trim();
+						var text=c.querySelector('.reply_msg').value.trim();
+						if(!text)return;
+						var btn=c.querySelector('.reply_submit');
+						btn.disabled=true;
+						btn.textContent='...';
+						var msg={name:name,text:text,parent_id:parseInt(parentId),time:Date.now()};
+						if(useCloud){
+							saveCloud(msg,function(){
+								c.style.display='none';c.innerHTML='';loadAndRender();
+							});
+						}else{
+							var msgs=loadLocal();msg.id=Date.now()+Math.floor(Math.random()*1000);msgs.unshift(msg);saveLocal(msgs);
+							c.style.display='none';c.innerHTML='';render(msgs);
+						}
+					});
+				}
+				// 渲染全部留言（先建树再渲染）
 				function render(msgs){
 					allMsgs=msgs||[];
 					if(!allMsgs.length){list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">还没有留言，来说点什么吧 👋</div>';return;}
-					var display=showAll?allMsgs:allMsgs.slice(0,3);
+					var roots=buildTree(allMsgs);
+					var display=showAll?roots:roots.slice(0,3);
 					var html='';
-					display.forEach(function(m){
-						var name=m.name||'匿名';
-						var ts=m.created_at?new Date(m.created_at).getTime():m.time;
-						html+='<div class="gb_msg_item"><div class="gb_meta"><span class="gb_name">'+escHTML(name)+'</span><span class="gb_time">'+timeAgo(ts)+'</span>';
-						if(isAdmin)html+=' <span data-del="'+m.id+'" style="cursor:pointer;color:#ef4444;font-size:0.65rem;opacity:0.6;" title="删除">✕</span>';
-						html+='</div><div class="gb_text">'+escHTML(m.text)+'</div></div>';
-					});
-					// 超过3条且未展开时，追加「查看全部」按钮
-					if(!showAll&&allMsgs.length>3){
-						html+='<div id="gbExpandBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">查看全部留言 ('+allMsgs.length+' 条) ▾</div>';
+					display.forEach(function(m){html+=renderMsg(m,0);});
+					if(!showAll&&roots.length>3){
+						html+='<div id="gbExpandBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">查看全部留言 ('+roots.length+' 条) ▾</div>';
 					}
-					if(showAll&&allMsgs.length>3){
+					if(showAll&&roots.length>3){
 						html+='<div id="gbCollapseBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">收起 ▴</div>';
 					}
 					list.innerHTML=html;
-					// 删除按钮事件
 					if(isAdmin){
-						var dels=list.querySelectorAll('[data-del]');
-						dels.forEach(function(el){
-							el.addEventListener('click',function(e){
-								e.stopPropagation();
-								deleteMsg(parseInt(this.getAttribute('data-del')));
-							});
+						list.querySelectorAll('[data-del]').forEach(function(el){
+							el.addEventListener('click',function(e){e.stopPropagation();deleteMsg(parseInt(this.getAttribute('data-del')));});
 						});
 					}
-					// 展开/收起按钮事件
+					list.querySelectorAll('.gb_reply_btn').forEach(function(el){
+						el.addEventListener('click',function(e){e.stopPropagation();showReplyForm(this.getAttribute('data-reply'));});
+					});
 					var expandBtn=document.getElementById('gbExpandBtn');
 					var collapseBtn=document.getElementById('gbCollapseBtn');
 					if(expandBtn)expandBtn.addEventListener('click',function(){showAll=true;render(allMsgs);list.scrollTop=0;});
@@ -623,7 +722,11 @@
 					loadAndRender();
 					setTimeout(function(){msgInp.focus();},200);
 				});
-				function closeModal(){overlay.classList.remove('open');form.reset();showAll=false;}
+				// 关闭弹窗时同时重置回复表单
+				function closeModal(){
+					overlay.classList.remove('open');form.reset();showAll=false;
+					document.querySelectorAll('.gb_reply_form').forEach(function(f){f.style.display='none';f.innerHTML='';});
+				}
 				closeBtn.addEventListener('click',closeModal);
 				overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
 				form.addEventListener('submit',function(e){
@@ -653,6 +756,40 @@
 				});
 				document.addEventListener('keydown',function(e){
 					if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();
+				});
+			})();
+			// ===== 书架点击放大 =====
+			(function(){
+				var overlay=document.getElementById("bookOverlay");
+				var closeBtn=document.getElementById("bookCloseBtn");
+				var titleEl=document.getElementById("bookModalTitle");
+				var authorEl=document.getElementById("bookModalAuthor");
+				var noteEl=document.getElementById("bookModalNote");
+				var statusEl=document.getElementById("bookModalStatus");
+				document.querySelectorAll(".book_card_item").forEach(function(el){
+					el.addEventListener("click",function(){
+						var t=this.querySelector(".bc_title");
+						var a=this.querySelector(".bc_author");
+						var n=this.querySelector(".bc_note");
+						var s=this.querySelector(".bc_status");
+						titleEl.textContent=t?t.textContent:"";
+						authorEl.textContent=a?a.textContent:"";
+						noteEl.textContent=n?n.textContent:"";
+						var label=s?s.textContent.replace(/[●·•]/g,"").trim():"";
+						statusEl.innerHTML='<span class="bc_dot"></span>'+label;
+						statusEl.className="book_modal_status";
+						if(this.classList.contains("status_reading"))statusEl.classList.add("status_reading");
+						else if(this.classList.contains("status_done"))statusEl.classList.add("status_done");
+						else if(this.classList.contains("status_want"))statusEl.classList.add("status_want");
+						else if(this.classList.contains("status_reread"))statusEl.classList.add("status_reread");
+						overlay.classList.add("open");
+					});
+				});
+				function closeBookModal(){overlay.classList.remove("open");}
+				closeBtn.addEventListener("click",closeBookModal);
+				overlay.addEventListener("click",function(e){if(e.target===overlay)closeBookModal();});
+				document.addEventListener("keydown",function(e){
+					if(e.key==="Escape"&&overlay.classList.contains("open"))closeBookModal();
 				});
 			})();
 		</script>
