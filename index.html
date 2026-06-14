@@ -273,6 +273,31 @@
 		.reveal.visible{opacity:1;transform:translateY(0);}
 		.right_footer{text-align:left;color:var(--c-text-ultra-dim);font-size:0.68rem;padding:36px 0 8px;letter-spacing:0.06em;}
 
+
+		/* 左面板更新日志 */
+		.cl_mini{margin-top:20px;text-align:left;width:100%;cursor:pointer;padding:12px 14px;border-radius:10px;border:1px solid var(--c-border);background:var(--c-surface);transition:all 0.3s ease;box-sizing:border-box;}
+		.cl_mini:hover{border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.04);}
+		.cl_mini_title{font-size:0.68rem;color:var(--c-text-heading);letter-spacing:0.06em;margin-bottom:10px;font-weight:600;display:flex;align-items:center;gap:4px;}
+		.cl_mini_entry{font-size:0.7rem;color:var(--c-text-muted);padding:4px 0;display:flex;gap:8px;line-height:1.45;border-bottom:1px solid var(--c-border-light);}
+		.cl_mini_entry:last-child{border-bottom:none;}
+		.cl_mini_date{flex-shrink:0;color:var(--c-text-dim);font-size:0.62rem;font-weight:600;min-width:36px;}
+		/* 更新日志弹窗 */
+		.cl_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
+		.cl_overlay.open{opacity:1;pointer-events:auto;}
+		.cl_modal{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:16px;padding:28px 30px;width:88%;max-width:380px;max-height:70vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,0.35);transform:translateY(12px);transition:transform 0.28s ease;}
+		.cl_overlay.open .cl_modal{transform:translateY(0);}
+		.cl_modal_head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+		.cl_modal_title{font-size:0.95rem;color:var(--c-text-heading);font-weight:600;letter-spacing:0.06em;}
+		.cl_modal_close{width:28px;height:28px;border-radius:50%;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;font-size:0.85rem;font-family:inherit;}
+		.cl_modal_close:hover{color:#fca5a5;border-color:rgba(239,68,68,0.3);}
+		.cl_block{padding:12px 0;border-bottom:1px solid var(--c-border-light);}
+		.cl_block:last-child{border-bottom:none;padding-bottom:0;}
+		.cl_block_date{font-size:0.65rem;color:#f87171;font-weight:600;margin-bottom:6px;letter-spacing:0.04em;}
+		.cl_block_item{font-size:0.78rem;color:var(--c-text-body);padding:3px 0;line-height:1.55;}
+		.cl_block_tag{display:inline-block;font-size:0.55rem;padding:1px 7px;border-radius:99px;margin-right:4px;font-weight:600;letter-spacing:0.04em;vertical-align:middle;}
+		.cl_block_tag.new{color:#f87171;background:rgba(239,68,68,0.1);}
+		.cl_block_tag.upd{color:#60a5fa;background:rgba(96,165,250,0.1);}
+		.cl_block_tag.fix{color:#34d399;background:rgba(52,211,153,0.1);}
 		/* 响应式 */
 		@media(max-width:768px){
 			html,body{overflow:auto;}
@@ -336,12 +361,20 @@
 				<h1 class="text-3xl sm:text-4xl font-light gradient_name mb-3 tracking-wide">Rray</h1>
 				<div class="name_accent_line"></div>
 				<p class="text-sm sm:text-base font-light tracking-wide mt-3 mb-10 text_sub">NJUPT CS 大二 · 持续学习</p>
-				<div class="flex justify-center gap-6 mb-12">
+				<div class="flex justify-center gap-6 mb-6">
 					<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="social_entry" aria-label="GitHub"><i data-lucide="github"></i><span>GitHub</span></a>
 					<a href="mailto:3111937934@qq.com" class="social_entry" aria-label="邮箱"><i data-lucide="mail"></i><span>邮箱</span></a>
 				</div>
 				<a href="javascript:void(0)" class="cta_btn" id="ctaBtn">查看技术栈 <i data-lucide="arrow-right" style="width:15px;height:15px;stroke-width:2;"></i></a>
 					<button id="guestbookTrigger" class="guestbook_trigger" style="display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:8px 20px;font-size:0.75rem;letter-spacing:0.05em;color:var(--c-text-muted);border-radius:9999px;border:1px solid var(--c-border);background:transparent;cursor:pointer;transition:all 0.3s ease;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke-width:1.5;"></i>给我留言</button>
+				<!-- 更新日志 -->
+				<div class="cl_mini" id="clMini">
+					<div class="cl_mini_title">📋 更新日志</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/14</span>书架放大弹窗 · 二刷状态</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/12</span>留言板回复功能</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/10</span>学习路线 · 算法仓库</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/09</span>网站 v1.0 上线</div>
+				</div>
 			</div>
 			<div class="left_footer">&copy; 2026 Rray</div>
 		</aside>
@@ -432,6 +465,9 @@
 				</section>
 
 			</div>
+
+			</section>
+
 			<div class="right_footer">Rray</div>
 		</main>
 	</div>
@@ -474,7 +510,7 @@
 			},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
 			els.forEach(function(el){obs.observe(el);});
 		})();
-		// 主题切换
+			// 主题切换
 		(function(){
 			var btn=document.getElementById('themeToggle');
 			if(!btn)return;
@@ -508,6 +544,41 @@
 			</div>
 		</div>
 
+		
+		<!-- ========== 更新日志弹窗 ========== -->
+		<div class="cl_overlay" id="clOverlay">
+			<div class="cl_modal">
+				<div class="cl_modal_head">
+					<span class="cl_modal_title">📋 更新日志</span>
+					<button class="cl_modal_close" id="clCloseBtn">✕</button>
+				</div>
+				<div class="cl_block">
+					<div class="cl_block_date">2026-06-14</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>书架点击放大弹窗 — 移动端点击书本可全屏查看详情</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>二刷状态（琥珀色）— 区分于「在读」和「已读」</div>
+					<div class="cl_block_item"><span class="cl_block_tag upd">修改</span>三本书改为「在读」（CS:APP、计算机网络、STL 源码剖析）</div>
+					<div class="cl_block_item"><span class="cl_block_tag upd">修改</span>代码随想录改为「二刷」状态</div>
+				</div>
+				<div class="cl_block">
+					<div class="cl_block_date">2026-06-12</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>留言板回复功能 — 嵌套树结构 + 内联回复表单</div>
+					<div class="cl_block_item"><span class="cl_block_tag upd">修改</span>留言排序改为时间正序，支持 200 条</div>
+					<div class="cl_block_item"><span class="cl_block_tag upd">修改</span>数据库 guestbook 表新增 parent_id 字段</div>
+				</div>
+				<div class="cl_block">
+					<div class="cl_block_date">2026-06-10</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>学习路线模块 — 四阶段时间线</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集添加 Algorithm-Problems 算法仓库</div>
+					<div class="cl_block_item"><span class="cl_block_tag fix">优化</span>项目结构，配置 .gitignore</div>
+				</div>
+				<div class="cl_block">
+					<div class="cl_block_date">2026-06-09</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">上线</span>Rray 个人网站 v1.0</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>暗黑/明亮主题切换</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>5 层背景系统（光晕、网格、噪声、鼠标追光）</div>
+				</div>
+			</div>
+		</div>
 		<!-- ========== 书本详情弹窗 ========== -->
 		<div class="book_overlay" id="bookOverlay">
 			<div class="book_modal">
@@ -520,8 +591,19 @@
 				<span class="book_modal_status" id="bookModalStatus"><span class="bc_dot"></span></span>
 			</div>
 		</div>
-		<script>
-			// ===== 留言板（Supabase 云端 + localStorage 兜底） =====
+			<script>
+				// ===== 更新日志弹窗 =====
+				(function(){
+					var mini=document.getElementById('clMini');
+					var overlay=document.getElementById('clOverlay');
+					var closeBtn=document.getElementById('clCloseBtn');
+					if(!mini||!overlay||!closeBtn)return;
+					mini.addEventListener('click',function(){overlay.classList.add('open');});
+					closeBtn.addEventListener('click',function(){overlay.classList.remove('open');});
+					overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('open');});
+					document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('open'))overlay.classList.remove('open');});
+				})();
+				// ===== 留言板（Supabase 云端 + localStorage 兜底） =====
 			(function(){
 				// ★ 启用云端留言：前往 https://supabase.com 创建免费项目
 				//   执行下方 SQL 建表，然后替换 URL 和 Key
