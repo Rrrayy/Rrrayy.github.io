@@ -183,6 +183,13 @@
 		.project_card .proj_meta svg{width:12px;height:12px;stroke-width:1.5;}
 		/* 项目卡片箭头图标颜色 */
 		.project_card .proj_arrow{color:var(--c-text-dim);}
+		/* 作品集项目状态徽章 */
+		.proj_badge{display:inline-flex;align-items:center;gap:3px;font-size:0.55rem;padding:2px 8px;border-radius:99px;letter-spacing:0.04em;flex-shrink:0;}
+		.proj_badge.done{background:var(--c-book-done-bg);color:var(--c-book-done-text);border:1px solid transparent;}
+		.proj_badge.ongoing{background:rgba(239,68,68,0.10);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+		.proj_badge .badge_dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+		.proj_badge.done .badge_dot{background:var(--c-book-done-text);}
+		.proj_badge.ongoing .badge_dot{background:#f87171;}
 
 		/* 简历 */
 		.resume_item{position:relative;padding-left:22px;padding-bottom:22px;border-left:1px solid var(--c-resume-line);}
@@ -399,14 +406,30 @@
 					<div class="space-y-3">
 						<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" class="project_card">
 							<div class="flex items-center justify-between">
-								<div class="flex-1"><div class="proj_name">⚡ Cache-System</div><div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div></div>
+								<div class="flex-1">
+									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">⚡ Cache-System</div><span class="proj_badge done"><span class="badge_dot"></span>已完成</span></div>
+									<div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div>
+								</div>
 								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
 							</div>
 							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
 						</a>
 						<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" class="project_card">
 							<div class="flex items-center justify-between">
-								<div class="flex-1"><div class="proj_name">📐 Algorithm-Problems</div><div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div></div>
+								<div class="flex-1">
+									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📐 Algorithm-Problems</div><span class="proj_badge done"><span class="badge_dot"></span>已完成</span></div>
+									<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
+								</div>
+								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
+							</div>
+							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
+						</a>
+						<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" class="project_card">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">🔄 cpp-smart-ptr</div><span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span></div>
+									<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
+								</div>
 								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
 							</div>
 							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
