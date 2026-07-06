@@ -367,7 +367,8 @@
 				</div>
 				<h1 class="text-3xl sm:text-4xl font-light gradient_name mb-3 tracking-wide">Rray</h1>
 				<div class="name_accent_line"></div>
-				<p class="text-sm sm:text-base font-light tracking-wide mt-3 mb-10 text_sub">NJUPT CS 大二 · 持续学习</p>
+				<p class="text-sm sm:text-base font-light tracking-wide mt-3 mb-1 text_sub">NJUPT CS 大三 · 持续学习</p>
+				<p class="text-sm font-light tracking-wide text_sub" style="opacity:0.45;letter-spacing:0.08em;margin-bottom:2.5rem;">要有一颗强大的心</p>
 				<div class="flex justify-center gap-6 mb-6">
 					<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="social_entry" aria-label="GitHub"><i data-lucide="github"></i><span>GitHub</span></a>
 					<a href="mailto:3111937934@qq.com" class="social_entry" aria-label="邮箱"><i data-lucide="mail"></i><span>邮箱</span></a>
@@ -377,9 +378,11 @@
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
-					<div class="cl_mini_entry"><span class="cl_mini_date">06/15</span>作品集完成状态 · 智能指针库</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">07/07</span>作品集新增 os_lab 操作系统实验项目</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/16</span>更新了学习路线。。。</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">06/16</span>算法仓库改为持续进行中状态</div>
-						<div class="cl_mini_entry"><span class="cl_mini_date">06/14</span>书架放大弹窗 · 二刷状态</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/15</span>作品集完成状态 · 智能指针库</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">06/14</span>书架放大弹窗 · 二刷状态</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">06/12</span>留言板回复功能</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">06/10</span>学习路线 · 算法仓库</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">06/09</span>网站 v1.0 上线</div>
@@ -399,6 +402,7 @@
 						<span class="tag_glow">C / C++ 基础</span><span class="tag_glow">STL</span><span class="tag_glow">数据结构</span>
 						<span class="tag_glow">算法基础</span><span class="tag_glow">操作系统</span><span class="tag_glow">计算机网络</span>
 						<span class="tag_glow">Python 基础</span><span class="tag_glow">Linux</span><span class="tag_glow">Git</span>
+						<span class="tag_glow">CMake</span><span class="tag_glow">GDB</span>
 					</div>
 				</section>
 
@@ -436,6 +440,16 @@
 							</div>
 							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
 						</a>
+						<a href="https://github.com/Rrrayy/os_lab" target="_blank" rel="noopener noreferrer" class="project_card">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📚 os_lab</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
+									<div class="proj_desc">操作系统实验合集，系统调用跟踪 / fork 进程 / 僵尸进程，持续更新中。</div>
+								</div>
+								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
+							</div>
+							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
+						</a>
 					</div>
 					<div class="flex justify-end mt-5">
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="cta_btn" style="font-size:0.72rem;padding:6px 18px;">访问 GitHub <i data-lucide="github" style="width:13px;height:13px;"></i></a>
@@ -445,25 +459,32 @@
 				<!-- 3. 学习路线 -->
 				<section id="roadmap" class="glass_section reveal">
 					<h2 class="section_title">学习路线</h2>
-					<!-- 阶段一：已完成 -->
-					<div class="roadmap_item done">
-						<div class="rm_header"><span class="rm_title">阶段一 · C++ 主线</span><span class="rm_badge done">已完成</span></div>
-						<div class="rm_tags"><span>C++ OOP</span><span>STL</span><span class="rm_ongoing">现代 C++</span><span>Python 基础</span><span class="rm_ongoing">数据结构</span><span class="rm_ongoing">算法</span><span>Git</span><span>Linux 基础</span></div>
-					</div>
-					<!-- 阶段二：进行中 -->
+					<!-- 阶段一：进行中 -->
 					<div class="roadmap_item active">
-						<div class="rm_header"><span class="rm_title">阶段二 · 系统基础</span><span class="rm_badge active">进行中</span></div>
-						<div class="rm_tags"><span>计算机组成原理</span><span>操作系统</span><span>多线程编程</span><span>计算机网络</span><span>网络编程</span></div>
+						<div class="rm_header"><span class="rm_title">阶段一 · C++ 后端基础</span><span class="rm_badge active">进行中</span></div>
+						<div class="rm_tags">
+							<span class="rm_ongoing">C++ · 持续精进</span>
+							<span class="rm_ongoing">STL · 持续精进</span>
+							<span style="border-color:#ef4444;color:#f87171;">操作系统 · 进行中</span>
+							<span>计算机网络</span>
+							<span class="rm_ongoing">数据结构 · 持续精进</span>
+							<span class="rm_ongoing">算法 · 持续精进</span>
+						</div>
+					</div>
+					<!-- 阶段二：待开始 -->
+					<div class="roadmap_item upcoming">
+						<div class="rm_header"><span class="rm_title">阶段二 · 系统编程 + 数据库</span><span class="rm_badge upcoming">待开始</span></div>
+						<div class="rm_tags"><span>Linux</span><span>多线程</span><span>网络编程</span><span>MySQL</span><span>设计模式</span></div>
 					</div>
 					<!-- 阶段三：待开始 -->
 					<div class="roadmap_item upcoming">
-						<div class="rm_header"><span class="rm_title">阶段三 · 存储与设计</span><span class="rm_badge upcoming">待开始</span></div>
-						<div class="rm_tags"><span>数据库</span><span>Redis</span><span>设计模式</span></div>
+						<div class="rm_header"><span class="rm_title">阶段三 · 中间件 + 项目</span><span class="rm_badge upcoming">待开始</span></div>
+						<div class="rm_tags"><span>RPC框架</span><span>Redis</span><span>服务治理</span><span>jemalloc</span></div>
 					</div>
-					<!-- 阶段四：待开始 -->
+					<!-- 阶段四：长期方向 -->
 					<div class="roadmap_item upcoming">
-						<div class="rm_header"><span class="rm_title">阶段四 · AI 底层</span><span class="rm_badge upcoming">待开始</span></div>
-						<div class="rm_tags"><span>CUDA 入门</span><span>推理引擎</span><span>向量数据库</span><span>通信框架</span></div>
+						<div class="rm_header"><span class="rm_title">阶段四 · AI 底层</span><span class="rm_badge upcoming">长期方向</span></div>
+						<div class="rm_tags"><span>CUDA</span><span>推理引擎</span><span>向量数据库</span></div>
 					</div>
 				</section>
 
@@ -486,7 +507,20 @@
 							<div class="book_card_item status_done"><div class="bc_title">大话数据结构</div><div class="bc_author">程杰</div><div class="bc_note">用生活化语言讲链表、树、图，入门数据结构的友好读物。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
 							<div class="book_card_item status_done"><div class="bc_title">Linux 私房菜</div><div class="bc_author">鸟哥</div><div class="bc_note">鸟哥经典，手把手从命令行学到 Shell 脚本，实操性强。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
 							<div class="book_card_item status_reading"><div class="bc_title">STL 源码剖析</div><div class="bc_author">侯捷</div><div class="bc_note">侯捷经典，深入 allocator、iterator、容器底层实现。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
+							<div class="book_card_item status_reading"><div class="bc_title">操作系统导论（OSTEP）</div><div class="bc_author">Remzi H. Arpaci-Dusseau</div><div class="bc_note">OS 三部曲：虚拟化（CPU/内存虚拟化）、并发、持久化。实验代码+项目驱动。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
 					<div class="flex items-center gap-1.5 mt-4 text_ultra_dim" style="font-size:10px;"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
+				</section>
+
+				<!-- 6. 博客 -->
+				<section id="blog" class="glass_section reveal">
+					<h2 class="section_title">博客</h2>
+					<a href="https://blog.csdn.net/rr666888/article/details/162645027" target="_blank" rel="noopener noreferrer" class="project_card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">
+						<div style="display:flex;flex-direction:column;gap:3px;">
+							<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">g++ 从入门到忘记</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">2026-07-07</span></div>
+							<span style="font-size:0.7rem;color:var(--c-text-muted);">C++ 编译入门 · gcc/g++ 区别 · 编译四阶段 · 库链接</span>
+						</div>
+						<i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>
+					</a>
 				</section>
 
 			</div>
@@ -578,8 +612,13 @@
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
 				<div class="cl_block">
+					<div class="cl_block_date">2026-07-07</div>
+					<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集添加 os_lab 操作系统实验项目 — 系统调用跟踪 / fork 进程 / 僵尸进程实验</div>
+				</div>
+				<div class="cl_block">
 					<div class="cl_block_date">2026-06-16</div>
 					<div class="cl_block_item"><span class="cl_block_tag upd">修改</span>Algorithm-Problems 算法仓库状态改为「持续进行中」（同智能指针库的 ongoing 样式）</div>
+					<div class="cl_block_item">更新了学习路线。。。</div>
 				</div>
 				<div class="cl_block">
 					<div class="cl_block_date">2026-06-15</div>
@@ -663,6 +702,11 @@
 				var TABLE='guestbook';
 				var STORAGE_KEY='gb_messages';
 				var useCloud=!!(SUPABASE_URL&&SUPABASE_KEY&&SUPABASE_URL.indexOf('your-project')===-1);
+				// 🔄 心跳检测：定时查询数据库，防止 Supabase 免费版因7天不活跃而暂停
+				if(useCloud)(function hb(){
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=id&limit=1&order=id.desc',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}}).catch(function(){});
+					setTimeout(hb,5*24*60*60*1000); // 每5天自动心跳一次
+				})();
 				var overlay=document.getElementById('guestbookOverlay');
 				var trigger=document.getElementById('guestbookTrigger');
 				var closeBtn=document.getElementById('guestbookClose');
