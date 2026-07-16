@@ -288,6 +288,17 @@
 		.cl_mini_entry{font-size:0.7rem;color:var(--c-text-muted);padding:4px 0;display:flex;gap:8px;line-height:1.45;border-bottom:1px solid var(--c-border-light);}
 		.cl_mini_entry:last-child{border-bottom:none;}
 		.cl_mini_date{flex-shrink:0;color:var(--c-text-dim);font-size:0.62rem;font-weight:600;min-width:36px;}
+		/* 博客分类标签 */
+		.blog_cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+		.blog_cat{padding:5px 14px;border-radius:99px;font-size:0.7rem;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);cursor:pointer;transition:all 0.25s ease;font-family:inherit;font-weight:500;}
+		.blog_cat:hover{border-color:rgba(239,68,68,0.3);color:var(--c-text-heading);}
+		.blog_cat.active{background:rgba(239,68,68,0.12);border-color:#ef4444;color:#ef4444;}
+		.blog_preview{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+		.blog_list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:4px;}
+		.blog_list::-webkit-scrollbar{width:3px;}
+		.blog_list::-webkit-scrollbar-track{background:transparent;}
+		.blog_list::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
+		.blog_empty{text-align:center;padding:32px 0;font-size:0.75rem;color:var(--c-text-dim);}
 		/* 更新日志弹窗 */
 		.cl_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
 		.cl_overlay.open{opacity:1;pointer-events:auto;}
@@ -378,6 +389,7 @@
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
+							<div class="cl_mini_entry"><span class="cl_mini_date">07/17</span>新增博客：C++ 多线程入门——创建线程、加锁、计数</div>
 							<div class="cl_mini_entry"><span class="cl_mini_date">07/14</span>新增博客：ext4 文件系统详解——hexdump 看清磁盘布局</div>
 						<div class="cl_mini_entry"><span class="cl_mini_date">07/12</span>新增博客：硬链接和软链接的区别——inode 详解</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/11</span>新增博客：malloc(1) 背后的 brk 与 mmap</div>
@@ -509,44 +521,9 @@
 				<!-- 6. 博客 -->
 				<section id="blog" class="glass_section reveal">
 					<h2 class="section_title">博客</h2>
-					<a href="https://blog.csdn.net/rr666888/article/details/162645027" target="_blank" rel="noopener noreferrer" class="project_card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">
-						<div style="display:flex;flex-direction:column;gap:3px;">
-							<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">g++ 从入门到忘记</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">2026-07-07</span></div>
-							<span style="font-size:0.7rem;color:var(--c-text-muted);">C++ 编译入门 · gcc/g++ 区别 · 编译四阶段 · 库链接</span>
-						</div>
-						<i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>
-					</a>
-						<a href="https://blog.csdn.net/rr666888/article/details/162712345" target="_blank" rel="noopener noreferrer" class="project_card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">
-							<div style="display:flex;flex-direction:column;gap:3px;">
-								<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">Linux CFS 完全公平调度器深度拆解</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">2026-07-09</span></div>
-								<span style="font-size:0.7rem;color:var(--c-text-muted);">vruntime · nice 值 · 红黑树 · 调度延迟 · 上下文切换</span>
-							</div>
-							<i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>
-						</a>
-						<a href="https://blog.csdn.net/rr666888/article/details/162793574" target="_blank" rel="noopener noreferrer" class="project_card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">
-							<div style="display:flex;flex-direction:column;gap:3px;">
-								<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">malloc(1) 背后的 brk 与 mmap</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">2026-07-11</span></div>
-								<span style="font-size:0.7rem;color:var(--c-text-muted);">chunk · top chunk · 分配路径 · mmap阈值 · free路径</span>
-							</div>
-							<i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>
-						</a>
-							<a href="https://blog.csdn.net/rr666888/article/details/162816776" target="_blank" rel="noopener noreferrer" class="project_card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">
-								<div style="display:flex;flex-direction:column;gap:3px;">
-									<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">硬链接和软链接的区别——inode 详解</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">2026-07-12</span></div>
-									<span style="font-size:0.7rem;color:var(--c-text-muted);">inode · 硬链接 · 软链接 · unlink · strace 验证</span>
-								</div>
-								<i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>
-							</a>
-							<a href="https://blog.csdn.net/rr666888/article/details/162878654" target="_blank" rel="noopener noreferrer" class="project_card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;">
-								<div style="display:flex;flex-direction:column;gap:3px;">
-									<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">ext4 文件系统详解——hexdump 看清磁盘布局</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">2026-07-14</span></div>
-									<span style="font-size:0.7rem;color:var(--c-text-muted);">磁盘布局 · 超级块 · 块位图 · inode 位图 · 数据块定位</span>
-								</div>
-								<i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>
-							</a>
-			</div>
-
-			</section>
+					<div class="blog_cats" id="blogCats"></div>
+					<div class="blog_list" id="blogList"></div>
+				</section>
 
 			<div class="right_footer">Rray</div>
 		</main>
@@ -633,6 +610,14 @@
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
 					<div class="cl_block">
+						<div class="cl_block_date">2026-07-17</div>
+						<div class="cl_block_item"><span class="cl_block_tag upd">优化</span>博客模块改为分类标签 + 可滚动列表，支持按编译器/OS/内存管理/文件系统/C++ 筛选</div>
+					</div>
+					<div class="cl_block">
+						<div class="cl_block_date">2026-07-17</div>
+						<div class="cl_block_item"><span class="cl_block_tag new">新增</span>新增博客：C++ 多线程入门——创建线程、加锁、计数</div>
+					</div>
+					<div class="cl_block">
 						<div class="cl_block_date">2026-07-14</div>
 						<div class="cl_block_item"><span class="cl_block_tag new">新增</span>新增博客：ext4 文件系统详解——hexdump 看清磁盘布局</div>
 					</div>
@@ -701,7 +686,63 @@
 				<span class="book_modal_status" id="bookModalStatus"><span class="bc_dot"></span></span>
 			</div>
 		</div>
+
 			<script>
+				// ===== 博客分类 + 列表 =====
+				(function(){
+					var blogs=[
+						{title:"g++ 从入门到忘记",cat:"compiler",date:"2026-07-07",desc:"C++ 编译入门 · gcc/g++ 区别 · 编译四阶段 · 库链接",url:"https://blog.csdn.net/rr666888/article/details/162645027"},
+						{title:"Linux CFS 完全公平调度器深度拆解",cat:"os",date:"2026-07-09",desc:"vruntime · nice 值 · 红黑树 · 调度延迟 · 上下文切换",url:"https://blog.csdn.net/rr666888/article/details/162712345"},
+						{title:"malloc(1) 背后的 brk 与 mmap",cat:"memory",date:"2026-07-11",desc:"chunk · top chunk · 分配路径 · mmap 阈值 · free 路径",url:"https://blog.csdn.net/rr666888/article/details/162793574"},
+						{title:"硬链接和软链接的区别——inode 详解",cat:"fs",date:"2026-07-12",desc:"inode · 硬链接 · 软链接 · unlink · strace 验证",url:"https://blog.csdn.net/rr666888/article/details/162816776"},
+						{title:"ext4 文件系统详解——hexdump 看清磁盘布局",cat:"fs",date:"2026-07-14",desc:"磁盘布局 · 超级块 · 块位图 · inode 位图 · 数据块定位",url:"https://blog.csdn.net/rr666888/article/details/162878654"},
+						{title:"C++ 多线程入门：创建线程、加锁、计数",cat:"cpp",date:"2026-07-17",desc:"thread · mutex · atomic · 竞态条件 · 三版方案对比",url:"https://blog.csdn.net/rr666888/article/details/162950541"},
+					];
+					var cats=[
+						{key:"all",name:"全部"},
+						{key:"compiler",name:"编译器"},
+						{key:"os",name:"操作系统"},
+						{key:"memory",name:"内存管理"},
+						{key:"fs",name:"文件系统"},
+						{key:"cpp",name:"C++"},
+					];
+					// catNames 保留备用
+					var catsEl=document.getElementById('blogCats');
+					var listEl=document.getElementById('blogList');
+
+					function renderList(cat){
+						var filtered=cat==='all'?blogs:blogs.filter(function(b){return b.cat===cat;});
+						// 更新分类标签高亮
+						catsEl.querySelectorAll('.blog_cat').forEach(function(b){b.classList.toggle('active',b.dataset.cat===cat);});
+						if(filtered.length===0){
+							listEl.innerHTML='<div class="blog_empty">暂无此分类的博客</div>';
+							return;
+						}
+						listEl.innerHTML='';
+						filtered.forEach(function(b){
+							var a=document.createElement('a');
+							a.href=b.url;a.target='_blank';a.rel='noopener noreferrer';
+							a.className='project_card';
+							a.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:14px 18px;';
+							a.innerHTML='<div style="display:flex;flex-direction:column;gap:3px;"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">'+b.title+'</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">'+b.date+'</span></div><span style="font-size:0.7rem;color:var(--c-text-muted);">'+b.desc+'</span></div><i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>';
+							listEl.appendChild(a);
+						});
+						if(lucide&&lucide.createIcons)lucide.createIcons();
+					}
+
+					// 渲染分类标签
+					catsEl.innerHTML='';
+					cats.forEach(function(c){
+						var btn=document.createElement('button');
+						btn.className='blog_cat'+(c.key==='all'?' active':'');
+						btn.textContent=c.name;
+						btn.dataset.cat=c.key;
+						btn.addEventListener('click',function(){renderList(c.key);});
+						catsEl.appendChild(btn);
+					});
+					// 初始渲染全部
+					renderList('all');
+				})();
 				// ===== 更新日志弹窗 =====
 				(function(){
 					var mini=document.getElementById('clMini');
