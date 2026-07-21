@@ -6,6 +6,7 @@
 	<title>Rray · 个人网站</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://unpkg.com/lucide@0.294.0"></script>
+		<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
 	<!-- 防闪烁：页面渲染前读取本地存储主题 -->
 	<script>
 		(function(){
@@ -225,34 +226,46 @@
 		.roadmap_item .rm_tags span{font-size:0.66rem;padding:2px 10px;border-radius:99px;color:var(--c-tag-text);background:var(--c-tag-bg);}
 		.roadmap_item .rm_tags span.rm_ongoing{border:1px solid rgba(239,68,68,0.25);color:#f87171;}
 
-		/* 书架 */
-		.book_card_wrap{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
-		.book_card_item{background:var(--c-surface);border:1px solid var(--c-border-light);border-left:3px solid var(--c-book-done-text);border-radius:6px;padding:10px 12px;transition:border-color 0.25s ease,background 0.25s ease,transform 0.2s ease;}
-		.book_card_item{cursor:pointer;}.book_card_item:hover{border-color:var(--c-card-hover-border);border-left-color:#ef4444;background:var(--c-card-hover-bg);transform:translateY(-2px);}
-		/* 阅读状态左侧色条 */
-		.book_card_item.status_reading{border-left-color:#ef4444;}
-		.book_card_item.status_done{border-left-color:var(--c-book-done-text);}
-		.book_card_item.status_want{border-left-color:var(--c-book-want-text);}
-		/* 书名 */
-		.book_card_item .bc_title{font-size:0.8rem;color:var(--c-text-heading);font-weight:600;margin-bottom:1px;line-height:1.3;}
-		/* 作者 */
-		.book_card_item .bc_author{font-size:0.6rem;color:var(--c-text-dim);margin-bottom:5px;}
-		/* 笔记 */
-		.book_card_item .bc_note{font-size:0.66rem;color:var(--c-text-muted);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px;}
-		/* 状态标签（紧凑，无背景） */
-		.book_card_item .bc_status{display:inline-flex;align-items:center;gap:3px;font-size:0.56rem;letter-spacing:0.04em;color:var(--c-book-done-text);}
-		.book_card_item .bc_status .bc_dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
-		.book_card_item.status_reading .bc_status{color:#f87171;}
-		.book_card_item.status_reading .bc_status .bc_dot{background:#ef4444;}
-		.book_card_item.status_done .bc_status{color:var(--c-book-done-text);}
-		.book_card_item.status_done .bc_status .bc_dot{background:var(--c-book-done-text);}
-		.book_card_item.status_want .bc_status{color:var(--c-book-want-text);}
-		.book_card_item.status_want .bc_status .bc_dot{background:var(--c-book-want-text);}
-		/* 二刷 */
-		.book_card_item.status_reread{border-left-color:#f59e0b;}
-		.book_card_item.status_reread .bc_status{color:#fbbf24;}
-		.book_card_item.status_reread .bc_status .bc_dot{background:#f59e0b;}
-
+		
+		/* 书架筛选标签 */
+		/* 全部展开/收起按钮 */
+		.book_actions{display:flex;justify-content:flex-end;margin-bottom:8px;}
+		.book_toggle_btn{font-size:0.65rem;color:var(--c-text-muted);cursor:pointer;background:none;border:1px solid var(--c-border);border-radius:99px;padding:4px 14px;font-family:inherit;transition:all 0.25s ease;}
+		.book_toggle_btn:hover{color:#fca5a5;border-color:rgba(239,68,68,0.3);}
+		/* 手风琴分组 */
+		.book_group{border-bottom:1px solid var(--c-border-light);}
+		.book_group:last-child{border-bottom:none;}
+		.book_group_header{display:flex;align-items:center;gap:6px;padding:6px 0;cursor:pointer;transition:color 0.2s ease;user-select:none;}
+		.book_group_header:hover{color:var(--c-text-heading);}
+		.book_group_title{font-size:0.78rem;color:var(--c-text-heading);font-weight:600;letter-spacing:0.04em;}
+		.book_group_count{font-size:0.62rem;color:var(--c-text-dim);margin-left:auto;}
+		.book_group_arrow{font-size:0.7rem;color:var(--c-text-dim);transition:transform 0.25s ease;margin-left:4px;}
+		.book_group.open .book_group_arrow{transform:rotate(180deg);}
+		.book_group_body{max-height:0;overflow:hidden;transition:max-height 0.3s ease,opacity 0.25s ease;opacity:0;}
+		.book_group.open .book_group_body{max-height:2000px;opacity:1;}
+		/* 卡片网格 */
+		.book_cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:3px;padding:1px 0 4px;}
+		.book_card{background:var(--c-surface);border:1px solid var(--c-border-light);border-radius:8px;overflow:hidden;cursor:pointer;transition:border-color 0.25s ease,background 0.25s ease,transform 0.2s ease;}
+		.book_card:hover{border-color:var(--c-card-hover-border);background:var(--c-card-hover-bg);transform:translateY(-1px);}
+			.book_card:hover .book_card_cover::after{background:repeating-linear-gradient(to bottom,transparent,transparent 2px,rgba(255,255,255,0.14) 2px,rgba(255,255,255,0.14) 3px);}
+		/* 封面占位 */
+		.book_card_cover{width:100%;aspect-ratio:1/1;border-radius:4px 4px 0 0;position:relative;overflow:hidden;}
+			.book_card_cover::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 3px,rgba(255,255,255,0.08) 3px,rgba(255,255,255,0.08) 4px);pointer-events:none;}
+		.book_cover_reading{background:linear-gradient(135deg,#dc2626 50%,#ef4444 50%);}
+		.book_cover_done{background:linear-gradient(135deg,#374151 50%,#4b5563 50%);}
+						/* 卡片信息区 */
+		.book_card_info{padding:5px 7px 7px;}
+		.book_card_title{font-size:0.58rem;color:var(--c-text-heading);font-weight:500;line-height:1.2;margin-bottom:1px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+		.book_card_tag{display:inline-flex;align-items:center;gap:2px;font-size:0.48rem;letter-spacing:0.03em;padding:1px 6px;border-radius:99px;border:1px solid;line-height:1.2;}
+		.book_card_tag.tag_reading{color:#f87171;border-color:rgba(239,68,68,0.25);}
+		.book_card_tag.tag_done{color:var(--c-book-done-text);border-color:rgba(255,255,255,0.08);}
+						/* 悬浮提示 */
+		.book_tooltip{position:fixed;z-index:150;background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:12px;padding:16px 18px;max-width:260px;box-shadow:0 8px 40px rgba(0,0,0,0.3);opacity:0;pointer-events:none;transition:opacity 0.2s ease;transform:translateY(4px);}
+		.book_tooltip.show{opacity:1;pointer-events:auto;transform:translateY(0);}
+		.book_tooltip_author{font-size:0.7rem;color:var(--c-text-dim);margin-bottom:8px;line-height:1.4;}
+		.book_tooltip_note{font-size:0.74rem;color:var(--c-text-muted);line-height:1.55;}
+		/* 空状态 */
+		.book_empty{padding:24px 0;text-align:center;font-size:0.72rem;color:var(--c-text-dim);}
 		/* 书架弹窗 */
 		.book_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
 		.book_overlay.open{opacity:1;pointer-events:auto;}
@@ -270,11 +283,7 @@
 		.book_modal_status.status_reading .bc_dot{background:#ef4444;}
 		.book_modal_status.status_done{color:var(--c-book-done-text);border-color:rgba(255,255,255,0.08);}
 		.book_modal_status.status_done .bc_dot{background:var(--c-book-done-text);}
-		.book_modal_status.status_want{color:var(--c-book-want-text);border-color:rgba(255,255,255,0.05);}
-		.book_modal_status.status_want .bc_dot{background:var(--c-book-want-text);}
-		.book_modal_status.status_reread{color:#fbbf24;border-color:rgba(245,158,11,0.25);}
-		.book_modal_status.status_reread .bc_dot{background:#f59e0b;}
-
+								
 		/* 动画 */
 		.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.55s cubic-bezier(0.22,1,0.36,1),transform 0.55s cubic-bezier(0.22,1,0.36,1);}
 		.reveal.visible{opacity:1;transform:translateY(0);}
@@ -320,16 +329,69 @@
 		@media(max-width:768px){
 			html,body{overflow:auto;}
 			.split_layout{display:block;height:auto;overflow:visible;}
-			.left_pane{width:100%;height:auto;min-height:100vh;padding:56px 32px;}
-			.left_footer{position:static;margin-top:36px;}
-			.right_pane{width:100%;height:auto;overflow-y:visible;padding:0 24px 72px;}
+			.left_pane{width:100%;height:auto;min-height:auto;padding:40px 28px 24px;}
+			.left_footer{position:static;margin-top:32px;}
+			.right_pane{width:100%;height:auto;overflow-y:visible;padding:0 20px 60px;}
+			.glass_section{padding:24px 20px;}
+			.theme_toggle_btn{top:14px;right:14px;width:32px;height:32px;}
+			.project_card{padding:16px 18px;}
+			.blog_list{max-height:none;}
+			.book_cards{grid-template-columns:repeat(auto-fill,minmax(55px,1fr));gap:2px;}
+			.proj_modal{width:92%;padding:22px 20px;max-height:85vh;}
 		}
 		@media(max-width:640px){
-			.avatar_wrapper{width:80px;height:80px;}
-			.aurora_orb:nth-child(1){width:300px;height:300px;}
-			.aurora_orb:nth-child(2){width:250px;height:250px;}
+			.avatar_wrapper{width:72px;height:72px;}
+			.aurora_orb:nth-child(1){width:250px;height:250px;}
+			.aurora_orb:nth-child(2){width:200px;height:200px;}
+			.left_pane{padding:32px 24px 20px;}
+			.left_pane .pane_content{max-width:100%;}
+			.glass_section{padding:20px 16px;}
+			.section_title{font-size:0.88rem;margin-bottom:16px;}
+			.right_pane{padding:0 16px 48px;}
+			.book_cards{grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:2px;}
+			.cta_btn{padding:8px 22px;font-size:0.75rem;}
 		}
-	/* === 留言板 === */
+		@media(max-width:480px){
+			.book_cards{grid-template-columns:repeat(3,1fr);gap:3px;}
+						.book_card_title{font-size:0.55rem;}
+			.left_pane{padding:24px 20px 16px;}
+			.right_pane{padding:0 12px 40px;}
+			.tag_glow{padding:4px 14px;font-size:0.75rem;}
+			.proj_modal{padding:18px 16px;}
+			.glass_section{padding:16px 14px;}
+		}
+	/* === 项目详情弹窗 === */
+.proj_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
+.proj_overlay.open{opacity:1;pointer-events:auto;}
+.proj_modal{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:16px;padding:28px 30px;width:88%;max-width:540px;max-height:80vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,0.35);transform:translateY(12px) scale(0.96);transition:transform 0.28s ease;}
+.proj_overlay.open .proj_modal{transform:translateY(0) scale(1);}
+.proj_modal::-webkit-scrollbar{width:3px;}
+.proj_modal::-webkit-scrollbar-track{background:transparent;}
+.proj_modal::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
+.proj_modal_head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.proj_modal_title{font-size:1.05rem;color:var(--c-text-heading);font-weight:700;margin:0;}
+.proj_modal_badge{font-size:0.58rem;padding:2px 10px;border-radius:99px;letter-spacing:0.04em;flex-shrink:0;display:inline-flex;align-items:center;gap:4px;}
+.proj_modal_badge.done{background:var(--c-book-done-bg);color:var(--c-book-done-text);}
+.proj_modal_badge.ongoing{background:rgba(239,68,68,0.10);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+.proj_modal_close{width:28px;height:28px;border-radius:50%;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;font-size:0.85rem;font-family:inherit;flex-shrink:0;}
+.proj_modal_close:hover{color:#fca5a5;border-color:rgba(239,68,68,0.3);}
+.proj_modal_sec{margin-bottom:18px;}
+.proj_modal_sec:last-child{margin-bottom:0;}
+.proj_modal_label{font-size:0.7rem;color:var(--c-text-muted);letter-spacing:0.06em;margin-bottom:8px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.proj_modal_label svg{width:13px;height:13px;}
+.proj_modal_desc{font-size:0.82rem;color:var(--c-text-body);line-height:1.7;}
+.proj_modal_arch{background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;padding:14px 16px;overflow-x:auto;}
+.proj_modal_arch pre{font-family:'Consolas','Courier New',monospace;font-size:0.72rem;color:var(--c-text-body);line-height:1.55;margin:0;white-space:pre;}
+.proj_modal_ul{padding-left:18px;margin:0;}
+.proj_modal_ul li{font-size:0.78rem;color:var(--c-text-body);line-height:1.65;margin-bottom:5px;}
+.proj_modal_table{width:100%;border-collapse:collapse;font-size:0.74rem;}
+.proj_modal_table td{padding:7px 10px;border-bottom:1px solid var(--c-border-light);color:var(--c-text-body);}
+.proj_modal_table td:first-child{color:var(--c-text-muted);width:42%;white-space:nowrap;}
+.proj_modal_footer{margin-top:16px;padding-top:14px;border-top:1px solid var(--c-border);display:flex;justify-content:space-between;align-items:center;}
+.proj_modal_link{display:inline-flex;align-items:center;gap:6px;font-size:0.7rem;color:var(--c-text-muted);text-decoration:none;transition:color 0.25s;}
+.proj_modal_link:hover{color:#fca5a5;}
+
+/* === 留言板 === */
 	.guestbook_trigger:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.35) !important;}
 	.gb_close_btn:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.3) !important;}
 	.gb_submit_btn:hover{background:#dc2626 !important;}
@@ -351,9 +413,34 @@
 	#gbList::-webkit-scrollbar{width:3px;}
 	#gbList::-webkit-scrollbar-track{background:transparent;}
 	#gbList::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
-	</style>
+	
+		/* 全局加载动画 */
+	
+
+		/* 加载动画 */
+		#loaderOverlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:#0a0a0f;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s;}
+		#loaderContent{text-align:center;}
+		#loaderTitle{font-size:1rem;color:rgba(255,255,255,0.82);font-weight:500;letter-spacing:0.08em;margin-bottom:6px;}
+		#loaderSub{font-size:0.7rem;color:rgba(255,255,255,0.18);letter-spacing:0.04em;margin-bottom:20px;font-family:'Consolas','Courier New',monospace;}
+		#loaderTrack{width:200px;height:2px;background:rgba(255,255,255,0.05);border-radius:2px;margin:0 auto;overflow:hidden;}
+		#loaderBar{height:100%;width:0%;background:linear-gradient(90deg,transparent,#fca5a5,#ef4444,transparent);background-size:200% 100%;border-radius:2px;animation:pulse 1.2s ease-in-out infinite;}
+		@keyframes pulse{0%,100%{background-position:200% 0;}50%{background-position:0% 0;}}
+		#loaderCursor{display:inline-block;width:6px;height:14px;background:rgba(255,255,255,0.18);margin-left:4px;animation:blink 0.8s step-end infinite;vertical-align:middle;}
+		@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+		@media(max-width:640px){#loaderTitle{font-size:0.85rem;}#loaderTrack{width:160px;}}
+
+</style>
 </head>
 <body>
+<div id="loaderOverlay">
+	<div id="loaderContent">
+		<div id="loaderTitle">Loading System Runtime<span id="loaderCursor"></span></div>
+		<div id="loaderSub">Initializing memory allocator &amp; page tables</div>
+		<div id="loaderTrack"><div id="loaderBar"></div></div>
+	</div>
+</div>
+	</div>
+
 
 	<div class="bg_base" aria-hidden="true"></div>
 	<div class="aurora_orbs" aria-hidden="true"><div class="aurora_orb"></div><div class="aurora_orb"></div></div>
@@ -389,14 +476,15 @@
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
-							<div class="cl_mini_entry"><span class="cl_mini_date">07/20</span>学习进度和技术栈更新</div>
+							<div class="cl_mini_entry"><span class="cl_mini_date">07/21</span>锁的进阶博客+加载动画+404页+书架重构+修复</div>
+						<div class="cl_mini_entry"><span class="cl_mini_date">07/20</span>学习进度和技术栈更新</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/17</span>新增博客：C++ 多线程入门——创建线程、加锁、计数</div>
 							<div class="cl_mini_entry"><span class="cl_mini_date">07/14</span>新增博客：ext4 文件系统详解——hexdump 看清磁盘布局</div>
 						<div class="cl_mini_entry"><span class="cl_mini_date">07/12</span>新增博客：硬链接和软链接的区别——inode 详解</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/11</span>新增博客：malloc(1) 背后的 brk 与 mmap</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/09</span>新增博客：CFS 完全公平调度器深度拆解</div>
 			</div>
-			<div class="left_footer">&copy; 2026 Rray</div>
+			<div class="left_footer"><div class="left_footer">&copy; 2026 Rray</div>copy; 2026 Rray · <span id="busuanzi_value_site_pv">0</span> 次浏览</div>
 		</aside>
 
 		<!-- ========== 右面板：可滚动模块 ========== -->
@@ -419,50 +507,61 @@
 
 				<!-- 2. 作品集 -->
 				<section id="projects" class="glass_section reveal">
-					<h2 class="section_title">作品集</h2>
-					<div class="space-y-3">
-						<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" class="project_card">
-							<div class="flex items-center justify-between">
-								<div class="flex-1">
-									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">⚡ Cache-System</div><span class="proj_badge done"><span class="badge_dot"></span>已完成</span></div>
-									<div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div>
+											<h2 class="section_title">作品集</h2>
+						<div class="space-y-3">
+							<div class="project_card" data-proj="cache-system" style="cursor:pointer;">
+								<div class="flex items-center justify-between">
+									<div class="flex-1">
+										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">⚡ Cache-System</div><span class="proj_badge done"><span class="badge_dot"></span>已完成</span></div>
+										<div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div>
+									</div>
+									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
+										<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
+									</div>
 								</div>
-								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
+								<div class="proj_meta"><span>💡 点击查看详情</span></div>
 							</div>
-							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
-						</a>
-						<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" class="project_card">
-							<div class="flex items-center justify-between">
-								<div class="flex-1">
-									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📐 Algorithm-Problems</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
-									<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
+							<div class="project_card" data-proj="algorithm" style="cursor:pointer;">
+								<div class="flex items-center justify-between">
+									<div class="flex-1">
+										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📐 Algorithm-Problems</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
+										<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
+									</div>
+									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
+										<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
+									</div>
 								</div>
-								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
+								<div class="proj_meta"><span>💡 点击查看详情</span></div>
 							</div>
-							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
-						</a>
-						<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" class="project_card">
-							<div class="flex items-center justify-between">
-								<div class="flex-1">
-									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">🔄 cpp-smart-ptr</div><span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span></div>
-									<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
+							<div class="project_card" data-proj="smart-ptr" style="cursor:pointer;">
+								<div class="flex items-center justify-between">
+									<div class="flex-1">
+										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">🔄 cpp-smart-ptr</div><span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span></div>
+										<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
+									</div>
+									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
+										<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
+									</div>
 								</div>
-								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
+								<div class="proj_meta"><span>💡 点击查看详情</span></div>
 							</div>
-							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
-						</a>
-						<a href="https://github.com/Rrrayy/os_lab" target="_blank" rel="noopener noreferrer" class="project_card">
-							<div class="flex items-center justify-between">
-								<div class="flex-1">
-									<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📚 os_lab</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
-									<div class="proj_desc">操作系统实验合集，系统调用跟踪 / fork 进程 / 僵尸进程，持续更新中。</div>
+							<div class="project_card" data-proj="os-lab" style="cursor:pointer;">
+								<div class="flex items-center justify-between">
+									<div class="flex-1">
+										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📚 os_lab</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
+										<div class="proj_desc">操作系统实验合集，系统调用跟踪 / fork 进程 / 僵尸进程，持续更新。</div>
+									</div>
+									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
+										<a href="https://github.com/Rrrayy/os_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
+									</div>
 								</div>
-								<i data-lucide="arrow-up-right" class="proj_arrow" style="width:16px;height:16px;"></i>
+								<div class="proj_meta"><span>💡 点击查看详情</span></div>
 							</div>
-							<div class="proj_meta"><span>GitHub</span><i data-lucide="external-link"></i></div>
-						</a>
-					</div>
-					<div class="flex justify-end mt-5">
+						</div><div class="flex justify-end mt-5">
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="cta_btn" style="font-size:0.72rem;padding:6px 18px;">访问 GitHub <i data-lucide="github" style="width:13px;height:13px;"></i></a>
 					</div>
 				</section>
@@ -484,7 +583,7 @@
 					</div>
 					<!-- 阶段二：已完成 -->
 					<div class="roadmap_item done">
-						<div class="rm_header"><span class="rm_title">阶段二 · 系统编程 + 存储</span><span class="rm_badge done">✅ 已完成</span></div>
+						<div class="rm_header"><span class="rm_title">阶段二 · 系统编程 + 存储</span><span class="rm_badge active">进行中</span></div>
 						<div class="rm_tags">
 							<span style="opacity:0.5;">Linux 系统编程</span>
 							<span style="opacity:0.5;">网络编程（UNIX 网络编程）</span>
@@ -516,85 +615,26 @@
 					<p class="para" style="color:var(--c-text-dim);text-align:center;padding:20px 0;">简历即将上线，敬请期待。</p>
 				</section>
 
-				<!-- 5. 书架 -->
-				<section id="bookshelf" class="glass_section reveal">
-					<h2 class="section_title">读过的书</h2>
-					<div class="book_card_wrap">
-														<div class="book_card_item status_done"><div class="bc_title">C++ Primer</div><div class="bc_author">Stanley B. Lippman</div><div class="bc_note">C++ 入门圣经，系统学习语法和标准库的第一本书。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">C++ Primer Plus</div><div class="bc_author">Stephen Prata</div><div class="bc_note">C++ 入门首选，前半部分覆盖 C 语言基础，循序渐进。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_reading"><div class="bc_title">深入理解计算机系统</div><div class="bc_author">R.E. Bryant / D.R. O'Hallaron</div><div class="bc_note">CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">现代操作系统</div><div class="bc_author">Andrew S. Tanenbaum</div><div class="bc_note">Tanenbaum 经典之作，进程调度和内存管理部分写得很透彻。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_reading"><div class="bc_title">计算机网络 · 深入浅出</div><div class="bc_author">—</div><div class="bc_note">从物理层到应用层逐层讲解，图解很多，入门友好。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
-							<div class="book_card_item status_reread"><div class="bc_title">代码随想录</div><div class="bc_author">Carl</div><div class="bc_note">Carl 的算法刷题指南，配合 LeetCode 刷题效率很高。</div><span class="bc_status"><span class="bc_dot"></span>二刷</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">大话数据结构</div><div class="bc_author">程杰</div><div class="bc_note">用生活化语言讲链表、树、图，入门数据结构的友好读物。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_done"><div class="bc_title">Linux 私房菜</div><div class="bc_author">鸟哥</div><div class="bc_note">鸟哥经典，手把手从命令行学到 Shell 脚本，实操性强。</div><span class="bc_status"><span class="bc_dot"></span>已读</span></div>
-							<div class="book_card_item status_reading"><div class="bc_title">STL 源码剖析</div><div class="bc_author">侯捷</div><div class="bc_note">侯捷经典，深入 allocator、iterator、容器底层实现。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
-							<div class="book_card_item status_reading"><div class="bc_title">操作系统导论（OSTEP）</div><div class="bc_author">Remzi H. Arpaci-Dusseau</div><div class="bc_note">OS 三部曲：虚拟化（CPU/内存虚拟化）、并发、持久化。实验代码+项目驱动。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
-							<div class="book_card_item status_reading"><div class="bc_title">UNIX 网络编程 卷1</div><div class="bc_author">W. Richard Stevens</div><div class="bc_note">套接字联网 API 圣经，从 TCP/UDP 到高级 IO 多路复用全覆盖。</div><span class="bc_status"><span class="bc_dot"></span>在读</span></div>
-					<div class="flex items-center gap-1.5 mt-4 text_ultra_dim" style="font-size:10px;"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
-				</section>
-
-				<!-- 6. 博客 -->
-				<section id="blog" class="glass_section reveal">
+									<!-- 5. 书架 -->
+					<section id="bookshelf" class="glass_section reveal">
+						<h2 class="section_title">读过的书</h2>
+						<div class="book_actions">
+							<button class="book_toggle_btn" id="bookToggleAll">全部展开</button>
+						</div>
+						<div class="book_accordion" id="bookAccordion"></div>
+						<div class="flex items-center gap-1.5 mt-4 text_ultra_dim" style="font-size:10px;"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
+					</section>
+					<section id="blog" class="glass_section reveal">
 					<h2 class="section_title">博客</h2>
 					<div class="blog_cats" id="blogCats"></div>
 					<div class="blog_list" id="blogList"></div>
 				</section>
 
 			<div class="right_footer">Rray</div>
+				</div>
 		</main>
+	
 	</div>
-
-	<script>
-		lucide.createIcons();
-		// 鼠标聚光灯
-		(function(){
-			var el=document.getElementById('spotlight');
-			if(!el)return;
-			document.addEventListener('mousemove',function(e){
-				var x=(e.clientX/window.innerWidth)*100,y=(e.clientY/window.innerHeight)*100;
-				el.style.setProperty('--s-x',x+'%');
-				el.style.setProperty('--s-y',y+'%');
-			});
-		})();
-		// CTA 滚动到技术栈
-		(function(){
-			var btn=document.getElementById('ctaBtn'),tech=document.getElementById('techstack');
-			if(!btn||!tech)return;
-			btn.addEventListener('click',function(){tech.scrollIntoView({behavior:'smooth',block:'start'});});
-		})();
-		// 右面板滚动进度条
-		(function(){
-			var bar=document.getElementById('scrollProgress'),rp=document.getElementById('rightPane');
-			if(!bar||!rp)return;
-			rp.addEventListener('scroll',function(){
-				var st=rp.scrollTop,dh=rp.scrollHeight-rp.clientHeight;
-				if(dh>0)bar.style.width=((st/dh)*100)+'%';
-			});
-		})();
-		// 渐入动画
-		(function(){
-			var els=document.querySelectorAll('.reveal');
-			if(!els.length)return;
-			var obs=new IntersectionObserver(function(entries){
-				entries.forEach(function(e){
-					if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}
-				});
-			},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
-			els.forEach(function(el){obs.observe(el);});
-		})();
-			// 主题切换
-		(function(){
-			var btn=document.getElementById('themeToggle');
-			if(!btn)return;
-			btn.addEventListener('click',function(){
-				var html=document.documentElement;
-				var isLight=html.classList.toggle('light');
-				localStorage.setItem('theme',isLight?'light':'dark');
-			});
-		})();
-
-		</script>
 
 		<!-- ========== 留言板弹窗 ========== -->
 		<div class="guestbook_overlay" id="guestbookOverlay">
@@ -626,8 +666,16 @@
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
 					<div class="cl_block">
+						<div class="cl_block_date">2026-07-21</div>
+						<div class="cl_block_item"><span class="cl_block_tag new">新增</span>全局页面加载动画 + SegFault 终端风格 404 页面</div>
+						<div class="cl_block_item"><span class="cl_block_tag upd">重构</span>书架模块：手风琴分组 + 双色封面设计</div>
+						<div class="cl_block_item"><span class="cl_block_tag fix">修复</span>项目弹窗被误删 + script 标签导致的页面白屏</div>
+						<div class="cl_block_item"><span class="cl_block_tag upd">更新</span>项目弹窗数据同步 GitHub 仓库真实内容</div>
+						<div class="cl_block_item"><span class="cl_block_tag new">新增</span>博客：锁的进阶——自旋锁/死锁/条件变量</div>
+					</div>
+					<div class="cl_block">
 						<div class="cl_block_date">2026-07-20</div>
-							<div class="cl_block_item"><span class="cl_block_tag upd">更新</span>学习进度和技术栈更新</div>
+						<div class="cl_block_item"><span class="cl_block_tag upd">更新</span>学习进度和技术栈更新</div>
 						</div>
 					<div class="cl_block">
 						<div class="cl_block_date">2026-07-17</div>
@@ -717,6 +765,7 @@
 						{title:"硬链接和软链接的区别——inode 详解",cat:"fs",date:"2026-07-12",desc:"inode · 硬链接 · 软链接 · unlink · strace 验证",url:"https://blog.csdn.net/rr666888/article/details/162816776"},
 						{title:"ext4 文件系统详解——hexdump 看清磁盘布局",cat:"fs",date:"2026-07-14",desc:"磁盘布局 · 超级块 · 块位图 · inode 位图 · 数据块定位",url:"https://blog.csdn.net/rr666888/article/details/162878654"},
 						{title:"C++ 多线程入门：创建线程、加锁、计数",cat:"cpp",date:"2026-07-17",desc:"thread · mutex · atomic · 竞态条件 · 三版方案对比",url:"https://blog.csdn.net/rr666888/article/details/162950541"},
+						{title:"锁的进阶：自旋锁、死锁、条件变量",cat:"cpp",date:"2026-07-21",desc:"spin_lock · cache bouncing · 死锁gdb定位 · 条件变量 · 生产者消费者",url:"https://blog.csdn.net/rr666888/article/details/163084384"},
 					];
 					var cats=[
 						{key:"all",name:"全部"},
@@ -1016,40 +1065,274 @@
 					if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();
 				});
 			})();
-			// ===== 书架点击放大 =====
-			(function(){
-				var overlay=document.getElementById("bookOverlay");
-				var closeBtn=document.getElementById("bookCloseBtn");
-				var titleEl=document.getElementById("bookModalTitle");
-				var authorEl=document.getElementById("bookModalAuthor");
-				var noteEl=document.getElementById("bookModalNote");
-				var statusEl=document.getElementById("bookModalStatus");
-				document.querySelectorAll(".book_card_item").forEach(function(el){
-					el.addEventListener("click",function(){
-						var t=this.querySelector(".bc_title");
-						var a=this.querySelector(".bc_author");
-						var n=this.querySelector(".bc_note");
-						var s=this.querySelector(".bc_status");
-						titleEl.textContent=t?t.textContent:"";
-						authorEl.textContent=a?a.textContent:"";
-						noteEl.textContent=n?n.textContent:"";
-						var label=s?s.textContent.replace(/[●·•]/g,"").trim():"";
-						statusEl.innerHTML='<span class="bc_dot"></span>'+label;
-						statusEl.className="book_modal_status";
-						if(this.classList.contains("status_reading"))statusEl.classList.add("status_reading");
-						else if(this.classList.contains("status_done"))statusEl.classList.add("status_done");
-						else if(this.classList.contains("status_want"))statusEl.classList.add("status_want");
-						else if(this.classList.contains("status_reread"))statusEl.classList.add("status_reread");
-						overlay.classList.add("open");
+														// ===== 书架：手风琴 =====
+				try{!function(){
+				var books=[
+					{title:'深入理解计算机系统',author:"R.E. Bryant / D.R. O'Hallaron",note:'CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。',status:'reading'},
+					{title:'计算机网络 · 深入浅出',author:'—',note:'从物理层到应用层逐层讲解，图解很多，入门友好。',status:'reading'},
+					{title:'STL 源码剖析',author:'侯捷',note:'侯捷经典，深入 allocator、iterator、容器底层实现。',status:'reading'},
+					{title:'操作系统导论（OSTEP）',author:'Remzi H. Arpaci-Dusseau',note:'OS 三部曲：虚拟化（CPU/内存虚拟化）、并发、持久化。',status:'reading'},
+					{title:'UNIX 网络编程 卷1',author:'W. Richard Stevens',note:'套接字联网 API 圣经，从 TCP/UDP 到高级 IO 多路复用全覆盖。',status:'reading'},
+					{title:'C++ Primer',author:'Stanley B. Lippman',note:'C++ 入门圣经，系统学习语法和标准库的第一本书。',status:'done'},
+					{title:'C++ Primer Plus',author:'Stephen Prata',note:'C++ 入门首选，前半部分覆盖 C 语言基础，循序渐进。',status:'done'},
+					{title:'现代操作系统',author:'Andrew S. Tanenbaum',note:'Tanenbaum 经典之作，进程调度和内存管理部分写得很透彻。',status:'done'},
+					{title:'大话数据结构',author:'程杰',note:'用生活化语言讲链表、树、图，入门数据结构的友好读物。',status:'done'},
+					{title:'Linux 私房菜',author:'鸟哥',note:'鸟哥经典，手把手从命令行学到 Shell 脚本，实操性强。',status:'done'},
+					{title:'代码随想录',author:'Carl',note:'Carl 的算法刷题指南，配合 LeetCode 刷题效率很高。',status:'done'},
+				];
+				var groups=[
+					{key:'reading',label:'在读',defaultOpen:true},
+					{key:'done',label:'已读完',defaultOpen:false},
+					{key:'want',label:'待阅读',defaultOpen:false},
+				];
+				var statusLabels={reading:'在读',done:'已读完',want:'想读'};
+				var a=document.getElementById('bookAccordion');
+				var tb=document.getElementById('bookToggleAll');
+				var ov=document.getElementById('bookOverlay');
+				var cb=document.getElementById('bookCloseBtn');
+				var mt=document.getElementById('bookModalTitle');
+				var ma=document.getElementById('bookModalAuthor');
+				var mn=document.getElementById('bookModalNote');
+				var ms=document.getElementById('bookModalStatus');
+				var te=document.getElementById('bookTooltip');
+				var ta=document.getElementById('tooltipAuthor');
+				var tn=document.getElementById('tooltipNote');
+				var touch=('ontouchstart'in window)||(navigator.maxTouchPoints>0);
+				var gos={};
+				groups.forEach(function(g){gos[g.key]=g.defaultOpen;});
+				var tt=null;
+				function es(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+				function render(){
+					var html='';
+					var allOpen=true;
+					groups.forEach(function(g){
+						var gb=books.filter(function(b){return b.status===g.key;});
+						var op=gos[g.key];
+						if(!op)allOpen=false;
+						html+='<div class="book_group'+(op?' open':'')+'" data-group="'+g.key+'"><div class="book_group_header"><span class="book_group_title">'+g.label+'</span><span class="book_group_count">('+gb.length+')</span><span class="book_group_arrow">\u25be</span></div><div class="book_group_body">';
+						if(!gb.length){html+='<div class="book_empty">还没有想读的书～</div>';}else{
+						html+='<div class="book_cards">';
+						gb.forEach(function(b){html+='<div class="book_card" data-title="'+es(b.title)+'" data-author="'+es(b.author)+'" data-note="'+es(b.note)+'" data-status="'+b.status+'"><div class="book_card_cover book_cover_'+b.status+'"></div><div class="book_card_info"><div class="book_card_title">'+es(b.title)+'</div></div></div>';});
+						html+='</div>';}
+						html+='</div></div>';
 					});
+					a.innerHTML=html;
+					a.querySelectorAll('.book_group_header').forEach(function(h){
+						h.addEventListener('click',function(){
+							var g=this.closest('.book_group');
+							if(!g)return;
+							g.classList.toggle('open');
+							gos[g.dataset.group]=g.classList.contains('open');
+							updateBtn();
+						});
+					});
+					a.querySelectorAll('.book_card').forEach(function(c){
+						c.addEventListener('click',function(){openModal(c.dataset.title,c.dataset.author,c.dataset.note,c.dataset.status);});
+						if(!touch){
+							c.addEventListener('mouseenter',function(e){showTip(c,e);});
+							c.addEventListener('mousemove',function(e){if(te.classList.contains('show'))posTip(c,e);});
+							c.addEventListener('mouseleave',function(){hideTip();});
+						}
+					});
+					tb.textContent=allOpen?'全部收起':'全部展开';
+				}
+				function updateBtn(){
+					var all=true;
+					a.querySelectorAll('.book_group').forEach(function(g){if(!g.classList.contains('open'))all=false;});
+					tb.textContent=all?'全部收起':'全部展开';
+				}
+				function showTip(c,e){
+					clearTimeout(tt);
+					te.classList.add('show');
+					posTip(c,e);
+				}
+				function posTip(c,e){
+					var tw=te.offsetWidth||200,th=te.offsetHeight||60,gap=12;
+					var x=e.clientX+gap,y=e.clientY-th-gap;
+					if(x+tw>window.innerWidth-10)x=e.clientX-tw-gap;
+					if(y<10)y=e.clientY+gap;
+					if(x<10)x=10;
+					if(y+th>window.innerHeight-10)y=window.innerHeight-th-10;
+					te.style.left=x+'px';te.style.top=y+'px';
+					// Set content AFTER positioning
+					if(!ta||!tn)return;
+					ta.textContent=c.dataset.author;
+					tn.textContent=c.dataset.note;
+				}
+				function hideTip(){
+					clearTimeout(tt);
+					// Only hide if not on a card
+					tt=setTimeout(function(){te.classList.remove('show');},80);
+				}
+				function openModal(title,author,note,status){
+					mt.textContent=title;
+					ma.textContent=author;
+					mn.textContent=note;
+					var label=statusLabels[status]||status;
+					ms.innerHTML='<span class="bc_dot"></span>'+label;
+					ms.className='book_modal_status';
+					ms.classList.add('status_'+status);
+					ov.classList.add('open');
+				}
+				function closeModal(){ov.classList.remove('open');}
+				if(cb)cb.addEventListener('click',closeModal);
+				if(ov)ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+				document.addEventListener('keydown',function(e){if(e.key==='Escape'&&ov&&ov.classList.contains('open'))closeModal();});
+				tb.addEventListener('click',function(){
+					var vs=a.querySelectorAll('.book_group');
+					var all=vs.length>0;
+					vs.forEach(function(g){if(!g.classList.contains('open'))all=false;});
+					all=!all;
+					vs.forEach(function(g){g.classList.toggle('open',all);gos[g.dataset.group]=all;});
+					tb.textContent=all?'全部收起':'全部展开';
 				});
-				function closeBookModal(){overlay.classList.remove("open");}
-				closeBtn.addEventListener("click",closeBookModal);
-				overlay.addEventListener("click",function(e){if(e.target===overlay)closeBookModal();});
-				document.addEventListener("keydown",function(e){
-					if(e.key==="Escape"&&overlay.classList.contains("open"))closeBookModal();
+				render();
+			}();}catch(e){};
+			
+		// 鼠标聚光灯
+		(function(){
+			var el=document.getElementById('spotlight');
+			if(!el)return;
+			document.addEventListener('mousemove',function(e){
+				var x=(e.clientX/window.innerWidth)*100,y=(e.clientY/window.innerHeight)*100;
+				el.style.setProperty('--s-x',x+'%');
+				el.style.setProperty('--s-y',y+'%');
+			});
+		})();
+		// CTA 滚动到技术栈
+		(function(){
+			var btn=document.getElementById('ctaBtn'),tech=document.getElementById('techstack');
+			if(!btn||!tech)return;
+			btn.addEventListener('click',function(){tech.scrollIntoView({behavior:'smooth',block:'start'});});
+		})();
+		// 右面板滚动进度条
+		(function(){
+			var bar=document.getElementById('scrollProgress'),rp=document.getElementById('rightPane');
+			if(!bar||!rp)return;
+			rp.addEventListener('scroll',function(){
+				var st=rp.scrollTop,dh=rp.scrollHeight-rp.clientHeight;
+				if(dh>0)bar.style.width=((st/dh)*100)+'%';
+			});
+		})();
+		// 渐入动画
+		(function(){
+			var els=document.querySelectorAll('.reveal');
+			if(!els.length)return;
+			var obs=new IntersectionObserver(function(entries){
+				entries.forEach(function(e){
+					if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}
 				});
-			})();
+			},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
+			els.forEach(function(el){obs.observe(el);});
+		})();
+			// 主题切换
+		(function(){
+			var btn=document.getElementById('themeToggle');
+			if(!btn)return;
+			btn.addEventListener('click',function(){
+				var html=document.documentElement;
+				var isLight=html.classList.toggle('light');
+				localStorage.setItem('theme',isLight?'light':'dark');
+			});
+		})();
+
 		</script>
-	</body>
-	</html>
+		<!-- ========== 书本悬浮提示 ========== -->
+		<!-- ========== 项目详情弹窗 ========== -->
+		<div class="proj_overlay" id="projOverlay">
+			<div class="proj_modal">
+				<div class="proj_modal_head">
+					<div>
+						<h3 class="proj_modal_title" id="projModalTitle"></h3>
+						<span class="proj_modal_badge" id="projModalBadge"><span class="badge_dot"></span></span>
+					</div>
+					<button class="proj_modal_close" id="projCloseBtn">✕</button>
+				</div>
+				<div class="proj_modal_sec">
+					<div class="proj_modal_label">📖 项目简介</div>
+					<div class="proj_modal_desc" id="projModalDesc"></div>
+				</div>
+				<div class="proj_modal_sec" id="projArchSec">
+					<div class="proj_modal_label">🏗️ 架构示意图</div>
+					<div class="proj_modal_arch"><pre id="projModalArch"></pre></div>
+				</div>
+				<div class="proj_modal_sec" id="projChallengeSec">
+					<div class="proj_modal_label">⚡ 技术难点</div>
+					<ul class="proj_modal_ul" id="projModalChallenges"></ul>
+				</div>
+				<div class="proj_modal_sec" id="projBenchSec">
+					<div class="proj_modal_label">📊 性能数据</div>
+					<table class="proj_modal_table" id="projModalBench"><tbody></tbody></table>
+				</div>
+				<div class="proj_modal_footer">
+					<a class="proj_modal_link" id="projModalLink" target="_blank" rel="noopener noreferrer"><i data-lucide="github" style="width:14px;height:14px;"></i><span>查看源码</span></a>
+					<span style="font-size:0.6rem;color:var(--c-text-dim);">点击卡片外关闭</span>
+				</div>
+			</div>
+		<script>
+		!function(){
+			var O=document.getElementById('projOverlay');
+			if(!O)return;
+			var C=document.getElementById('projCloseBtn');
+			var T=document.getElementById('projModalTitle');
+			var B=document.getElementById('projModalBadge');
+			var D=document.getElementById('projModalDesc');
+			var A=document.getElementById('projModalArch');
+			var CL=document.getElementById('projModalChallenges');
+			var BT=document.getElementById('projModalBench').querySelector('tbody');
+			var L=document.getElementById('projModalLink');
+			var AS=document.getElementById('projArchSec');
+			var CS=document.getElementById('projChallengeSec');
+			var BS=document.getElementById('projBenchSec');
+			var PD=[
+				{key:'cache-system',name:'Cache-System',st:'done',lb:'已完成',de:'基于 C++17 的高性能缓存系统库，实现 LRU、LFU、LRU-K、ARC、FIFO、Hash-LRU、LFU-Aging 七种淘汰策略，纯头文件，支持线程安全并发访问。',ar:['RLruCache.hpp','RLfuCache.hpp','RLru-kCache.hpp','RFIFOCaChe.hpp','RHashLruCache.hpp','RArcCache/','RArcCache.hpp','RArcLruPart.hpp','RArcLfuPart.hpp'],ch:['ARC 自适应：幽灵缓存追踪淘汰历史，动态平衡 LRU/LFU 容量','Hash-LRU 分片锁设计降低锁竞争','控制块多态设计：虚接口 vs 模板取舍'],bm:[['热点数据命中率','LRU 49.52% | LFU 66.76% | ARC 66.05% | LRU-K 53.69% | FIFO 37.30%'],['循环扫描命中率','LRU 4.50% | LFU 8.92% | ARC 9.54% | LRU-K 7.72% | FIFO 4.69%'],['工作负载变化','LRU 55.02% | LFU 36.57% | ARC 59.26% | LRU-K 56.47% | FIFO 53.83%'],['测试配置','缓存容量 20 / 50 万次操作 / 70% 热点概率']],gh:'https://github.com/Rrrayy/Cache-System'},
+				{key:'os-lab',name:'os_lab',st:'ongoing',lb:'进行中',de:'操作系统核心机制的手写代码验证实验合集——系统调用追踪、fork 进程创建、FCFS/RR/MLFQ 调度模拟器、mmap 内存映射与缺页观测、brk vs mmap 分配器切换、inode 文件系统、多线程 benchmark、自旋锁手写实现、ABBA 死锁 gdb 定位、阻塞与非阻塞 IO 对比、sendfile 零拷贝 benchmark，共 11 个实验目录。',ar:['syscall_trace','fork_test','scheduler_sim','mmap_test','malloc_test','innode_test','multithread','spinlock','dead_lock','io_model','zero_copy'],ch:['CFS 调度模拟器：FCFS/RR/MLFQ 三种算法实现+甘特图输出','零拷贝 benchmark：sendfile 126ms vs read+write 294ms，系统调用 10 万倍差距','COW 缺页验证：perf stat 观测 256MB 逐页写入产生 6.5 万次缺页','malloc 阈值实验：mallopt 调整 MMAP_THRESHOLD，strace 验证 brk/mmap 切换'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['自旋锁 vs mutex','短临界区自旋 339ms mutex 115ms / 长临界区自旋 27ms mutex 45ms'],['缺页次数验证','1MB ≈ 256 次 / 256MB ≈ 65853 次'],['竞态验证','无锁版 count 达不到 400 万（4×PER_THREAD），验证竞态存在']],gh:'https://github.com/Rrrayy/os_lab'},
+				{key:'smart-ptr',name:'cpp-smart-ptr',st:'ongoing',lb:'开发中',de:'namespace RR 下实现的 C++17 智能指针库，完整覆盖 unique_ptr/shared_ptr/weak_ptr 及其配套设施。纯头文件、零外部依赖。控制块多态设计、copy-and-swap 异常安全保障、memory_order 按需分级。',ar:['unique_ptr（主模板 + T[]偏特化）','shared_ptr + control_block_base 多态','weak_ptr（lock() 原子提升）','make_shared + make_unique','static/dynamic/const/reinterpret_pointer_cast'],ch:['控制块多态：抽象基类 control_block_base 虚接口 vs 模板，选虚表实现更清晰','copy-and-swap 惯用法：天然异常安全，自赋值安全','weak_ptr::lock() 原子条件递增：避免 expired() 检查与提升之间的竞争窗口','make_shared 一次分配对象+控制块，减少内存碎片'],bm:[['引用计数','std::atomic<long>，memory_order_relaxed（调试用途）'],['unique_ptr 删除器','EBO 优化：空删除器零额外内存开销'],['实现覆盖','unique_ptr/shared_ptr/weak_ptr/make_shared/pointer_cast']],gh:'https://github.com/Rrrayy/cpp-smart-ptr'},
+				{key:'algorithm',name:'Algorithm-Problems',st:'ongoing',lb:'进行中',de:'个人 C++ 算法解题仓库，按代码随想录体系刷题，覆盖数组、链表、哈希表、字符串、栈与队列、二叉树、回溯、贪心、动态规划等模块。',ar:['数组/链表/哈希表/字符串','栈与队列/二叉树','回溯/贪心','动态规划（进行中）'],ch:['按代码随想录体系系统刷题，夯实每类数据结构基础','从暴力递归到动态规划的状态定义抽象'],bm:[['覆盖模块','数组/链表/哈希表/字符串/栈队列/二叉树/回溯/贪心/动态规划'],['刷题策略','代码随想录主线 + Hot 100 + 企业高频']],gh:'https://github.com/Rrrayy/algorithm-problems'},
+			];
+			PD.forEach(function(p){
+				var el=document.querySelector('.project_card[data-proj="'+p.key+'"]');
+				if(!el)return;
+				el.addEventListener('click',function(){
+					T.textContent=p.name;
+					B.innerHTML='<span class="badge_dot"></span>'+p.lb;
+					B.className='proj_modal_badge '+p.st;
+					D.textContent=p.de;
+					if(p.ar){AS.style.display="";A.textContent=p.ar.join(String.fromCharCode(10,9));}else AS.style.display="none";
+
+					if(p.ch){CS.style.display='';CL.innerHTML=p.ch.map(function(x){return '<li>'+x+'</li>';}).join('');}else CS.style.display='none';
+					if(p.bm){BS.style.display='';BT.innerHTML=p.bm.map(function(x){return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>';}).join('');}else BS.style.display='none';
+					L.href=p.gh;
+					O.classList.add('open');
+				});
+			});
+			C.addEventListener('click',function(){O.classList.remove('open');});
+			O.addEventListener('click',function(e){if(e.target===O)O.classList.remove('open');});
+			document.addEventListener('keydown',function(e){if(e.key==='Escape'&&O.classList.contains('open'))O.classList.remove('open');});
+		}();
+		</script>
+		</div>
+		<div class="book_tooltip" id="bookTooltip">
+			<div class="book_tooltip_author" id="tooltipAuthor"></div>
+			<div class="book_tooltip_note" id="tooltipNote"></div>
+		</div>
+<script>
+(function(){
+	var el=document.getElementById('loaderOverlay');
+	if(!el)return;
+	var bar=document.getElementById('loaderBar');
+	var start=Date.now();
+	var t=setInterval(function(){if(bar)bar.style.width=Math.min(95,(Date.now()-start)/600*80)+'%';},30);
+	function done(){
+		clearInterval(t);
+		if(bar)bar.style.width='100%';
+		setTimeout(function(){el.style.opacity='0';},200);
+		setTimeout(function(){el.style.display='none';},700);
+	}
+	window.addEventListener('load',done);
+	setTimeout(done,3000);
+})();
+</script>
+
+</body>
+</html>
