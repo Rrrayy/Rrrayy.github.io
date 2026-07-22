@@ -473,16 +473,13 @@
 				</div>
 				<a href="javascript:void(0)" class="cta_btn" id="ctaBtn">查看技术栈 <i data-lucide="arrow-right" style="width:15px;height:15px;stroke-width:2;"></i></a>
 					<button id="guestbookTrigger" class="guestbook_trigger" style="display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:8px 20px;font-size:0.75rem;letter-spacing:0.05em;color:var(--c-text-muted);border-radius:9999px;border:1px solid var(--c-border);background:transparent;cursor:pointer;transition:all 0.3s ease;"><i data-lucide="message-circle" style="width:14px;height:14px;stroke-width:1.5;"></i>给我留言</button>
+					<a href="#resume" id="resumeNavBtn" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:8px 24px;font-size:0.75rem;letter-spacing:0.05em;color:#fca5a5;border-radius:9999px;border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.06);cursor:pointer;transition:all 0.3s ease;text-decoration:none;font-family:inherit;" onmouseover="this.style.background='rgba(239,68,68,0.12)';this.style.borderColor='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(239,68,68,0.06)';this.style.borderColor='rgba(239,68,68,0.25)'"><i data-lucide="file-text" style="width:14px;height:14px;stroke-width:1.5;"></i>📄 简历</a>
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
-							<div class="cl_mini_entry"><span class="cl_mini_date">07/21</span>锁的进阶博客+加载动画+404页+书架重构+修复</div>
-						<div class="cl_mini_entry"><span class="cl_mini_date">07/20</span>学习进度和技术栈更新</div>
-					<div class="cl_mini_entry"><span class="cl_mini_date">07/17</span>新增博客：C++ 多线程入门——创建线程、加锁、计数</div>
-							<div class="cl_mini_entry"><span class="cl_mini_date">07/14</span>新增博客：ext4 文件系统详解——hexdump 看清磁盘布局</div>
-						<div class="cl_mini_entry"><span class="cl_mini_date">07/12</span>新增博客：硬链接和软链接的区别——inode 详解</div>
-					<div class="cl_mini_entry"><span class="cl_mini_date">07/11</span>新增博客：malloc(1) 背后的 brk 与 mmap</div>
-					<div class="cl_mini_entry"><span class="cl_mini_date">07/09</span>新增博客：CFS 完全公平调度器深度拆解</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">07/22</span>网站结构调整+简历入口</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">07/21</span>锁的进阶博客+加载动画+404页+书架重构+修复</div>
+					<div class="cl_mini_all" id="clMiniTrigger" style="cursor:pointer;font-size:0.6rem;color:var(--c-text-dim);transition:color 0.2s;margin-top:4px;letter-spacing:0.04em;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'">→ 查看全部更新日志</div>
 			</div>
 			<div class="left_footer"><div class="left_footer">&copy; 2026 Rray</div>copy; 2026 Rray · <span id="busuanzi_value_site_pv">0</span> 次浏览</div>
 		</aside>
@@ -566,7 +563,14 @@
 					</div>
 				</section>
 
-				<!-- 3. 学习路线 -->
+				<!-- 3. 博客 -->
+					<section id="blog" class="glass_section reveal">
+					<h2 class="section_title">博客</h2>
+					<div class="blog_cats" id="blogCats"></div>
+					<div class="blog_list" id="blogList"></div>
+				</section>
+
+				<!-- 4. 学习路线 -->
 				<section id="roadmap" class="glass_section reveal">
 					<h2 class="section_title">学习路线</h2>
 					<!-- 阶段一：进行中 -->
@@ -609,12 +613,6 @@
 					</div>
 				</section>
 
-								<!-- 4. 简历 -->
-				<section id="resume" class="glass_section reveal">
-					<h2 class="section_title">简历</h2>
-					<p class="para" style="color:var(--c-text-dim);text-align:center;padding:20px 0;">简历即将上线，敬请期待。</p>
-				</section>
-
 									<!-- 5. 书架 -->
 					<section id="bookshelf" class="glass_section reveal">
 						<h2 class="section_title">读过的书</h2>
@@ -624,10 +622,11 @@
 						<div class="book_accordion" id="bookAccordion"></div>
 						<div class="flex items-center gap-1.5 mt-4 text_ultra_dim" style="font-size:10px;"><i data-lucide="book-open" style="width:11px;height:11px;stroke-width:1.5;"></i><span>持续更新</span></div>
 					</section>
-					<section id="blog" class="glass_section reveal">
-					<h2 class="section_title">博客</h2>
-					<div class="blog_cats" id="blogCats"></div>
-					<div class="blog_list" id="blogList"></div>
+
+								<!-- 6. 简历 -->
+				<section id="resume" class="glass_section reveal">
+					<h2 class="section_title">简历</h2>
+					<p class="para" style="color:var(--c-text-dim);text-align:center;padding:20px 0;">简历制作中，8月底上线。</p>
 				</section>
 
 			<div class="right_footer">Rray</div>
@@ -665,6 +664,10 @@
 					<span class="cl_modal_title">📋 更新日志</span>
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
+						<div class="cl_block">
+							<div class="cl_block_date">2026-07-22</div>
+							<div class="cl_block_item"><span class="cl_block_tag upd">重构</span>网站结构调整：右面板模块顺序重排、更新日志缩至2条、新增简历入口按钮</div>
+						</div>
 					<div class="cl_block">
 						<div class="cl_block_date">2026-07-21</div>
 						<div class="cl_block_item"><span class="cl_block_tag new">新增</span>全局页面加载动画 + SegFault 终端风格 404 页面</div>
