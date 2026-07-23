@@ -391,28 +391,101 @@
 .proj_modal_link{display:inline-flex;align-items:center;gap:6px;font-size:0.7rem;color:var(--c-text-muted);text-decoration:none;transition:color 0.25s;}
 .proj_modal_link:hover{color:#fca5a5;}
 
-/* === 留言板 === */
-	.guestbook_trigger:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.35) !important;}
-	.gb_close_btn:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.3) !important;}
-	.gb_submit_btn:hover{background:#dc2626 !important;}
-	.guestbook_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
-	.guestbook_overlay.open{opacity:1;pointer-events:auto;}
-	.guestbook_modal{background:var(--c-bg-alt);border:1px solid var(--c-border);border-radius:16px;padding:24px 28px;width:92%;max-width:400px;max-height:85vh;overflow-y:auto;box-shadow:0 12px 60px rgba(0,0,0,0.35);transform:translateY(12px);transition:transform 0.28s ease;}
-	.guestbook_overlay.open .guestbook_modal{transform:translateY(0);}
-	.guestbook_modal::-webkit-scrollbar{width:3px;}
-	.guestbook_modal::-webkit-scrollbar-track{background:transparent;}
-	.guestbook_modal::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
-	#guestbookForm input:focus,#guestbookForm textarea:focus{border-color:rgba(239,68,68,0.3) !important;}
-	/* 留言列表项 */
-	.gb_msg_item{padding:10px 0;border-bottom:1px solid var(--c-border);}
-	.gb_msg_item:last-child{border-bottom:none;}
-	.gb_msg_item .gb_meta{display:flex;align-items:center;gap:8px;margin-bottom:3px;}
-	.gb_msg_item .gb_name{font-size:0.72rem;color:var(--c-text-heading);font-weight:600;}
-	.gb_msg_item .gb_time{font-size:0.58rem;color:var(--c-text-dim);}
-	.gb_msg_item .gb_text{font-size:0.75rem;color:var(--c-text-body);line-height:1.5;word-break:break-word;}
-	#gbList::-webkit-scrollbar{width:3px;}
-	#gbList::-webkit-scrollbar-track{background:transparent;}
-	#gbList::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
+/* === 留言板（v2 重构） === */
+/* 触发按钮 */
+.guestbook_trigger:hover{color:#fca5a5 !important;border-color:rgba(239,68,68,0.35) !important;}
+/* 遮罩 */
+.gb_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;}
+.gb_overlay.open{opacity:1;pointer-events:auto;}
+/* 弹窗容器 */
+.gb_modal{background:#18181b;border:1px solid #27272a;border-radius:16px;width:92%;max-width:520px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 25px 80px rgba(0,0,0,0.5);transform:translateY(16px) scale(0.97);transition:transform 0.3s ease,opacity 0.3s ease;}
+.gb_overlay.open .gb_modal{transform:translateY(0) scale(1);}
+/* 头部 */
+.gb_header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid #27272a;flex-shrink:0;}
+.gb_header_left{display:flex;align-items:center;gap:8px;}
+.gb_header_title{color:#e4e4e7;font-size:1rem;font-weight:600;letter-spacing:0.04em;}
+.gb_close_btn{width:28px;height:28px;border-radius:50%;border:1px solid #27272a;background:transparent;color:#a1a1aa;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:0.85rem;}
+.gb_close_btn:hover{background:#27272a;color:#fca5a5;border-color:#ef4444;}
+/* 表单区 */
+.gb_form_wrap{padding:16px 22px 0;flex-shrink:0;}
+.gb_input_name{width:100%;box-sizing:border-box;padding:8px 12px;height:36px;font-size:0.78rem;color:#e4e4e7;background:rgba(39,39,42,0.5);border:1px solid #3f3f46;border-radius:8px;outline:none;transition:border-color 0.15s ease;font-family:inherit;margin-bottom:8px;}
+.gb_input_name:focus{border-color:#ef4444;}
+.gb_input_name::placeholder{color:#71717a;}
+.gb_textarea_wrap{position:relative;}
+.gb_input_msg{width:100%;box-sizing:border-box;padding:10px 12px;min-height:80px;max-height:160px;font-size:0.78rem;color:#e4e4e7;background:rgba(39,39,42,0.8);border:1px solid #3f3f46;border-radius:10px;outline:none;resize:none;transition:border-color 0.15s ease,box-shadow 0.15s ease;font-family:inherit;}
+.gb_input_msg:focus{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,0.15);}
+.gb_input_msg::placeholder{color:#71717a;}
+.gb_char_count{position:absolute;right:10px;bottom:8px;font-size:0.65rem;color:#71717a;pointer-events:none;}
+.gb_char_count.warn{color:#fbbf24;}
+.gb_char_count.over{color:#ef4444;}
+.gb_form_bottom{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.gb_hint{font-size:0.6rem;color:#52525b;}
+.gb_submit_btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 22px;font-size:0.75rem;letter-spacing:0.04em;color:#fff;background:#ef4444;border:none;border-radius:10px;cursor:pointer;transition:all 0.2s;font-family:inherit;white-space:nowrap;}
+.gb_submit_btn:hover:not(:disabled){background:#f87171;}
+.gb_submit_btn:active:not(:disabled){transform:scale(0.96);}
+.gb_submit_btn:disabled{opacity:0.5;cursor:not-allowed;}
+/* 列表区 */
+.gb_list_wrap{flex:1;overflow-y:auto;padding:12px 22px 4px;min-height:120px;}
+.gb_list_wrap::-webkit-scrollbar{width:3px;}
+.gb_list_wrap::-webkit-scrollbar-track{background:transparent;}
+.gb_list_wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px;}
+/* 留言卡片 */
+.gb_card{background:rgba(39,39,42,0.6);border:1px solid rgba(63,63,70,0.5);border-radius:12px;padding:14px;margin-bottom:12px;animation:gbFadeIn 0.35s ease;}
+.gb_card_head{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.gb_avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.gb_avatar svg{width:16px;height:16px;color:rgba(255,255,255,0.7);}
+.gb_avatar_sm{width:28px;height:28px;}.gb_avatar_sm svg{width:13px;height:13px;}
+.gb_meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.gb_name{font-size:0.8rem;color:#e4e4e7;font-weight:500;}
+.gb_time{font-size:0.6rem;color:#71717a;cursor:default;}
+.gb_text{font-size:0.78rem;color:#d4d4d8;line-height:1.6;word-break:break-word;margin-top:2px;}
+.gb_card_actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
+.gb_reply_btn{font-size:0.65rem;color:#71717a;cursor:pointer;transition:color 0.2s;background:none;border:none;padding:0;font-family:inherit;}
+.gb_reply_btn:hover{color:#e4e4e7;}
+/* 嵌套回复 */
+.gb_reply_wrap{position:relative;margin-left:36px;margin-top:8px;padding-left:16px;}
+.gb_reply_wrap::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:#3f3f46;}
+.gb_reply_wrap::after{content:'';position:absolute;left:-2px;top:10px;width:6px;height:6px;border-radius:50%;background:#52525b;}
+.gb_reply_card{background:rgba(39,39,42,0.3);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.gb_reply_card .gb_avatar{width:28px;height:28px;}
+/* 内联回复表单 */
+.gb_inline_reply{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0 4px;padding:8px;background:rgba(39,39,42,0.3);border-radius:8px;}
+.gb_inline_reply input{flex:1;min-width:60px;padding:6px 10px;font-size:0.7rem;border:1px solid #3f3f46;border-radius:6px;background:rgba(24,24,27,0.8);color:#e4e4e7;outline:none;font-family:inherit;transition:border-color 0.15s;}
+.gb_inline_reply input:focus{border-color:#ef4444;}
+.gb_inline_reply .gb_inline_submit{padding:6px 14px;font-size:0.65rem;color:#fff;background:#ef4444;border:none;border-radius:8px;cursor:pointer;transition:all 0.15s;font-family:inherit;}
+.gb_inline_reply .gb_inline_submit:hover{background:#f87171;}
+.gb_inline_reply .gb_inline_cancel{padding:6px 10px;font-size:0.65rem;color:#a1a1aa;background:none;border:1px solid #3f3f46;border-radius:8px;cursor:pointer;transition:color 0.15s;font-family:inherit;}
+.gb_inline_reply .gb_inline_cancel:hover{color:#e4e4e7;}
+/* 骨架屏 */
+.gb_skeleton{padding:14px;background:rgba(39,39,42,0.6);border:1px solid rgba(63,63,70,0.5);border-radius:12px;margin-bottom:12px;}
+.gb_skeleton_line{height:12px;border-radius:6px;background:#27272a;margin-bottom:8px;}
+.gb_skeleton_line:last-child{margin-bottom:0;width:60%;}
+.gb_skeleton_avatar{width:36px;height:36px;border-radius:50%;background:#27272a;margin-bottom:8px;}
+/* 空状态 */
+.gb_empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 0;color:#52525b;gap:8px;}
+.gb_empty_text{font-size:0.78rem;color:#71717a;}
+/* 加载更多 */
+.gb_load_more{text-align:center;padding:10px 0 6px;font-size:0.68rem;color:#71717a;cursor:pointer;transition:color 0.2s;}
+.gb_load_more:hover{color:#fca5a5;}
+.gb_no_more{text-align:center;padding:8px 0 4px;font-size:0.6rem;color:#52525b;}
+/* 错误提示 */
+.gb_error{text-align:center;padding:20px 0;color:#ef4444;font-size:0.72rem;}
+.gb_retry_btn{display:inline-block;margin-top:8px;padding:6px 16px;font-size:0.68rem;color:#fff;background:#ef4444;border:none;border-radius:8px;cursor:pointer;font-family:inherit;}
+/* 底部 */
+.gb_footer{display:flex;align-items:center;justify-content:center;gap:4px;padding:10px 22px;border-top:1px solid #27272a;flex-shrink:0;font-size:0.6rem;color:#52525b;}
+/* 动画 */
+@keyframes gbFadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.gb_spin{animation:spin 1s linear infinite;}
+/* Toast */
+.gb_toast_wrap{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.gb_toast{padding:10px 16px;border-radius:10px;font-size:0.72rem;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;pointer-events:auto;animation:gbToastIn 0.3s ease;max-width:320px;}
+.gb_toast.success{background:#166534;border:1px solid #22c55e;}
+.gb_toast.error{background:#7f1d1d;border:1px solid #ef4444;}
+.gb_toast.warn{background:#713f12;border:1px solid #f59e0b;}
+.gb_toast_close{cursor:pointer;opacity:0.6;transition:opacity 0.15s;margin-left:auto;flex-shrink:0;}
+.gb_toast_close:hover{opacity:1;}
+@keyframes gbToastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
 	
 		/* 全局加载动画 */
 	
@@ -635,26 +708,38 @@
 	
 	</div>
 
-		<!-- ========== 留言板弹窗 ========== -->
-		<div class="guestbook_overlay" id="guestbookOverlay">
-			<div class="guestbook_modal" id="guestbookModal">
-				<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-					<h3 style="font-size:0.95rem;color:var(--c-text-heading);font-weight:600;letter-spacing:0.06em;">💬 留言板 <span id="adminLock" style="cursor:pointer;font-size:0.6rem;opacity:0.35;transition:opacity 0.2s;margin-left:2px;" title="管理员入口">🔒</span></h3>
-					<button id="guestbookClose" class="gb_close_btn" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--c-border);background:var(--c-surface);color:var(--c-text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.25s ease;font-size:0.85rem;font-family:inherit;">✕</button>
-				</div>
-				<form id="guestbookForm" style="margin-bottom:18px;" autocomplete="off">
-					<input type="text" id="gbName" placeholder="你的名字（选填）" maxlength="20" style="width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:8px;font-size:0.78rem;color:var(--c-text-body);background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;outline:none;transition:border-color 0.25s ease;font-family:inherit;">
-					<textarea id="gbMsg" placeholder="说点什么..." maxlength="200" rows="2" required style="width:100%;box-sizing:border-box;padding:8px 12px;margin-bottom:8px;font-size:0.78rem;color:var(--c-text-body);background:var(--c-surface);border:1px solid var(--c-border);border-radius:8px;outline:none;resize:none;transition:border-color 0.25s ease;font-family:inherit;"></textarea>
-					<div style="display:flex;justify-content:flex-end;">
-						<button type="submit" class="gb_submit_btn" id="gbSubmitBtn" style="padding:6px 22px;font-size:0.72rem;letter-spacing:0.05em;color:#fff;background:#ef4444;border:none;border-radius:9999px;cursor:pointer;transition:all 0.25s ease;font-family:inherit;">发送留言</button>
+		<!-- ========== 留言板弹窗（v2 重构） ========== -->
+		<div class="gb_overlay" id="gbOverlay">
+			<div class="gb_modal">
+				<div class="gb_header">
+					<div class="gb_header_left">
+						<i data-lucide="message-square-text" style="width:18px;height:18px;color:#ef4444;stroke-width:1.5;"></i>
+						<span class="gb_header_title">留言板</span>
 					</div>
-				</form>
-				<div id="gbList" style="max-height:240px;overflow-y:auto;">
-					<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>
+					<button id="gbCloseBtn" class="gb_close_btn">✕</button>
 				</div>
-				<div id="gbFooter" style="text-align:center;margin-top:8px;font-size:0.55rem;color:var(--c-text-dim);"></div>
+				<div class="gb_form_wrap">
+					<input type="text" id="gbName" class="gb_input_name" placeholder="你的名字（选填）" maxlength="20" autocomplete="off">
+					<div class="gb_textarea_wrap">
+						<textarea id="gbMsg" class="gb_input_msg" placeholder="说点什么..." maxlength="200" rows="2"></textarea>
+						<span class="gb_char_count" id="gbCharCount">0/200</span>
+					</div>
+					<div class="gb_form_bottom">
+						<span class="gb_hint">Ctrl+Enter 发送</span>
+						<button type="submit" class="gb_submit_btn" id="gbSubmitBtn">
+							<span id="gbBtnText">发送</span>
+							<i data-lucide="loader-2" id="gbBtnSpinner" class="gb_spin" style="width:14px;height:14px;display:none;"></i>
+						</button>
+					</div>
+				</div>
+				<div class="gb_list_wrap" id="gbList"></div>
+				<div class="gb_footer">
+					<i data-lucide="cloud" style="width:12px;height:12px;stroke-width:1.5;"></i>
+					<span>云端同步 · 所有人可见</span>
+				</div>
 			</div>
 		</div>
+		<div class="gb_toast_wrap" id="gbToastWrap"></div>
 
 
 		<!-- ========== 更新日志弹窗 ========== -->
@@ -664,6 +749,10 @@
 					<span class="cl_modal_title">📋 更新日志</span>
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
+						<div class="cl_block">
+								<div class="cl_block_date">2026-07-24</div>
+								<div class="cl_block_item"><span class="cl_block_tag upd">重构</span>留言板v2：UI翻新+防刷限流+游标分页+安全加固</div>
+							</div>
 						<div class="cl_block">
 							<div class="cl_block_date">2026-07-22</div>
 							<div class="cl_block_item"><span class="cl_block_tag upd">重构</span>网站结构调整：右面板模块顺序重排、更新日志缩至2条、新增简历入口按钮</div>
@@ -826,248 +915,166 @@
 					overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.classList.remove('open');});
 					document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('open'))overlay.classList.remove('open');});
 				})();
-				// ===== 留言板（Supabase 云端 + localStorage 兜底） =====
-			(function(){
-				// ★ 启用云端留言：前往 https://supabase.com 创建免费项目
-				//   执行下方 SQL 建表，然后替换 URL 和 Key
-				/* 建表 SQL（在 Supabase SQL Editor 执行）：
-				   CREATE TABLE guestbook (
-				     id BIGSERIAL PRIMARY KEY,
-				     name TEXT DEFAULT '',
-				     text TEXT NOT NULL,
-				     parent_id BIGINT DEFAULT NULL,
-				     created_at TIMESTAMPTZ DEFAULT NOW()
-				   );
-				   ALTER TABLE guestbook ENABLE ROW LEVEL SECURITY;
-				   CREATE POLICY "anon_read" ON guestbook FOR SELECT USING (true);
-				   CREATE POLICY "anon_insert" ON guestbook FOR INSERT WITH CHECK (true);
-				*/
+
+				(function(){
 				var SUPABASE_URL='https://leoemzernexgpsngortl.supabase.co';
 				var SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDk5NDQsImV4cCI6MjA5NjgyNTk0NH0.GnmozyaMQTYl_5UKhK2PW5iwvHFO8OQ3ya7nGio0jB0';
-				var ADMIN_KEY=''; // 不存于代码，需删除留言时临时填入
-				var ADMIN_PASS='cfr20060419'; // ★ 改成你自己的管理密码
-				var isAdmin=false; // 当前会话是否为管理员
-				var showAll=false; // 是否展开全部留言
-				var allMsgs=[]; // 缓存当前全部留言数据
 				var TABLE='guestbook';
-				var STORAGE_KEY='gb_messages';
-				var useCloud=!!(SUPABASE_URL&&SUPABASE_KEY&&SUPABASE_URL.indexOf('your-project')===-1);
-				// 🔄 心跳检测：定时查询数据库，防止 Supabase 免费版因7天不活跃而暂停
-				if(useCloud)(function hb(){
-					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=id&limit=1&order=id.desc',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}}).catch(function(){});
-					setTimeout(hb,5*24*60*60*1000); // 每5天自动心跳一次
-				})();
-				var overlay=document.getElementById('guestbookOverlay');
+				var PAGE_SIZE=10;
+				var overlay=document.getElementById('gbOverlay');
 				var trigger=document.getElementById('guestbookTrigger');
-				var closeBtn=document.getElementById('guestbookClose');
-				var form=document.getElementById('guestbookForm');
+				var closeBtn=document.getElementById('gbCloseBtn');
 				var list=document.getElementById('gbList');
-				var footer=document.getElementById('gbFooter');
 				var nameInp=document.getElementById('gbName');
 				var msgInp=document.getElementById('gbMsg');
 				var submitBtn=document.getElementById('gbSubmitBtn');
-				var adminLock=document.getElementById('adminLock');
+				var btnText=document.getElementById('gbBtnText');
+				var btnSpinner=document.getElementById('gbBtnSpinner');
+				var charCount=document.getElementById('gbCharCount');
+				var toastWrap=document.getElementById('gbToastWrap');
+				var cursor=null,hasMore=true,loadingMore=false,firstLoad=true;
+				var allReplies={},replyTarget=null;
 				if(!overlay||!trigger)return;
-				// 管理员入口：点击🔒输入密码
-				adminLock.addEventListener('click',function(e){
-					e.stopPropagation();
-					if(isAdmin){isAdmin=false;adminLock.textContent='🔒';adminLock.style.opacity='0.35';loadAndRender();return;}
-					var pw=prompt('管理员密码：');
-					if(pw===ADMIN_PASS){isAdmin=true;adminLock.textContent='🔓';adminLock.style.opacity='0.8';loadAndRender();}
-					else if(pw!==null){alert('密码错误');}
-				});
-				// 删除留言（用 service_role key 跳过 RLS）
-				function deleteMsg(id){
-					if(!ADMIN_KEY){alert('未配置 ADMIN_KEY（service_role key），请先在代码中填入');return;}
-					if(!confirm('确定删除这条留言？'))return;
-					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?id=eq.'+encodeURIComponent(id),{
-						method:'DELETE',
-						headers:{'apikey':ADMIN_KEY,'Authorization':'Bearer '+ADMIN_KEY}
-					})
-					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);loadAndRender();})
-					.catch(function(err){alert('删除失败: '+err.message);});
+				function showToast(msg,t){
+					if(!toastWrap)return;
+					var el=document.createElement('div');
+					el.className='gb_toast '+t;
+					var ic={success:'check-circle',error:'alert-circle',warn:'alert-triangle'};
+					el.innerHTML='<i data-lucide="'+ic[t]+'" style="width:14px;height:14px;flex-shrink:0;"></i><span>'+msg+'</span><span class="gb_toast_close" onclick="this.parentElement.remove()">✕</span>';
+					toastWrap.appendChild(el);
+					if(lucide&&lucide.createIcons)lucide.createIcons();
+					setTimeout(function(){if(el.parentNode)el.remove();},t==='success'?2000:3000);
 				}
-				footer.innerHTML=useCloud?'📡 云端同步 · 所有人可见':'📌 离线模式 · 留言仅保存在本地浏览器';
+				function checkRateLimit(){
+					var k='gb_rate_'+Math.floor(Date.now()/60000);
+					var n=parseInt(localStorage.getItem(k)||'0');
+					if(n>=3){showToast('发送过于频繁','warn');return false;}
+					localStorage.setItem(k,String(n+1));
+					return true;
+				}
 				function timeAgo(ts){
-					var diff=Date.now()-ts;
-					if(diff<60000)return '刚刚';
-					if(diff<3600000)return Math.floor(diff/60000)+'分钟前';
-					if(diff<86400000)return Math.floor(diff/3600000)+'小时前';
-					if(diff<2592000000)return Math.floor(diff/86400000)+'天前';
+					var d=Date.now()-new Date(ts).getTime();
+					if(d<60000)return'刚刚';if(d<3600000)return Math.floor(d/60000)+'分钟前';
+					if(d<86400000)return Math.floor(d/3600000)+'小时前';if(d<2592000000)return Math.floor(d/86400000)+'天前';
 					return new Date(ts).toLocaleDateString('zh-CN');
 				}
-				function escHTML(s){
-					return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-				}
-				function loadLocal(){
-					try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}
-					catch(e){return[];}
-				}
-				function saveLocal(msgs){
-					if(msgs.length>50)msgs=msgs.slice(0,50);
-					localStorage.setItem(STORAGE_KEY,JSON.stringify(msgs));
-				}
-				// 从云端加载留言（按时间正序取200条，便于构建回复树）
-				function loadCloud(callback){
-					list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>';
-					fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=*&order=created_at.asc&limit=200',{
-						headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
-					})
-					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-					.then(function(data){callback(data);})
-					.catch(function(){callback(loadLocal());});
-				}
-				// 保存留言到云端（支持 parent_id 实现回复）
-				function saveCloud(msg,callback){
-					var body={name:msg.name,text:msg.text,created_at:new Date().toISOString()};
-					if(msg.parent_id)body.parent_id=msg.parent_id;
-					fetch(SUPABASE_URL+'/rest/v1/'+TABLE,{
-						method:'POST',
-						headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-						body:JSON.stringify(body)
-					})
-					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-					.then(function(data){callback(null,data);})
-					.catch(function(err){var msgs=loadLocal();msgs.unshift(msg);saveLocal(msgs);callback(err,loadLocal());});
-				}
-				// 将平铺留言数组构建为嵌套树（parent_id 关联父子关系）
-				function buildTree(msgs){
-					var map={},roots=[];
-					msgs.forEach(function(m){m.replies=[];map[m.id]=m;});
-					msgs.forEach(function(m){
-						if(m.parent_id&&map[m.parent_id]){
-							map[m.parent_id].replies.push(m);
-						}else if(!m.parent_id){
-							roots.push(m);
-						}
-					});
-					roots.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);});
-					roots.forEach(function(r){
-						r.replies.sort(function(a,b){return new Date(a.created_at)-new Date(b.created_at);});
-					});
-					return roots;
-				}
-				// 递归渲染单条留言及所有子回复（depth 控制缩进层级）
-				function renderMsg(m,depth){
-					var name=m.name||'匿名';
-					var ts=m.created_at?new Date(m.created_at).getTime():m.time;
-					var ml=depth*28;
-					var html='<div class="gb_msg_item" style="'+(depth?'border-left:1px solid var(--c-border);padding-left:12px;margin-left:'+ml+'px;':'')+'">';
-					html+='<div class="gb_meta"><span class="gb_name">'+escHTML(name)+'</span><span class="gb_time">'+timeAgo(ts)+'</span>';
-					if(isAdmin&&m.id)html+=' <span data-del="'+m.id+'" style="cursor:pointer;color:#ef4444;font-size:0.65rem;opacity:0.6;" title="删除">✕</span>';
-					html+=' <span class="gb_reply_btn" data-reply="'+(m.id||'')+'" style="cursor:pointer;color:var(--c-text-muted);font-size:0.65rem;opacity:0.5;" title="回复">↩ 回复</span>';
-					html+='</div><div class="gb_text">'+escHTML(m.text)+'</div>';
-					html+='<div class="gb_reply_form" id="replyForm_'+m.id+'" style="display:none;margin:6px 0 4px;"></div>';
-					if(m.replies&&m.replies.length)m.replies.forEach(function(r){html+=renderMsg(r,depth+1);});
-					html+='</div>';
-					return html;
-				}
-				// 显示内联回复表单
-				function showReplyForm(parentId){
-					document.querySelectorAll('.gb_reply_form').forEach(function(f){f.style.display='none';f.innerHTML='';});
-					var c=document.getElementById('replyForm_'+parentId);
-					if(!c)return;
-					c.style.display='block';
-					c.innerHTML='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">'
-						+'<input type="text" class="reply_name" placeholder="昵称" maxlength="20" style="flex:1;min-width:60px;padding:4px 8px;font-size:0.7rem;border:1px solid var(--c-border);border-radius:6px;background:transparent;color:var(--c-text);outline:none;font-family:inherit;">'
-						+'<input type="text" class="reply_msg" placeholder="写回复..." maxlength="500" style="flex:2;min-width:100px;padding:4px 8px;font-size:0.7rem;border:1px solid var(--c-border);border-radius:6px;background:transparent;color:var(--c-text);outline:none;font-family:inherit;">'
-						+'<button class="reply_submit" data-parent="'+parentId+'" style="padding:4px 14px;font-size:0.7rem;color:#fff;background:#ef4444;border:none;border-radius:9999px;cursor:pointer;font-family:inherit;">回复</button></div>';
-					c.querySelector('.reply_msg').focus();
-					c.querySelector('.reply_msg').addEventListener('keydown',function(e){
-						if(e.key==='Enter'){e.preventDefault();c.querySelector('.reply_submit').click();}
-					});
-					c.querySelector('.reply_submit').addEventListener('click',function(){
-						var name=c.querySelector('.reply_name').value.trim();
-						var text=c.querySelector('.reply_msg').value.trim();
-						if(!text)return;
-						var btn=c.querySelector('.reply_submit');
-						btn.disabled=true;
-						btn.textContent='...';
-						var msg={name:name,text:text,parent_id:parseInt(parentId),time:Date.now()};
-						if(useCloud){
-							saveCloud(msg,function(){
-								c.style.display='none';c.innerHTML='';loadAndRender();
-							});
-						}else{
-							var msgs=loadLocal();msg.id=Date.now()+Math.floor(Math.random()*1000);msgs.unshift(msg);saveLocal(msgs);
-							c.style.display='none';c.innerHTML='';render(msgs);
-						}
-					});
-				}
-				// 渲染全部留言（先建树再渲染）
-				function render(msgs){
-					allMsgs=msgs||[];
-					if(!allMsgs.length){list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">还没有留言，来说点什么吧 👋</div>';return;}
-					var roots=buildTree(allMsgs);
-					var display=showAll?roots:roots.slice(0,3);
-					var html='';
-					display.forEach(function(m){html+=renderMsg(m,0);});
-					if(!showAll&&roots.length>3){
-						html+='<div id="gbExpandBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">查看全部留言 ('+roots.length+' 条) ▾</div>';
-					}
-					if(showAll&&roots.length>3){
-						html+='<div id="gbCollapseBtn" style="text-align:center;padding:10px 0 4px;cursor:pointer;color:var(--c-text-muted);font-size:0.68rem;transition:color 0.2s;" onmouseover="this.style.color=\'#fca5a5\'" onmouseout="this.style.color=\'var(--c-text-muted)\'">收起 ▴</div>';
-					}
-					list.innerHTML=html;
-					if(isAdmin){
-						list.querySelectorAll('[data-del]').forEach(function(el){
-							el.addEventListener('click',function(e){e.stopPropagation();deleteMsg(parseInt(this.getAttribute('data-del')));});
-						});
-					}
-					list.querySelectorAll('.gb_reply_btn').forEach(function(el){
-						el.addEventListener('click',function(e){e.stopPropagation();showReplyForm(this.getAttribute('data-reply'));});
-					});
-					var expandBtn=document.getElementById('gbExpandBtn');
-					var collapseBtn=document.getElementById('gbCollapseBtn');
-					if(expandBtn)expandBtn.addEventListener('click',function(){showAll=true;render(allMsgs);list.scrollTop=0;});
-					if(collapseBtn)collapseBtn.addEventListener('click',function(){showAll=false;render(allMsgs);list.scrollTop=0;});
-				}
-				function loadAndRender(){
-					list.innerHTML='<div style="text-align:center;padding:24px 0;color:var(--c-text-dim);font-size:0.72rem;">加载中...</div>';
-					if(useCloud){loadCloud(function(msgs){render(msgs);});}
-					else{render(loadLocal());}
-				}
-				trigger.addEventListener('click',function(){
-					overlay.classList.add('open');
-					loadAndRender();
-					setTimeout(function(){msgInp.focus();},200);
+				function escHTML(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+				function hashToColor(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return'hsl('+Math.abs(h)%360+',30%,25%)';}
+				function getIPHash(){var h=localStorage.getItem('gb_iph');if(h)return h;h='g_'+(Math.random()*0x100000000).toString(16);localStorage.setItem('gb_iph',h);return h;}
+				msgInp.addEventListener('input',function(){
+					var l=msgInp.value.length;
+					charCount.textContent=l+'/200';
+					charCount.className='gb_char_count'+(l>=180?' warn':'')+(l>200?' over':'');
+					submitBtn.disabled=(l===0||l>200);
 				});
-				// 关闭弹窗时同时重置回复表单
-				function closeModal(){
-					overlay.classList.remove('open');form.reset();showAll=false;
-					document.querySelectorAll('.gb_reply_form').forEach(function(f){f.style.display='none';f.innerHTML='';});
+				msgInp.addEventListener('keydown',function(e){
+					if(msgInp.value.length>=200&&e.key!=='Backspace'&&e.key!=='Delete'&&!e.ctrlKey&&!e.metaKey)e.preventDefault();
+					if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();submitBtn.click();}
+				});
+				function renderMsg(m,r){
+					var n=m.name||'匿名',id=m.id||'',iph=m.ip_hash||'default';
+					var ac=r?'gb_avatar gb_avatar_sm':'gb_avatar';
+					var cc=r?'gb_reply_card':'gb_card';
+					var as=r?13:16;
+					var h='<div class="'+cc+'" data-id="'+id+'"><div class="gb_card_head"><div class="'+ac+'" style="background:'+hashToColor(iph)+';"><i data-lucide="user" style="width:'+as+'px;height:'+as+'px;"></i></div><div class="gb_meta"><span class="gb_name">'+escHTML(n)+'</span><span class="gb_time" title="'+m.created_at+'">'+timeAgo(m.created_at)+'</span></div></div><div class="gb_text">'+escHTML(m.text)+'</div><div class="gb_card_actions">'+(r?'':'<button class="gb_reply_btn" data-reply="'+id+'">↩ 回复</button>')+'</div></div><!--gbEnd-->';
+					return h;
 				}
+				function render(msgs,ap){
+					if(!msgs||!msgs.length){if(!ap)list.innerHTML='<div class="gb_empty"><i data-lucide="message-square" style="width:28px;height:28px;stroke-width:1.2;"></i><span class="gb_empty_text">还没有留言，来发第一条吧～</span></div>';return;}
+					var h=ap?list.innerHTML:'';
+					var ids=[];
+					msgs.forEach(function(m){h+=renderMsg(m,false);ids.push(m.id);});
+					ids.forEach(function(pid){
+						var rps=allReplies[pid]||[];
+						if(!rps.length)return;
+						var rh='<div class="gb_reply_wrap">';rps.forEach(function(r){rh+=renderMsg(r,true);});rh+='</div>';
+					var pos=h.indexOf('data-id="'+pid+'"');
+						if(pos>=0){
+							var cardEnd=h.indexOf('<!--gbEnd-->',pos);
+							if(cardEnd>=0)h=h.slice(0,cardEnd)+rh+h.slice(cardEnd+11);
+						}
+					});
+					if(!ap&&msgs.length>0)h+='<div class="gb_no_more">—— 没有更多了 ——</div>';
+					list.innerHTML=h;
+					if(lucide&&lucide.createIcons)lucide.createIcons();
+					list.querySelectorAll('.gb_reply_btn').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();showReplyForm(this.getAttribute('data-reply'));});});
+					var lm=document.getElementById('gbLoadMore');
+					if(lm)lm.addEventListener('click',loadMoreMsgs);
+				}
+				function loadMsgs(){
+					list.innerHTML='<div class="gb_skeleton"><div class="gb_skeleton_avatar"></div><div class="gb_skeleton_line"></div><div class="gb_skeleton_line" style="width:80%;"></div></div><div class="gb_skeleton"><div class="gb_skeleton_avatar"></div><div class="gb_skeleton_line"></div><div class="gb_skeleton_line" style="width:60%;"></div></div>';
+					if(lucide&&lucide.createIcons)lucide.createIcons();
+					cursor=null;hasMore=true;firstLoad=true;loadMoreMsgs();
+				}
+				function loadMoreMsgs(){
+					if(loadingMore||!hasMore)return;
+					loadingMore=true;
+					var u=SUPABASE_URL+'/rest/v1/'+TABLE+'?select=*&parent_id=is.null&order=created_at.desc&limit='+PAGE_SIZE;
+					if(cursor)u+='&created_at=lt.'+cursor;
+					fetch(u,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}})
+					.then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+					.then(function(msgs){
+						if(!msgs||!msgs.length){hasMore=false;loadingMore=false;render([],false);return;}
+						var ids=msgs.map(function(m){return m.id;});
+						cursor=msgs[msgs.length-1].created_at;
+						hasMore=msgs.length>=PAGE_SIZE;
+						return fetch(SUPABASE_URL+'/rest/v1/'+TABLE+'?select=*&parent_id=in.('+ids.join(',')+')&order=created_at.asc',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}})
+						.then(function(r2){if(!r2.ok)throw new Error();return r2.json();})
+						.then(function(rps){
+							allReplies={};rps.forEach(function(r){if(!allReplies[r.parent_id])allReplies[r.parent_id]=[];allReplies[r.parent_id].push(r);});
+							loadingMore=false;
+							render(msgs,!firstLoad);
+							firstLoad=false;
+						});
+					})
+					.catch(function(err){loadingMore=false;list.innerHTML='<div class="gb_error">加载失败<button class="gb_retry_btn" onclick="loadMsgs()">重新加载</button></div>';});
+				}
+				function submitMsg(e){
+					e.preventDefault();
+					var t=msgInp.value.trim();
+					if(!t||t.length>200||submitBtn.disabled)return;
+					if(!checkRateLimit())return;
+					submitBtn.disabled=true;btnText.style.display='none';btnSpinner.style.display='inline-block';
+					var b={name:nameInp.value.trim(),text:t};
+					if(replyTarget)b.parent_id=replyTarget;
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(b)})
+					.then(function(r){if(!r.ok)throw new Error();return r.json();})
+					.then(function(d){
+						msgInp.value='';charCount.textContent='0/200';charCount.className='gb_char_count';replyTarget=null;
+						submitBtn.disabled=false;btnText.style.display='inline';btnSpinner.style.display='none';
+						showToast('发送成功','success');loadMsgs();
+					})
+					.catch(function(){submitBtn.disabled=false;btnText.style.display='inline';btnSpinner.style.display='none';showToast('发送失败','error');});
+				}
+				function showReplyForm(pid){
+					document.querySelectorAll('.gb_inline_reply').forEach(function(f){f.remove();});
+					var card=list.querySelector('.gb_card[data-id="'+pid+'"]');
+					if(!card)return;
+					var w=document.createElement('div');w.className='gb_inline_reply';
+					w.innerHTML='<input class="gb_rn" placeholder="昵称" maxlength="20"><input class="gb_rt" placeholder="写回复..." maxlength="200"><button class="gb_inline_submit" data-p="'+pid+'">回复</button><button class="gb_inline_cancel">取消</button>';
+					card.parentNode.insertBefore(w,card.nextSibling);
+					w.querySelector('.gb_rt').focus();
+					w.querySelector('.gb_inline_submit').addEventListener('click',function(){submitReply(pid,w);});
+					w.querySelector('.gb_inline_cancel').addEventListener('click',function(){w.remove();});
+					w.querySelector('.gb_rt').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();w.querySelector('.gb_inline_submit').click();}});
+				}
+				function submitReply(pid,w){
+					var t=w.querySelector('.gb_rt').value.trim();if(!t)return;
+					var btn=w.querySelector('.gb_inline_submit');btn.disabled=true;btn.textContent='...';
+					fetch(SUPABASE_URL+'/rest/v1/'+TABLE,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({name:w.querySelector('.gb_rn').value.trim(),text:t,parent_id:parseInt(pid)})})
+					.then(function(r){if(!r.ok)throw new Error();return r.json();})
+					.then(function(){w.remove();showToast('回复成功','success');loadMsgs();})
+					.catch(function(){showToast('回复失败','error');btn.disabled=false;btn.textContent='回复';});
+				}
+				trigger.addEventListener('click',function(){overlay.classList.add('open');loadMsgs();});
+				function closeModal(){overlay.classList.remove('open');msgInp.value='';nameInp.value='';charCount.textContent='0/200';charCount.className='gb_char_count';replyTarget=null;submitBtn.disabled=false;btnText.style.display='inline';btnSpinner.style.display='none';}
 				closeBtn.addEventListener('click',closeModal);
 				overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
-				form.addEventListener('submit',function(e){
-					e.preventDefault();
-					var text=msgInp.value.trim();
-					if(!text)return;
-					if(submitBtn.disabled)return;
-					submitBtn.disabled=true;
-					submitBtn.textContent='发送中...';
-					var msg={name:nameInp.value.trim(),text:text,time:Date.now()};
-					if(useCloud){
-						saveCloud(msg,function(err,msgs){
-							submitBtn.disabled=false;
-							submitBtn.textContent='发送留言';
-							form.reset();
-							render(msgs);
-							list.scrollTop=0;
-						});
-					}else{
-						var msgs=loadLocal();msgs.unshift(msg);saveLocal(msgs);
-						submitBtn.disabled=false;
-						submitBtn.textContent='发送留言';
-						form.reset();
-						render(msgs);
-						list.scrollTop=0;
-					}
-				});
-				document.addEventListener('keydown',function(e){
-					if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();
-				});
+				document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('open'))closeModal();});
+				submitBtn.addEventListener('click',submitMsg);
+				list.addEventListener('scroll',function(){if(list.scrollTop+list.clientHeight>=list.scrollHeight-50&&hasMore&&!loadingMore)loadMoreMsgs();});
 			})();
+
 														// ===== 书架：手风琴 =====
 				try{!function(){
 				var books=[
