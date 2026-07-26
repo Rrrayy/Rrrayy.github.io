@@ -550,6 +550,7 @@
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">07/27</span>新增博客：零拷贝到底快在哪？</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/24</span>学习路线及技术栈优化</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/22</span>网站结构调整+简历入口</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/21</span>锁的进阶博客+加载动画+404页+书架重构+修复</div>
@@ -637,7 +638,20 @@
 								</div>
 								<div class="proj_meta"><span>💡 点击查看详情</span></div>
 							</div>
-						</div><div class="flex justify-end mt-5">
+						
+								<div class="project_card" data-proj="net-lab" style="cursor:pointer;">
+									<div class="flex items-center justify-between">
+										<div class="flex-1">
+											<div class="flex flex-wrap items-center gap-2"><div class="proj_name">🌐 Net_lab</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
+											<div class="proj_desc">计算机网络实验合集——HTTP 服务器 / DNS 解析 / TCP 状态观察 / 拥塞控制模拟 / Socket 编程。</div>
+										</div>
+										<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+											<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
+											<a href="https://github.com/Rrrayy/Net_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
+										</div>
+									</div>
+									<div class="proj_meta"><span>💡 点击查看详情</span></div>
+								</div></div><div class="flex justify-end mt-5">
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="cta_btn" style="font-size:0.72rem;padding:6px 18px;">访问 GitHub <i data-lucide="github" style="width:13px;height:13px;"></i></a>
 					</div>
 				</section>
@@ -759,6 +773,11 @@
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
 						<div class="cl_block">
+								<div class="cl_block_date">2026-07-27</div>
+								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>博客：零拷贝到底快在哪？——sendfile benchmark 验证</div>
+								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集添加 Net_lab 网络编程实验仓库</div>
+							</div>
+							<div class="cl_block">
 								<div class="cl_block_date">2026-07-24</div>
 								<div class="cl_block_item"><span class="cl_block_tag upd">优化</span>学习路线及技术栈</div>
 							<div class="cl_block_item"><span class="cl_block_tag upd">重构</span>留言板v2：UI翻新+防刷限流+游标分页+安全加固</div>
@@ -868,6 +887,7 @@
 						{title:"ext4 文件系统详解——hexdump 看清磁盘布局",cat:"fs",date:"2026-07-14",desc:"磁盘布局 · 超级块 · 块位图 · inode 位图 · 数据块定位",url:"https://blog.csdn.net/rr666888/article/details/162878654"},
 						{title:"C++ 多线程入门：创建线程、加锁、计数",cat:"cpp",date:"2026-07-17",desc:"thread · mutex · atomic · 竞态条件 · 三版方案对比",url:"https://blog.csdn.net/rr666888/article/details/162950541"},
 						{title:"锁的进阶：自旋锁、死锁、条件变量",cat:"cpp",date:"2026-07-21",desc:"spin_lock · cache bouncing · 死锁gdb定位 · 条件变量 · 生产者消费者",url:"https://blog.csdn.net/rr666888/article/details/163084384"},
+							{title:"零拷贝到底快在哪？",cat:"os",date:"2026-07-27",desc:"DMA · CPU拷贝 · sendfile · 系统调用 · strace 验证",url:"https://blog.csdn.net/rr666888/article/details/163222717"},
 					];
 					var cats=[
 						{key:"all",name:"全部"},
@@ -1302,6 +1322,7 @@
 			var PD=[
 				{key:'cache-system',name:'Cache-System',st:'done',lb:'已完成',de:'基于 C++17 的高性能缓存系统库，实现 LRU、LFU、LRU-K、ARC、FIFO、Hash-LRU、LFU-Aging 七种淘汰策略，纯头文件，支持线程安全并发访问。',ar:['RLruCache.hpp','RLfuCache.hpp','RLru-kCache.hpp','RFIFOCaChe.hpp','RHashLruCache.hpp','RArcCache/','RArcCache.hpp','RArcLruPart.hpp','RArcLfuPart.hpp'],ch:['ARC 自适应：幽灵缓存追踪淘汰历史，动态平衡 LRU/LFU 容量','Hash-LRU 分片锁设计降低锁竞争','控制块多态设计：虚接口 vs 模板取舍'],bm:[['热点数据命中率','LRU 49.52% | LFU 66.76% | ARC 66.05% | LRU-K 53.69% | FIFO 37.30%'],['循环扫描命中率','LRU 4.50% | LFU 8.92% | ARC 9.54% | LRU-K 7.72% | FIFO 4.69%'],['工作负载变化','LRU 55.02% | LFU 36.57% | ARC 59.26% | LRU-K 56.47% | FIFO 53.83%'],['测试配置','缓存容量 20 / 50 万次操作 / 70% 热点概率']],gh:'https://github.com/Rrrayy/Cache-System'},
 				{key:'os-lab',name:'os_lab',st:'ongoing',lb:'进行中',de:'操作系统核心机制的手写代码验证实验合集——系统调用追踪、fork 进程创建、FCFS/RR/MLFQ 调度模拟器、mmap 内存映射与缺页观测、brk vs mmap 分配器切换、inode 文件系统、多线程 benchmark、自旋锁手写实现、ABBA 死锁 gdb 定位、阻塞与非阻塞 IO 对比、sendfile 零拷贝 benchmark，共 11 个实验目录。',ar:['syscall_trace','fork_test','scheduler_sim','mmap_test','malloc_test','innode_test','multithread','spinlock','dead_lock','io_model','zero_copy'],ch:['CFS 调度模拟器：FCFS/RR/MLFQ 三种算法实现+甘特图输出','零拷贝 benchmark：sendfile 126ms vs read+write 294ms，系统调用 10 万倍差距','COW 缺页验证：perf stat 观测 256MB 逐页写入产生 6.5 万次缺页','malloc 阈值实验：mallopt 调整 MMAP_THRESHOLD，strace 验证 brk/mmap 切换'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['自旋锁 vs mutex','短临界区自旋 339ms mutex 115ms / 长临界区自旋 27ms mutex 45ms'],['缺页次数验证','1MB ≈ 256 次 / 256MB ≈ 65853 次'],['竞态验证','无锁版 count 达不到 400 万（4×PER_THREAD），验证竞态存在']],gh:'https://github.com/Rrrayy/os_lab'},
+			{key:'net-lab',name:'Net_lab',st:'ongoing',lb:'持续进行中',de:'计算机网络核心机制的验证实验合集——Wireshark 四层抓包拆解、手写 HTTP 服务器、DNS 解析工具（getaddrinfo 遍历+inet_ntop）、TCP 三次握手四次挥手验证、socket 网络编程入门（TCP hello + 回射服务器）、拥塞控制模拟器（慢启动/拥塞避免/超时/快速重传）+ 曲线图输出。',ar:['wireshark_capture','http_server','dns_resolver','tcp_congestion','net_programming'],ch:['TCP 回射服务器：双客户端实验证明阻塞IO单个线程只能处理一个连接','拥塞控制模拟器：慢启动→拥塞避免→超时→快速重传全过程代码+拥塞窗口曲线图','TIME_WAIT 观察：ss 命令验证 2MSL + SO_REUSEADDR 实验'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['拥塞窗口','慢启动阈值 ssthresh=64，超时 cwnd=1→慢启动，快速重传 cwnd/=2'],['TIME_WAIT','curl 触发→ss 看到 TIME_WAIT，约 60 秒消失']],gh:'https://github.com/Rrrayy/Net_lab'},
 				{key:'smart-ptr',name:'cpp-smart-ptr',st:'ongoing',lb:'开发中',de:'namespace RR 下实现的 C++17 智能指针库，完整覆盖 unique_ptr/shared_ptr/weak_ptr 及其配套设施。纯头文件、零外部依赖。控制块多态设计、copy-and-swap 异常安全保障、memory_order 按需分级。',ar:['unique_ptr（主模板 + T[]偏特化）','shared_ptr + control_block_base 多态','weak_ptr（lock() 原子提升）','make_shared + make_unique','static/dynamic/const/reinterpret_pointer_cast'],ch:['控制块多态：抽象基类 control_block_base 虚接口 vs 模板，选虚表实现更清晰','copy-and-swap 惯用法：天然异常安全，自赋值安全','weak_ptr::lock() 原子条件递增：避免 expired() 检查与提升之间的竞争窗口','make_shared 一次分配对象+控制块，减少内存碎片'],bm:[['引用计数','std::atomic<long>，memory_order_relaxed（调试用途）'],['unique_ptr 删除器','EBO 优化：空删除器零额外内存开销'],['实现覆盖','unique_ptr/shared_ptr/weak_ptr/make_shared/pointer_cast']],gh:'https://github.com/Rrrayy/cpp-smart-ptr'},
 				{key:'algorithm',name:'Algorithm-Problems',st:'ongoing',lb:'进行中',de:'个人 C++ 算法解题仓库，按代码随想录体系刷题，覆盖数组、链表、哈希表、字符串、栈与队列、二叉树、回溯、贪心、动态规划等模块。',ar:['数组/链表/哈希表/字符串','栈与队列/二叉树','回溯/贪心','动态规划（进行中）'],ch:['按代码随想录体系系统刷题，夯实每类数据结构基础','从暴力递归到动态规划的状态定义抽象'],bm:[['覆盖模块','数组/链表/哈希表/字符串/栈队列/二叉树/回溯/贪心/动态规划'],['刷题策略','代码随想录主线 + Hot 100 + 企业高频']],gh:'https://github.com/Rrrayy/algorithm-problems'},
 			];
