@@ -1,6 +1,4 @@
-# Supabase 心跳检测：防止免费项目因 7 天无 API 请求被自动暂停
-# 每天 03:17 UTC（北京时间 11:17）请求一次留言表 REST API
-# 使用 anon key（公开无风险，RLS 保护数据）；禁用 service_role key
+# Supabase heartbeat: keep free project alive (7-day inactivity pause)
 name: supabase-heartbeat
 on:
   schedule:
@@ -11,4 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Supabase REST
-        run: curl -s -o /dev/null -w "heartbeat: %{http_code}\n" "https://leoemzernexgpsngortl.supabase.co/rest/v1/guestbook?select=*&limit=1" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDk5NDQsImV4cCI6MjA5NjgyNTk0NH0.GnmozyaMQTYl_5UKhK2PW5iwvHFO8OQ3ya7nGio0jB0" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDk5NDQsImV4cCI6MjA5NjgyNTk0NH0.GnmozyaMQTYl_5UKhK2PW5iwvHFO8OQ3ya7nGio0jB0"
+        run: |
+          curl -s -o /dev/null -w "heartbeat %{http_code}\n" \
+            "https://leoemzernexgpsngortl.supabase.co/rest/v1/guestbook?select=*&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDk5NDQsImV4cCI6MjA5NjgyNTk0NH0.GnmozyaMQTYl_5UKhK2PW5iwvHFO8OQ3ya7nGio0jB0" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxlb2VtemVybmV4Z3BzbmdvcnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDk5NDQsImV4cCI6MjA5NjgyNTk0NH0.GnmozyaMQTYl_5UKhK2PW5iwvHFO8OQ3ya7nGio0jB0"
