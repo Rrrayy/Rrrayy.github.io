@@ -175,15 +175,21 @@
 		.tag_glow:hover{color:#fff;transform:translateY(-2px);background:rgba(239,68,68,0.12);}
 		.tag_glow:hover::before{background:linear-gradient(135deg,#ef4444,#dc2626);}
 
-		/* 作品集 */
-		.project_card{background:var(--c-surface-hover);border:1px solid var(--c-border-light);border-radius:12px;padding:20px 24px;transition:border-color 0.3s ease,transform 0.3s ease,background 0.3s ease;text-decoration:none;display:block;}
+		/* 作品集（GitHub pinned 式网格） */
+		.proj_grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+		.project_card{background:var(--c-surface-hover);border:1px solid var(--c-border-light);border-radius:12px;padding:18px 20px;transition:border-color 0.3s ease,transform 0.3s ease,background 0.3s ease;text-decoration:none;display:flex;flex-direction:column;gap:10px;}
 		.project_card:hover{border-color:var(--c-card-hover-border);background:var(--c-card-hover-bg);transform:translateY(-3px);}
-		.project_card .proj_name{font-size:0.9rem;color:var(--c-text-heading);font-weight:600;margin-bottom:4px;}
-		.project_card .proj_desc{font-size:0.78rem;color:var(--c-text-muted);line-height:1.6;margin-bottom:10px;}
-		.project_card .proj_meta{display:flex;align-items:center;gap:12px;font-size:0.7rem;color:var(--c-text-dim);}
-		.project_card .proj_meta svg{width:12px;height:12px;stroke-width:1.5;}
-		/* 项目卡片箭头图标颜色 */
-		.project_card .proj_arrow{color:var(--c-text-dim);}
+		.project_card .proj_head{display:flex;align-items:center;gap:8px;min-width:0;}
+		.project_card .proj_icon{width:15px;height:15px;color:var(--c-text-muted);flex-shrink:0;}
+		.project_card .proj_name{font-size:0.9rem;color:var(--c-text-heading);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+		.project_card .proj_badge{margin-left:auto;flex-shrink:0;}
+		.project_card .proj_desc{font-size:0.78rem;color:var(--c-text-muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+		.project_card .proj_meta{display:flex;align-items:center;gap:6px;font-size:0.7rem;color:var(--c-text-dim);border-top:1px solid var(--c-border-light);padding-top:10px;margin-top:auto;}
+		.proj_lang_dot{width:8px;height:8px;border-radius:50%;background:#f34b7d;flex-shrink:0;}
+		.proj_tags{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+		.proj_gh{margin-left:auto;color:var(--c-text-dim);display:inline-flex;align-items:center;transition:color 0.25s;flex-shrink:0;}
+		.proj_gh:hover{color:#fca5a5;}
+		.proj_gh svg{width:13px;height:13px;stroke-width:1.5;}
 		/* 作品集项目状态徽章 */
 		.proj_badge{display:inline-flex;align-items:center;gap:3px;font-size:0.55rem;padding:2px 8px;border-radius:99px;letter-spacing:0.04em;flex-shrink:0;}
 		.proj_badge.done{background:var(--c-book-done-bg);color:var(--c-book-done-text);border:1px solid transparent;}
@@ -251,8 +257,21 @@
 		/* 封面占位 */
 		.book_card_cover{width:100%;aspect-ratio:1/1;border-radius:4px 4px 0 0;position:relative;overflow:hidden;}
 			.book_card_cover::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 3px,rgba(255,255,255,0.08) 3px,rgba(255,255,255,0.08) 4px);pointer-events:none;}
-		.book_cover_reading{background:linear-gradient(135deg,#dc2626 50%,#ef4444 50%);}
-		.book_cover_done{background:linear-gradient(135deg,#374151 50%,#4b5563 50%);}
+		.book_cover_reading{background:linear-gradient(180deg,#ef4444,#991b1b);}
+		.book_cover_done{background:linear-gradient(180deg,#52525b,#27272a);}
+		.book_cover_want{background:linear-gradient(180deg,#3f3f46,#18181b);}
+		/* 书架（极简书单列表） */
+		.book_list{display:flex;flex-direction:column;}
+		.book_row{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--c-border-light);cursor:pointer;transition:background 0.2s ease,transform 0.2s ease;}
+		.book_row:last-child{border-bottom:none;}
+		.book_row:hover{background:var(--c-card-hover-bg);transform:translateX(3px);}
+		.book_row_main{display:flex;align-items:baseline;gap:8px;min-width:0;flex:1;}
+		.book_row_title{font-size:0.8rem;color:var(--c-text-heading);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+		.book_row_author{font-size:0.65rem;color:var(--c-text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+		.book_row_tag{flex-shrink:0;display:inline-flex;align-items:center;gap:3px;font-size:0.55rem;padding:2px 8px;border-radius:99px;border:1px solid;letter-spacing:0.04em;}
+		.book_row_tag.tag_reading{color:#f87171;border-color:rgba(239,68,68,0.25);}
+		.book_row_tag.tag_done{color:var(--c-book-done-text);border-color:rgba(255,255,255,0.08);}
+		.book_row_tag.tag_want{color:var(--c-text-dim);border-color:rgba(255,255,255,0.08);}
 						/* 卡片信息区 */
 		.book_card_info{padding:5px 7px 7px;}
 		.book_card_title{font-size:0.58rem;color:var(--c-text-heading);font-weight:500;line-height:1.2;margin-bottom:1px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
@@ -303,11 +322,22 @@
 		.blog_cat:hover{border-color:rgba(239,68,68,0.3);color:var(--c-text-heading);}
 		.blog_cat.active{background:rgba(239,68,68,0.12);border-color:#ef4444;color:#ef4444;}
 		.blog_preview{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
-		.blog_list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;padding-right:4px;}
+		.blog_list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-height:520px;overflow-y:auto;padding-right:4px;}
 		.blog_list::-webkit-scrollbar{width:3px;}
 		.blog_list::-webkit-scrollbar-track{background:transparent;}
 		.blog_list::-webkit-scrollbar-thumb{background:var(--c-scrollbar);border-radius:2px;}
-		.blog_empty{text-align:center;padding:32px 0;font-size:0.75rem;color:var(--c-text-dim);}
+		.blog_empty{text-align:center;padding:32px 0;font-size:0.75rem;color:var(--c-text-dim);grid-column:1/-1;}
+		/* 博客卡片（GitHub pinned 式，与作品集同风格） */
+		.blog_item{background:var(--c-surface-hover);border:1px solid var(--c-border-light);border-radius:12px;padding:16px 18px;transition:border-color 0.3s ease,transform 0.3s ease,background 0.3s ease;text-decoration:none;display:flex;flex-direction:column;gap:8px;}
+		.blog_item:hover{border-color:var(--c-card-hover-border);background:var(--c-card-hover-bg);transform:translateY(-3px);}
+		.blog_item_head{display:flex;align-items:center;gap:8px;min-width:0;}
+		.blog_item_icon{width:14px;height:14px;color:var(--c-text-muted);flex-shrink:0;}
+		.blog_item_title{font-size:0.82rem;color:var(--c-text-heading);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+		.blog_item_cat{display:inline-flex;align-items:center;align-self:flex-start;font-size:0.55rem;padding:1px 7px;border-radius:99px;border:1px solid rgba(239,68,68,0.25);color:#f87171;background:rgba(239,68,68,0.06);letter-spacing:0.04em;}
+		.blog_item_desc{font-size:0.72rem;color:var(--c-text-muted);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+		.blog_item_meta{display:flex;align-items:center;gap:6px;font-size:0.65rem;color:var(--c-text-dim);border-top:1px solid var(--c-border-light);padding-top:8px;margin-top:auto;}
+		.blog_item_arrow{margin-left:auto;color:var(--c-text-dim);flex-shrink:0;display:inline-flex;align-items:center;}
+		.blog_item_arrow svg{width:12px;height:12px;stroke-width:1.5;}
 		/* 更新日志弹窗 */
 		.cl_overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.28s ease;}
 		.cl_overlay.open{opacity:1;pointer-events:auto;}
@@ -335,7 +365,7 @@
 			.glass_section{padding:24px 20px;}
 			.theme_toggle_btn{top:14px;right:14px;width:32px;height:32px;}
 			.project_card{padding:16px 18px;}
-			.blog_list{max-height:none;}
+			.blog_list{max-height:none;grid-template-columns:1fr;}
 			.book_cards{grid-template-columns:repeat(auto-fill,minmax(55px,1fr));gap:2px;}
 			.proj_modal{width:92%;padding:22px 20px;max-height:85vh;}
 		}
@@ -349,6 +379,7 @@
 			.section_title{font-size:0.88rem;margin-bottom:16px;}
 			.right_pane{padding:0 16px 48px;}
 			.book_cards{grid-template-columns:repeat(auto-fill,minmax(50px,1fr));gap:2px;}
+			.proj_grid{grid-template-columns:1fr;}
 			.cta_btn{padding:8px 22px;font-size:0.75rem;}
 		}
 		@media(max-width:480px){
@@ -539,7 +570,7 @@
 				<h1 class="text-3xl sm:text-4xl font-light gradient_name mb-3 tracking-wide">Rray</h1>
 				<div class="name_accent_line"></div>
 				<p class="text-sm sm:text-base font-light tracking-wide mt-3 mb-1 text_sub">NJUPT CS 大三 · 持续学习</p>
-				<p class="text-sm font-light tracking-wide text_sub" style="opacity:0.45;letter-spacing:0.08em;margin-bottom:2.5rem;">要有一颗强大的心</p>
+				<p class="text-sm font-light tracking-wide text_sub" style="opacity:0.45;letter-spacing:0.08em;margin-bottom:2.5rem;">内心要像内核一样强大</p>
 				<div class="flex justify-center gap-6 mb-6">
 					<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="social_entry" aria-label="GitHub"><i data-lucide="github"></i><span>GitHub</span></a>
 					<a href="mailto:3111937934@qq.com" class="social_entry" aria-label="邮箱"><i data-lucide="mail"></i><span>邮箱</span></a>
@@ -585,73 +616,112 @@
 				<!-- 2. 作品集 -->
 				<section id="projects" class="glass_section reveal">
 											<h2 class="section_title">作品集</h2>
-						<div class="space-y-3">
+						<div class="proj_grid">
 							<div class="project_card" data-proj="cache-system" style="cursor:pointer;">
-								<div class="flex items-center justify-between">
-									<div class="flex-1">
-										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">⚡ Cache-System</div><span class="proj_badge done"><span class="badge_dot"></span>已完成</span></div>
-										<div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div>
-									</div>
-									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
-										<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
-									</div>
+								<div class="proj_head">
+									<i data-lucide="database" class="proj_icon"></i>
+									<div class="proj_name">Cache-System</div>
+									<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
 								</div>
-								<div class="proj_meta"><span>💡 点击查看详情</span></div>
+								<div class="proj_desc">高性能缓存系统，深入理解缓存替换策略与内存管理。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">缓存 · 内存</span>
+									<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
 							</div>
 							<div class="project_card" data-proj="algorithm" style="cursor:pointer;">
-								<div class="flex items-center justify-between">
-									<div class="flex-1">
-										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📐 Algorithm-Problems</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
-										<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
-									</div>
-									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
-										<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
-									</div>
+								<div class="proj_head">
+									<i data-lucide="code-2" class="proj_icon"></i>
+									<div class="proj_name">Algorithm-Problems</div>
+									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
 								</div>
-								<div class="proj_meta"><span>💡 点击查看详情</span></div>
+								<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">算法 · 数据结构</span>
+									<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
 							</div>
 							<div class="project_card" data-proj="smart-ptr" style="cursor:pointer;">
-								<div class="flex items-center justify-between">
-									<div class="flex-1">
-										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">🔄 cpp-smart-ptr</div><span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span></div>
-										<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
-									</div>
-									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
-										<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
-									</div>
+								<div class="proj_head">
+									<i data-lucide="shield" class="proj_icon"></i>
+									<div class="proj_name">cpp-smart-ptr</div>
+									<span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span>
 								</div>
-								<div class="proj_meta"><span>💡 点击查看详情</span></div>
+								<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">智能指针 · RAII</span>
+									<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
 							</div>
 							<div class="project_card" data-proj="os-lab" style="cursor:pointer;">
-								<div class="flex items-center justify-between">
-									<div class="flex-1">
-										<div class="flex flex-wrap items-center gap-2"><div class="proj_name">📚 os_lab</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
-										<div class="proj_desc">操作系统实验合集，系统调用跟踪 / fork 进程 / 僵尸进程，持续更新。</div>
-									</div>
-									<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-										<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
-										<a href="https://github.com/Rrrayy/os_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
-									</div>
+								<div class="proj_head">
+									<i data-lucide="cpu" class="proj_icon"></i>
+									<div class="proj_name">os_lab</div>
+									<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
 								</div>
-								<div class="proj_meta"><span>💡 点击查看详情</span></div>
+								<div class="proj_desc">操作系统实验合集，系统调用跟踪 / fork 进程 / 调度模拟 / 虚拟内存 / 文件系统。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">操作系统 · 实验</span>
+									<a href="https://github.com/Rrrayy/os_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
 							</div>
-						
-								<div class="project_card" data-proj="net-lab" style="cursor:pointer;">
-									<div class="flex items-center justify-between">
-										<div class="flex-1">
-											<div class="flex flex-wrap items-center gap-2"><div class="proj_name">🌐 Net_lab</div><span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span></div>
-											<div class="proj_desc">计算机网络实验合集——HTTP 服务器 / DNS 解析 / TCP 状态观察 / 拥塞控制模拟 / Socket 编程。</div>
-										</div>
-										<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
-											<i data-lucide="info" class="proj_arrow" style="width:16px;height:16px;"></i>
-											<a href="https://github.com/Rrrayy/Net_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="color:var(--c-text-dim);transition:color 0.25s;" onmouseover="this.style.color='#fca5a5'" onmouseout="this.style.color='var(--c-text-dim)'"><i data-lucide="github" style="width:14px;height:14px;stroke-width:1.5;"></i></a>
-										</div>
-									</div>
-									<div class="proj_meta"><span>💡 点击查看详情</span></div>
-								</div></div><div class="flex justify-end mt-5">
+							<div class="project_card" data-proj="net-lab" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="network" class="proj_icon"></i>
+									<div class="proj_name">Net_lab</div>
+									<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
+								</div>
+								<div class="proj_desc">计算机网络实验合集——HTTP 服务器 / DNS 解析 / TCP 状态观察 / 拥塞控制模拟 / Socket 编程。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">网络 · Socket</span>
+									<a href="https://github.com/Rrrayy/Net_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
+							<div class="project_card" data-proj="cpp-internals" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="cog" class="proj_icon"></i>
+									<div class="proj_name">cpp-internals</div>
+									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+								</div>
+								<div class="proj_desc">C++ 语言机制实验合集——虚函数表 / RAII / const 正确性，逐步深入现代 C++ 特性。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">语言机制 · C++17</span>
+									<a href="https://github.com/Rrrayy/cpp-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
+							<div class="project_card" data-proj="stl-internals" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="layers" class="proj_icon"></i>
+									<div class="proj_name">STL-internals</div>
+									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+								</div>
+								<div class="proj_desc">手写 STL 容器——vector 三指针扩容 / unordered_map 拉链法，含 benchmark 与泊松验证。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">容器 · 手写实现</span>
+									<a href="https://github.com/Rrrayy/STL-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
+							<div class="project_card" data-proj="unix-internals" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="terminal" class="proj_icon"></i>
+									<div class="proj_name">unix-internals</div>
+									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+								</div>
+								<div class="proj_desc">验证 Unix 系统编程核心机制——文件 I/O / 进程 / IPC / 线程同步 / epoll / 内存管理。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">系统编程 · Linux</span>
+									<a href="https://github.com/Rrrayy/unix-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
+						</div><div class="flex justify-end mt-5">
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="cta_btn" style="font-size:0.72rem;padding:6px 18px;">访问 GitHub <i data-lucide="github" style="width:13px;height:13px;"></i></a>
 					</div>
 				</section>
@@ -910,12 +980,13 @@
 							return;
 						}
 						listEl.innerHTML='';
+						var catName={};
+						cats.forEach(function(c){catName[c.key]=c.name;});
 						filtered.forEach(function(b){
 							var a=document.createElement('a');
 							a.href=b.url;a.target='_blank';a.rel='noopener noreferrer';
-							a.className='project_card';
-							a.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:14px 18px;';
-							a.innerHTML='<div style="display:flex;flex-direction:column;gap:3px;"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.82rem;color:var(--c-text-heading);font-weight:600;">'+b.title+'</span><span class="proj_badge done" style="font-size:0.5rem;padding:1px 6px;">'+b.date+'</span></div><span style="font-size:0.7rem;color:var(--c-text-muted);">'+b.desc+'</span></div><i data-lucide="arrow-up-right" style="width:14px;height:14px;color:var(--c-text-dim);flex-shrink:0;"></i>';
+							a.className='blog_item';
+							a.innerHTML='<div class="blog_item_head"><i data-lucide="file-text" class="blog_item_icon"></i><div class="blog_item_title">'+b.title+'</div></div><span class="blog_item_cat">'+(catName[b.cat]||b.cat)+'</span><div class="blog_item_desc">'+b.desc+'</div><div class="blog_item_meta"><span>'+b.date+'</span><i data-lucide="arrow-up-right" class="blog_item_arrow"></i></div>';
 							listEl.appendChild(a);
 						});
 						if(lucide&&lucide.createIcons)lucide.createIcons();
@@ -1109,10 +1180,11 @@
 				try{!function(){
 				var books=[
 					{title:'深入理解计算机系统',author:"R.E. Bryant / D.R. O'Hallaron",note:'CS:APP，从机器级代码到内存到并发，每个 CS 学生的必修课。',status:'reading'},
-					{title:'计算机网络 · 深入浅出',author:'—',note:'从物理层到应用层逐层讲解，图解很多，入门友好。',status:'reading'},
+					{title:'计算机网络 · 深入浅出',author:'—',note:'从物理层到应用层逐层讲解，图解很多，入门友好。',status:'done'},
 					{title:'STL 源码剖析',author:'侯捷',note:'侯捷经典，深入 allocator、iterator、容器底层实现。',status:'reading'},
 					{title:'操作系统导论（OSTEP）',author:'Remzi H. Arpaci-Dusseau',note:'OS 三部曲：虚拟化（CPU/内存虚拟化）、并发、持久化。',status:'reading'},
 					{title:'UNIX 网络编程 卷1',author:'W. Richard Stevens',note:'套接字联网 API 圣经，从 TCP/UDP 到高级 IO 多路复用全覆盖。',status:'reading'},
+					{title:'Effective C++',author:'Scott Meyers',note:'55 条具体建议，深入 C++ 程序设计规则与最佳实践——RAII、const、资源管理、类型转换全覆盖，面试高频条款。',status:'reading'},
 					{title:'C++ Primer',author:'Stanley B. Lippman',note:'C++ 入门圣经，系统学习语法和标准库的第一本书。',status:'done'},
 					{title:'C++ Primer Plus',author:'Stephen Prata',note:'C++ 入门首选，前半部分覆盖 C 语言基础，循序渐进。',status:'done'},
 					{title:'现代操作系统',author:'Andrew S. Tanenbaum',note:'Tanenbaum 经典之作，进程调度和内存管理部分写得很透彻。',status:'done'},
@@ -1151,8 +1223,8 @@
 						if(!op)allOpen=false;
 						html+='<div class="book_group'+(op?' open':'')+'" data-group="'+g.key+'"><div class="book_group_header"><span class="book_group_title">'+g.label+'</span><span class="book_group_count">('+gb.length+')</span><span class="book_group_arrow">\u25be</span></div><div class="book_group_body">';
 						if(!gb.length){html+='<div class="book_empty">还没有想读的书～</div>';}else{
-						html+='<div class="book_cards">';
-						gb.forEach(function(b){html+='<div class="book_card" data-title="'+es(b.title)+'" data-author="'+es(b.author)+'" data-note="'+es(b.note)+'" data-status="'+b.status+'"><div class="book_card_cover book_cover_'+b.status+'"></div><div class="book_card_info"><div class="book_card_title">'+es(b.title)+'</div></div></div>';});
+						html+='<div class="book_list">';
+						gb.forEach(function(b){html+='<div class="book_row" data-title="'+es(b.title)+'" data-author="'+es(b.author)+'" data-note="'+es(b.note)+'" data-status="'+b.status+'"><div class="book_row_main"><span class="book_row_title">'+es(b.title)+'</span><span class="book_row_author">'+es(b.author)+'</span></div><span class="book_row_tag tag_'+b.status+'"><span class="badge_dot"></span>'+statusLabels[b.status]+'</span></div>';});
 						html+='</div>';}
 						html+='</div></div>';
 					});
@@ -1166,7 +1238,7 @@
 							updateBtn();
 						});
 					});
-					a.querySelectorAll('.book_card').forEach(function(c){
+					a.querySelectorAll('.book_row').forEach(function(c){
 						c.addEventListener('click',function(){openModal(c.dataset.title,c.dataset.author,c.dataset.note,c.dataset.status);});
 						if(!touch){
 							c.addEventListener('mouseenter',function(e){showTip(c,e);});
@@ -1320,12 +1392,15 @@
 			var CS=document.getElementById('projChallengeSec');
 			var BS=document.getElementById('projBenchSec');
 			var PD=[
-				{key:'cache-system',name:'Cache-System',st:'done',lb:'已完成',de:'基于 C++17 的高性能缓存系统库，实现 LRU、LFU、LRU-K、ARC、FIFO、Hash-LRU、LFU-Aging 七种淘汰策略，纯头文件，支持线程安全并发访问。',ar:['RLruCache.hpp','RLfuCache.hpp','RLru-kCache.hpp','RFIFOCaChe.hpp','RHashLruCache.hpp','RArcCache/','RArcCache.hpp','RArcLruPart.hpp','RArcLfuPart.hpp'],ch:['ARC 自适应：幽灵缓存追踪淘汰历史，动态平衡 LRU/LFU 容量','Hash-LRU 分片锁设计降低锁竞争','控制块多态设计：虚接口 vs 模板取舍'],bm:[['热点数据命中率','LRU 49.52% | LFU 66.76% | ARC 66.05% | LRU-K 53.69% | FIFO 37.30%'],['循环扫描命中率','LRU 4.50% | LFU 8.92% | ARC 9.54% | LRU-K 7.72% | FIFO 4.69%'],['工作负载变化','LRU 55.02% | LFU 36.57% | ARC 59.26% | LRU-K 56.47% | FIFO 53.83%'],['测试配置','缓存容量 20 / 50 万次操作 / 70% 热点概率']],gh:'https://github.com/Rrrayy/Cache-System'},
-				{key:'os-lab',name:'os_lab',st:'ongoing',lb:'进行中',de:'操作系统核心机制的手写代码验证实验合集——系统调用追踪、fork 进程创建、FCFS/RR/MLFQ 调度模拟器、mmap 内存映射与缺页观测、brk vs mmap 分配器切换、inode 文件系统、多线程 benchmark、自旋锁手写实现、ABBA 死锁 gdb 定位、阻塞与非阻塞 IO 对比、sendfile 零拷贝 benchmark，共 11 个实验目录。',ar:['syscall_trace','fork_test','scheduler_sim','mmap_test','malloc_test','innode_test','multithread','spinlock','dead_lock','io_model','zero_copy'],ch:['CFS 调度模拟器：FCFS/RR/MLFQ 三种算法实现+甘特图输出','零拷贝 benchmark：sendfile 126ms vs read+write 294ms，系统调用 10 万倍差距','COW 缺页验证：perf stat 观测 256MB 逐页写入产生 6.5 万次缺页','malloc 阈值实验：mallopt 调整 MMAP_THRESHOLD，strace 验证 brk/mmap 切换'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['自旋锁 vs mutex','短临界区自旋 339ms mutex 115ms / 长临界区自旋 27ms mutex 45ms'],['缺页次数验证','1MB ≈ 256 次 / 256MB ≈ 65853 次'],['竞态验证','无锁版 count 达不到 400 万（4×PER_THREAD），验证竞态存在']],gh:'https://github.com/Rrrayy/os_lab'},
-			{key:'net-lab',name:'Net_lab',st:'ongoing',lb:'持续进行中',de:'计算机网络核心机制的验证实验合集——Wireshark 四层抓包拆解、手写 HTTP 服务器、DNS 解析工具（getaddrinfo 遍历+inet_ntop）、TCP 三次握手四次挥手验证、socket 网络编程入门（TCP hello + 回射服务器）、拥塞控制模拟器（慢启动/拥塞避免/超时/快速重传）+ 曲线图输出。',ar:['wireshark_capture','http_server','dns_resolver','tcp_congestion','net_programming'],ch:['TCP 回射服务器：双客户端实验证明阻塞IO单个线程只能处理一个连接','拥塞控制模拟器：慢启动→拥塞避免→超时→快速重传全过程代码+拥塞窗口曲线图','TIME_WAIT 观察：ss 命令验证 2MSL + SO_REUSEADDR 实验'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['拥塞窗口','慢启动阈值 ssthresh=64，超时 cwnd=1→慢启动，快速重传 cwnd/=2'],['TIME_WAIT','curl 触发→ss 看到 TIME_WAIT，约 60 秒消失']],gh:'https://github.com/Rrrayy/Net_lab'},
-				{key:'smart-ptr',name:'cpp-smart-ptr',st:'ongoing',lb:'开发中',de:'namespace RR 下实现的 C++17 智能指针库，完整覆盖 unique_ptr/shared_ptr/weak_ptr 及其配套设施。纯头文件、零外部依赖。控制块多态设计、copy-and-swap 异常安全保障、memory_order 按需分级。',ar:['unique_ptr（主模板 + T[]偏特化）','shared_ptr + control_block_base 多态','weak_ptr（lock() 原子提升）','make_shared + make_unique','static/dynamic/const/reinterpret_pointer_cast'],ch:['控制块多态：抽象基类 control_block_base 虚接口 vs 模板，选虚表实现更清晰','copy-and-swap 惯用法：天然异常安全，自赋值安全','weak_ptr::lock() 原子条件递增：避免 expired() 检查与提升之间的竞争窗口','make_shared 一次分配对象+控制块，减少内存碎片'],bm:[['引用计数','std::atomic<long>，memory_order_relaxed（调试用途）'],['unique_ptr 删除器','EBO 优化：空删除器零额外内存开销'],['实现覆盖','unique_ptr/shared_ptr/weak_ptr/make_shared/pointer_cast']],gh:'https://github.com/Rrrayy/cpp-smart-ptr'},
-				{key:'algorithm',name:'Algorithm-Problems',st:'ongoing',lb:'进行中',de:'个人 C++ 算法解题仓库，按代码随想录体系刷题，覆盖数组、链表、哈希表、字符串、栈与队列、二叉树、回溯、贪心、动态规划等模块。',ar:['数组/链表/哈希表/字符串','栈与队列/二叉树','回溯/贪心','动态规划（进行中）'],ch:['按代码随想录体系系统刷题，夯实每类数据结构基础','从暴力递归到动态规划的状态定义抽象'],bm:[['覆盖模块','数组/链表/哈希表/字符串/栈队列/二叉树/回溯/贪心/动态规划'],['刷题策略','代码随想录主线 + Hot 100 + 企业高频']],gh:'https://github.com/Rrrayy/algorithm-problems'},
-			];
+	{key:'cache-system',name:'Cache-System',st:'done',lb:'已完成',de:'高性能缓存系统（C++17 纯头文件库）：实现 LRU / LFU / LRU-K / FIFO / Hash-LRU / LFU-Aging / ARC 七种淘汰策略，线程安全并发访问，附三种工作负载下的命中率 benchmark。',ar:['RLruCache.hpp','RLfuCache.hpp','RLru-kCache.hpp','RFIFOCaChe.hpp','RHashLruCache.hpp','RArcCache/','  RArcCache.hpp','  RArcCacheNode.hpp','  RArcLruPart.hpp','  RArcLfuPart.hpp'],ch:['ARC 自适应替换：幽灵缓存追踪淘汰历史，动态平衡 LRU/LFU 分区容量','Hash-LRU 分片锁设计，降低高并发下锁竞争','控制块多态设计：虚接口与模板实现的取舍'],bm:[['热点数据命中率','LRU 49.52% | LFU 66.76% | ARC 66.05% | LRU-K 53.69% | FIFO 37.30%'],['循环扫描命中率','LRU 4.50% | LFU 8.92% | ARC 9.54% | LRU-K 7.72% | FIFO 4.69%'],['工作负载变化','LRU 55.02% | LFU 36.57% | ARC 59.26% | LRU-K 56.47% | FIFO 53.83%'],['测试配置','缓存容量 20 / 50 万次操作 / 70% 热点概率']],gh:'https://github.com/Rrrayy/Cache-System'},
+	{key:'os-lab',name:'os_lab',st:'done',lb:'已完成',de:'操作系统核心机制的手写代码验证合集：系统调用、进程与调度、虚拟内存、内存分配、文件系统、并发、IO 模型、零拷贝——11 个实验目录，数据与源码全部可复现。',ar:['syscall_trace/','fork_test/','scheduler_sim/','mmap_test/','malloc_test/','inode_test/','multithread/','spinlock/','dead_lock/','io_model/','zero_copy/'],ch:['CFS 调度模拟器：FCFS/RR/MLFQ 三种算法 + 甘特图输出','零拷贝 benchmark：sendfile 126ms vs read+write 294ms（200MB）','COW 缺页验证：perf stat 观测 256MB 逐页写入 → 6.5 万次缺页','malloc 阈值实验：mallopt 调整 MMAP_THRESHOLD，strace 验证 brk/mmap 切换'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['自旋锁 vs mutex','短临界区自旋 339ms / mutex 115ms；长临界区自旋 27ms / mutex 45ms'],['缺页次数','1MB ≈ 256 次 / 256MB ≈ 65853 次'],['竞态验证','无锁版 count 达不到预期（4×PER_THREAD），竞态实证']],gh:'https://github.com/Rrrayy/os_lab'},
+	{key:'net-lab',name:'Net_lab',st:'done',lb:'已完成',de:'计算机网络核心机制验证合集：Wireshark 分层抓包、手写 HTTP 服务器、DNS 解析工具、TCP 握手与拥塞控制、Socket 编程全链路（hello → 回射 → select → epoll → 并发）。',ar:['wireshark_capture/','http_server/','dns_resolver/','tcp_congestion/','net_programming/'],ch:['拥塞控制模拟器：慢启动→拥塞避免→超时→快速重传全过程 + 窗口曲线图','阻塞 IO 验证：双客户端实验证明单线程阻塞服务器只能串行处理','TIME_WAIT 观察：ss 验证 2MSL ≈ 60 秒 + SO_REUSEADDR 实验'],bm:[['拥塞控制','慢启动 ssthresh=64，超时 cwnd 归 1，快速重传 cwnd/=2'],['TIME_WAIT','curl 触发 → ss 看到 TIME_WAIT，约 60 秒消失'],['阻塞 IO','双客户端：第二个连接就绪但无人处理（阻塞模型局限）']],gh:'https://github.com/Rrrayy/Net_lab'},
+	{key:'smart-ptr',name:'cpp-smart-ptr',st:'ongoing',lb:'开发中',de:'C++17 智能指针库（namespace RR）：完整实现 unique_ptr / shared_ptr / weak_ptr 及配套设施，纯头文件、零外部依赖，控制块多态、copy-and-swap 异常安全、内存序分级优化。',ar:['unique_ptr（主模板 + T[] 偏特化）','shared_ptr + control_block_base 多态','weak_ptr（lock() 原子提升）','make_shared / make_unique','pointer_cast 系列'],ch:['控制块多态：抽象基类虚接口，选虚表实现（清晰度 vs 模板）','copy-and-swap 惯用法：天然异常安全，自赋值安全','weak_ptr::lock() 原子条件递增：消除 expired 检查与提升的竞争窗口','make_shared 一次分配对象 + 控制块，减少内存碎片'],bm:[['引用计数','std::atomic<long>，内存序分级优化'],['unique_ptr 删除器','EBO 优化：空删除器零额外内存'],['异常安全','copy-and-swap：强异常保证']],gh:'https://github.com/Rrrayy/cpp-smart-ptr'},
+	{key:'algorithm',name:'Algorithm-Problems',st:'ongoing',lb:'进行中',de:'C++ 算法解题仓库：按代码随想录体系系统刷题，覆盖数组、链表、哈希表、字符串、栈队列、二叉树、回溯、贪心、动态规划全模块，持续更新。',ar:['数组 / 链表 / 哈希表 / 字符串','栈与队列 / 二叉树','回溯 / 贪心','动态规划（进行中）'],ch:['按代码随想录体系系统刷题，夯实每类数据结构基础','从暴力递归到动态规划的状态定义抽象'],bm:[['覆盖模块','数组/链表/哈希表/字符串/栈队列/二叉树/回溯/贪心/动态规划'],['刷题策略','代码随想录主线 + Hot 100 + 企业高频']],gh:'https://github.com/Rrrayy/algorithm-problems'},
+	{key:'cpp-internals',name:'cpp-internals',st:'ongoing',lb:'持续进行中',de:'C++ 语言底层机制验证实验合集：虚函数表（vptr/vtable 运行时机制）、const 正确性、RAII 异常安全——每个机制配最小可复现实验与 sanitizer 验证，逐步覆盖现代 C++ 特性。',ar:['vtable_demo/','const_demo/','raii_demo/'],ch:['虚函数表实验：sizeof 差 12 字节验证 vptr 存在，ASan 抓出 new-delete-type-mismatch（非虚析构 + delete 基类指针 = UB 实证）','RAII 异常安全：throw 后析构照样执行（栈展开机制），禁止复制防止共享句柄双释放','构造期虚调用：vptr 逐级改写，基类构造期间虚调用走基类实现'],gh:'https://github.com/Rrrayy/cpp-internals'},
+	{key:'stl-internals',name:'STL-internals',st:'ongoing',lb:'持续进行中',de:'手写 STL 容器合集：vector（三指针布局 + 1.5 倍几何扩容 + 完整接口）与 unordered_map（拉链法 + 负载因子 0.75 + rehash），100 万级 benchmark 与泊松分布实测验证，后续补充 list / string(SSO) / priority_queue。',ar:['vector/','  R_vector.hpp','  test_vector.cpp','hashmap/','  R_hashmap.hpp','  hashmap_test.cpp','  benchmark.cpp'],ch:['vector 扩容 1.5 倍：几何级数证明旧内存可复用（q=1.5 前 n 项和 > 下一项，q=2 不够），100 万 push_back 30ms vs std 21ms','unordered_map 拉链法：1.2 万元素实测链长分布 47.9%/35.4%/12.8%，与泊松理论误差 <1%','rehash 与 vector 扩容的本质区别：桶数变 → 取模全变 → 必须重新哈希','ASan 全程验证：抓出 1.5 倍整数截断越界 bug（cap=1 时 new_cap 不增长）'],bm:[['vector 100万 push_back','R_vector 30ms vs std 21ms'],['hashmap 100万插入','1955ms vs std 1214ms（约 1.6 倍）'],['链长分布实测','链长0:47.9% 1:35.4% 2:12.8%（泊松理论 47.2/35.4/13.3）'],['rehash 触发点','13>12、25>24、49>48（与 0.75 负载因子吻合）']],gh:'https://github.com/Rrrayy/STL-internals'},
+	{key:'unix-internals',name:'unix-internals',st:'ongoing',lb:'持续进行中',de:'验证 Unix 系统编程核心机制的实验仓库：文件 I/O、进程管理、IPC、线程同步、epoll 网络 IO、内存管理，按层递进逐机制验证。',ch:['文件 I/O 与 fd 三层结构（fd → 文件表项 → inode）','进程管理：fork/exec、僵尸进程、守护进程','IPC：管道 / 共享内存 / 信号量','线程同步与 epoll 网络 IO','内存管理：brk/mmap 与调试'],gh:'https://github.com/Rrrayy/unix-internals'},
+];
 			PD.forEach(function(p){
 				var el=document.querySelector('.project_card[data-proj="'+p.key+'"]');
 				if(!el)return;
@@ -1334,7 +1409,7 @@
 					B.innerHTML='<span class="badge_dot"></span>'+p.lb;
 					B.className='proj_modal_badge '+p.st;
 					D.textContent=p.de;
-					if(p.ar){AS.style.display="";A.textContent=p.ar.join(String.fromCharCode(10,9));}else AS.style.display="none";
+					if(p.ar){AS.style.display="";A.textContent=p.ar.join('\n');}else AS.style.display="none";
 
 					if(p.ch){CS.style.display='';CL.innerHTML=p.ch.map(function(x){return '<li>'+x+'</li>';}).join('');}else CS.style.display='none';
 					if(p.bm){BS.style.display='';BT.innerHTML=p.bm.map(function(x){return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>';}).join('');}else BS.style.display='none';
