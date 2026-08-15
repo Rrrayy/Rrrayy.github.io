@@ -581,7 +581,7 @@
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
-					<div class="cl_mini_entry"><span class="cl_mini_date">08/15</span>新增博客：lambda 闭包原理</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">08/15</span>博客 lambda 闭包 + 作品集新增 ThreadPool / memory-pool 仓库</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">08/06</span>作品集/博客网格化 + 书架极简列表 + 留言板修复</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/27</span>新增博客：零拷贝到底快在哪？</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/24</span>学习路线及技术栈优化</div>
@@ -722,6 +722,32 @@
 									<a href="https://github.com/Rrrayy/unix-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
 								</div>
 							</div>
+							<div class="project_card" data-proj="memory-pool" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="boxes" class="proj_icon"></i>
+									<div class="proj_name">memory-pool</div>
+									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+								</div>
+								<div class="proj_desc">从零手写的高性能内存池——CAS 无锁空闲链表 + 64 分桶管理，含 gdb 定位 ABA 实证。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">内存管理 · 无锁并发</span>
+									<a href="https://github.com/Rrrayy/memory-pool" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
+							<div class="project_card" data-proj="thread-pool" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="workflow" class="proj_icon"></i>
+									<div class="proj_name">ThreadPool</div>
+									<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
+								</div>
+								<div class="proj_desc">C++17 手写线程池——任务队列 + 工作线程 + 优雅停机，enqueue 变参模板 + 完美转发 + packaged_task/future。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">并发 · 线程池</span>
+									<a href="https://github.com/Rrrayy/ThreadPool" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
 						</div><div class="flex justify-end mt-5">
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="cta_btn" style="font-size:0.72rem;padding:6px 18px;">访问 GitHub <i data-lucide="github" style="width:13px;height:13px;"></i></a>
 					</div>
@@ -846,6 +872,8 @@
 						<div class="cl_block">
 								<div class="cl_block_date">2026-08-15</div>
 								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>博客：lambda 闭包原理——闭包机制深度拆解</div>
+								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集添加 ThreadPool 线程池仓库（任务队列 + 工作线程 + 优雅停机）</div>
+								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集添加 memory-pool 内存池仓库（CAS 无锁 + 64 分桶）</div>
 							</div>
 							<div class="cl_block">
 								<div class="cl_block_date">2026-08-06</div>
@@ -1414,6 +1442,8 @@
 	{key:'cpp-internals',name:'cpp-internals',st:'ongoing',lb:'持续进行中',de:'C++ 语言底层机制验证实验合集：虚函数表（vptr/vtable 运行时机制）、const 正确性、RAII 异常安全——每个机制配最小可复现实验与 sanitizer 验证，逐步覆盖现代 C++ 特性。',ar:['vtable_demo/','const_demo/','raii_demo/'],ch:['虚函数表实验：sizeof 差 12 字节验证 vptr 存在，ASan 抓出 new-delete-type-mismatch（非虚析构 + delete 基类指针 = UB 实证）','RAII 异常安全：throw 后析构照样执行（栈展开机制），禁止复制防止共享句柄双释放','构造期虚调用：vptr 逐级改写，基类构造期间虚调用走基类实现'],gh:'https://github.com/Rrrayy/cpp-internals'},
 	{key:'stl-internals',name:'STL-internals',st:'ongoing',lb:'持续进行中',de:'手写 STL 容器合集：vector（三指针布局 + 1.5 倍几何扩容 + 完整接口）与 unordered_map（拉链法 + 负载因子 0.75 + rehash），100 万级 benchmark 与泊松分布实测验证，后续补充 list / string(SSO) / priority_queue。',ar:['vector/','  R_vector.hpp','  test_vector.cpp','hashmap/','  R_hashmap.hpp','  hashmap_test.cpp','  benchmark.cpp'],ch:['vector 扩容 1.5 倍：几何级数证明旧内存可复用（q=1.5 前 n 项和 > 下一项，q=2 不够），100 万 push_back 30ms vs std 21ms','unordered_map 拉链法：1.2 万元素实测链长分布 47.9%/35.4%/12.8%，与泊松理论误差 <1%','rehash 与 vector 扩容的本质区别：桶数变 → 取模全变 → 必须重新哈希','ASan 全程验证：抓出 1.5 倍整数截断越界 bug（cap=1 时 new_cap 不增长）'],bm:[['vector 100万 push_back','R_vector 30ms vs std 21ms'],['hashmap 100万插入','1955ms vs std 1214ms（约 1.6 倍）'],['链长分布实测','链长0:47.9% 1:35.4% 2:12.8%（泊松理论 47.2/35.4/13.3）'],['rehash 触发点','13>12、25>24、49>48（与 0.75 负载因子吻合）']],gh:'https://github.com/Rrrayy/STL-internals'},
 	{key:'unix-internals',name:'unix-internals',st:'ongoing',lb:'持续进行中',de:'验证 Unix 系统编程核心机制的实验仓库：文件 I/O、进程管理、IPC、线程同步、epoll 网络 IO、内存管理，按层递进逐机制验证。',ch:['文件 I/O 与 fd 三层结构（fd → 文件表项 → inode）','进程管理：fork/exec、僵尸进程、守护进程','IPC：管道 / 共享内存 / 信号量','线程同步与 epoll 网络 IO','内存管理：brk/mmap 与调试'],gh:'https://github.com/Rrrayy/unix-internals'},
+{key:'memory-pool',name:'memory-pool',st:'ongoing',lb:'持续进行中',de:'从零手写的高性能内存池（C++11）：CAS 无锁空闲链表 + 64 个 size-class 分桶，按 (size+7)/8-1 映射大小类，多线程分配免锁竞争；正向 tcmalloc 式三层架构（thread cache → central cache → page cache）演进，面向高并发场景。',ar:['include/','  MemoryPool.h','src/','tests/','CMakeLists.txt','README.md'],ch:['CAS 无锁 freeList：多线程分配原子操作，避免互斥锁串行化','64 分桶管理：按 (size+7)/8-1 映射大小类，碎片控制与分配路径权衡','gdb 定位 ABA 缺陷：并发 pop 链头被写污染成 0x1，经典无锁 ABA 实证','架构演进：单层分配器 → tcmalloc 式三层（thread/central/page cache）'],bm:[['单线程 vs tcache','慢约 4 倍（现代 glibc tcache 优化充分）'],['跨线程场景','CAS 无锁免锁竞争，主场在高并发分配']],gh:'https://github.com/Rrrayy/memory-pool'},
+{key:'thread-pool',name:'ThreadPool',st:'done',lb:'已完成',de:'C++17 手写线程池：任务队列 + 工作线程 + 优雅停机。enqueue 变参模板 + 完美转发 + invoke_result_t + packaged_task/future 结果通道；worker 谓词版 wait 防虚假唤醒、锁外执行、stop && tasks.empty 排空退出；析构三步（锁内置 stop → notify_all → join）。',ar:['thread_pool.hpp','thread_pool.cpp','main.cpp','CMakeLists.txt','README.md'],ch:['packaged_task 类型擦除：返回值经 shared state 回传，队列只存 std::function<void()> 执行动作','完美转发链路：左值拷贝 / 右值移动，move-only 任务可入队','优雅停机：置 stop 后排空队列再退出，任务不丢失','get() 一次性消费：shared_future 才是多读者方案'],bm:[['benchmark（4 核 VM）','2 线程 4ms / 4 线程 3ms / 8 线程 3ms'],['并发安全','10000 任务并发计数无丢失'],['ASan','无泄漏无报错（shadow memory 检查开销放大）']],gh:'https://github.com/Rrrayy/ThreadPool'},
 ];
 			PD.forEach(function(p){
 				var el=document.querySelector('.project_card[data-proj="'+p.key+'"]');
