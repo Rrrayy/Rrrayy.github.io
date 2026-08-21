@@ -581,6 +581,7 @@
 				<!-- 更新日志 -->
 				<div class="cl_mini" id="clMini">
 					<div class="cl_mini_title">📋 更新日志</div>
+					<div class="cl_mini_entry"><span class="cl_mini_date">08/21</span>RPC 框架完工（QPS 6700）+ 作品集分组：核心项目 / 更多</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">08/15</span>博客 lambda 闭包 + 作品集新增 ThreadPool / memory-pool 仓库</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">08/06</span>作品集/博客网格化 + 书架极简列表 + 留言板修复</div>
 					<div class="cl_mini_entry"><span class="cl_mini_date">07/27</span>新增博客：零拷贝到底快在哪？</div>
@@ -617,7 +618,21 @@
 				<!-- 2. 作品集 -->
 				<section id="projects" class="glass_section reveal">
 											<h2 class="section_title">作品集</h2>
+						<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><span style="font-size:0.75rem;color:var(--c-text-heading);font-weight:600;letter-spacing:0.05em;">核心项目</span><span style="height:1px;flex:1;background:var(--c-border-light);"></span></div>
 						<div class="proj_grid">
+							<div class="project_card" data-proj="rpc" style="cursor:pointer;">
+								<div class="proj_head">
+									<i data-lucide="server" class="proj_icon"></i>
+									<div class="proj_name">RPC</div>
+									<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
+								</div>
+								<div class="proj_desc">基于 muduo + Protobuf + Zookeeper 的 RPC 框架——自定义二进制协议 / 服务注册发现 / 无锁连接池，压测 QPS 6700。</div>
+								<div class="proj_meta">
+									<span class="proj_lang_dot"></span><span>C++</span>
+									<span class="proj_tags">RPC · 网络 · 分布式</span>
+									<a href="https://github.com/Rrrayy/RPC" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								</div>
+							</div>
 							<div class="project_card" data-proj="cache-system" style="cursor:pointer;">
 								<div class="proj_head">
 									<i data-lucide="database" class="proj_icon"></i>
@@ -629,32 +644,6 @@
 									<span class="proj_lang_dot"></span><span>C++</span>
 									<span class="proj_tags">缓存 · 内存</span>
 									<a href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
-								</div>
-							</div>
-							<div class="project_card" data-proj="algorithm" style="cursor:pointer;">
-								<div class="proj_head">
-									<i data-lucide="code-2" class="proj_icon"></i>
-									<div class="proj_name">Algorithm-Problems</div>
-									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
-								</div>
-								<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
-								<div class="proj_meta">
-									<span class="proj_lang_dot"></span><span>C++</span>
-									<span class="proj_tags">算法 · 数据结构</span>
-									<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
-								</div>
-							</div>
-							<div class="project_card" data-proj="smart-ptr" style="cursor:pointer;">
-								<div class="proj_head">
-									<i data-lucide="shield" class="proj_icon"></i>
-									<div class="proj_name">cpp-smart-ptr</div>
-									<span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span>
-								</div>
-								<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
-								<div class="proj_meta">
-									<span class="proj_lang_dot"></span><span>C++</span>
-									<span class="proj_tags">智能指针 · RAII</span>
-									<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
 								</div>
 							</div>
 							<div class="project_card" data-proj="os-lab" style="cursor:pointer;">
@@ -683,19 +672,6 @@
 									<a href="https://github.com/Rrrayy/Net_lab" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
 								</div>
 							</div>
-							<div class="project_card" data-proj="cpp-internals" style="cursor:pointer;">
-								<div class="proj_head">
-									<i data-lucide="cog" class="proj_icon"></i>
-									<div class="proj_name">cpp-internals</div>
-									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
-								</div>
-								<div class="proj_desc">C++ 语言机制实验合集——虚函数表 / RAII / const 正确性，逐步深入现代 C++ 特性。</div>
-								<div class="proj_meta">
-									<span class="proj_lang_dot"></span><span>C++</span>
-									<span class="proj_tags">语言机制 · C++17</span>
-									<a href="https://github.com/Rrrayy/cpp-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
-								</div>
-							</div>
 							<div class="project_card" data-proj="stl-internals" style="cursor:pointer;">
 								<div class="proj_head">
 									<i data-lucide="layers" class="proj_icon"></i>
@@ -707,19 +683,6 @@
 									<span class="proj_lang_dot"></span><span>C++</span>
 									<span class="proj_tags">容器 · 手写实现</span>
 									<a href="https://github.com/Rrrayy/STL-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
-								</div>
-							</div>
-							<div class="project_card" data-proj="unix-internals" style="cursor:pointer;">
-								<div class="proj_head">
-									<i data-lucide="terminal" class="proj_icon"></i>
-									<div class="proj_name">unix-internals</div>
-									<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
-								</div>
-								<div class="proj_desc">验证 Unix 系统编程核心机制——文件 I/O / 进程 / IPC / 线程同步 / epoll / 内存管理。</div>
-								<div class="proj_meta">
-									<span class="proj_lang_dot"></span><span>C++</span>
-									<span class="proj_tags">系统编程 · Linux</span>
-									<a href="https://github.com/Rrrayy/unix-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
 								</div>
 							</div>
 							<div class="project_card" data-proj="memory-pool" style="cursor:pointer;">
@@ -735,20 +698,78 @@
 									<a href="https://github.com/Rrrayy/memory-pool" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
 								</div>
 							</div>
-							<div class="project_card" data-proj="thread-pool" style="cursor:pointer;">
-								<div class="proj_head">
-									<i data-lucide="workflow" class="proj_icon"></i>
-									<div class="proj_name">ThreadPool</div>
-									<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
+						</div>
+						<details style="margin-top:14px;">
+							<summary style="cursor:pointer;font-size:0.75rem;color:var(--c-text-muted);list-style:none;text-align:center;padding:6px 0;letter-spacing:0.05em;">更多项目（5）▾</summary>
+							<div class="proj_grid" style="margin-top:12px;">
+								<div class="project_card" data-proj="thread-pool" style="cursor:pointer;">
+									<div class="proj_head">
+										<i data-lucide="workflow" class="proj_icon"></i>
+										<div class="proj_name">ThreadPool</div>
+										<span class="proj_badge done"><span class="badge_dot"></span>已完成</span>
+									</div>
+									<div class="proj_desc">C++17 手写线程池——任务队列 + 工作线程 + 优雅停机，enqueue 变参模板 + 完美转发 + packaged_task/future。</div>
+									<div class="proj_meta">
+										<span class="proj_lang_dot"></span><span>C++</span>
+										<span class="proj_tags">并发 · 线程池</span>
+										<a href="https://github.com/Rrrayy/ThreadPool" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+									</div>
 								</div>
-								<div class="proj_desc">C++17 手写线程池——任务队列 + 工作线程 + 优雅停机，enqueue 变参模板 + 完美转发 + packaged_task/future。</div>
-								<div class="proj_meta">
-									<span class="proj_lang_dot"></span><span>C++</span>
-									<span class="proj_tags">并发 · 线程池</span>
-									<a href="https://github.com/Rrrayy/ThreadPool" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+								<div class="project_card" data-proj="cpp-internals" style="cursor:pointer;">
+									<div class="proj_head">
+										<i data-lucide="cog" class="proj_icon"></i>
+										<div class="proj_name">cpp-internals</div>
+										<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+									</div>
+									<div class="proj_desc">C++ 语言机制实验合集——虚函数表 / RAII / const 正确性，逐步深入现代 C++ 特性。</div>
+									<div class="proj_meta">
+										<span class="proj_lang_dot"></span><span>C++</span>
+										<span class="proj_tags">语言机制 · C++17</span>
+										<a href="https://github.com/Rrrayy/cpp-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+									</div>
+								</div>
+								<div class="project_card" data-proj="unix-internals" style="cursor:pointer;">
+									<div class="proj_head">
+										<i data-lucide="terminal" class="proj_icon"></i>
+										<div class="proj_name">unix-internals</div>
+										<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+									</div>
+									<div class="proj_desc">验证 Unix 系统编程核心机制——文件 I/O / 进程 / IPC / 线程同步 / epoll / 内存管理。</div>
+									<div class="proj_meta">
+										<span class="proj_lang_dot"></span><span>C++</span>
+										<span class="proj_tags">系统编程 · Linux</span>
+										<a href="https://github.com/Rrrayy/unix-internals" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+									</div>
+								</div>
+								<div class="project_card" data-proj="smart-ptr" style="cursor:pointer;">
+									<div class="proj_head">
+										<i data-lucide="shield" class="proj_icon"></i>
+										<div class="proj_name">cpp-smart-ptr</div>
+										<span class="proj_badge ongoing"><span class="badge_dot"></span>开发中</span>
+									</div>
+									<div class="proj_desc">C++ 智能指针实现库，深入理解 RAII 与所有权语义。</div>
+									<div class="proj_meta">
+										<span class="proj_lang_dot"></span><span>C++</span>
+										<span class="proj_tags">智能指针 · RAII</span>
+										<a href="https://github.com/Rrrayy/cpp-smart-ptr" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+									</div>
+								</div>
+								<div class="project_card" data-proj="algorithm" style="cursor:pointer;">
+									<div class="proj_head">
+										<i data-lucide="code-2" class="proj_icon"></i>
+										<div class="proj_name">Algorithm-Problems</div>
+										<span class="proj_badge ongoing"><span class="badge_dot"></span>持续进行中</span>
+									</div>
+									<div class="proj_desc">LeetCode 算法练习，C++ 刷题记录，持续更新。</div>
+									<div class="proj_meta">
+										<span class="proj_lang_dot"></span><span>C++</span>
+										<span class="proj_tags">算法 · 数据结构</span>
+										<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" class="proj_gh"><i data-lucide="github"></i></a>
+									</div>
 								</div>
 							</div>
-						</div><div class="flex justify-end mt-5">
+						</details>
+					<div class="flex justify-end mt-5">
 						<a href="https://github.com/Rrrayy" target="_blank" rel="noopener noreferrer" class="cta_btn" style="font-size:0.72rem;padding:6px 18px;">访问 GitHub <i data-lucide="github" style="width:13px;height:13px;"></i></a>
 					</div>
 				</section>
@@ -788,15 +809,15 @@
 								<span class="rm_ongoing">MySQL · 待强化</span>
 								<span class="rm_ongoing">Redis · 待强化</span>
 								<span class="rm_ongoing">Docker · 待强化</span>
-								<span class="rm_ongoing">Protobuf · 进行中</span>
-								<span class="rm_ongoing">Zookeeper · 进行中</span>
+								<span style="opacity:0.5;">Protobuf</span>
+								<span style="opacity:0.5;">Zookeeper</span>
 							</div>
 						</div>
 						<!-- 阶段三：进行中 -->
 						<div class="roadmap_item active">
 							<div class="rm_header"><span class="rm_title">阶段三 · 项目实战</span><span class="rm_badge active">进行中</span></div>
 							<div class="rm_tags">
-								<span class="rm_ongoing">RPC 框架（含服务发现/熔断器/负载均衡）</span>
+								<span style="opacity:0.5;">RPC 框架（含服务发现/负载均衡）</span>
 								<span>系统设计 · 未进行</span>
 								<span>算法强化（回溯/DP/图论）· 未进行</span>
 							</div>
@@ -870,6 +891,12 @@
 					<button class="cl_modal_close" id="clCloseBtn">✕</button>
 				</div>
 						<div class="cl_block">
+								<div class="cl_block_date">2026-08-21</div>
+								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集：RPC 框架仓库（muduo + Protobuf + Zookeeper，压测 QPS 6700）</div>
+								<div class="cl_block_item"><span class="cl_block_tag upd">重构</span>作品集：分组为「核心项目 / 更多项目」，核心项目置顶展示</div>
+								<div class="cl_block_item"><span class="cl_block_tag upd">更新</span>学习路线：Protobuf / Zookeeper / RPC 框架标记为已完成</div>
+							</div>
+							<div class="cl_block">
 								<div class="cl_block_date">2026-08-15</div>
 								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>博客：lambda 闭包原理——闭包机制深度拆解</div>
 								<div class="cl_block_item"><span class="cl_block_tag new">新增</span>作品集添加 ThreadPool 线程池仓库（任务队列 + 工作线程 + 优雅停机）</div>
@@ -1435,6 +1462,7 @@
 			var CS=document.getElementById('projChallengeSec');
 			var BS=document.getElementById('projBenchSec');
 			var PD=[
+	{key:'rpc',name:'RPC',st:'done',lb:'已完成',de:'从零实现的 RPC 框架（C++17）：Protobuf 序列化 + muduo 多 Reactor 网络层 + Zookeeper 服务注册发现 + 一致性哈希负载均衡 + 无锁连接池，压测 10 万次调用零失败，QPS 6700。',ar:['rpc_header.proto','rpc_provider.cc','rpc_channel.cc','service_discovery.cc','consistent_hash.cc','rpc_connect_pool.cc','LockFreeQueue.h','zookeeperutil.cc','rpc_controller.cc'],ch:['自定义二进制协议：total_len 定长头解决 TCP 粘包/半包','Protobuf 反射：GetDescriptor 枚举 + 原型创建 + CallMethod 虚函数分发','IO 与业务线程解耦：done 闭包跨线程回包','无锁连接池：CAS 序列号法 + 预热 100 条长连接'],bm:[['压测结果','10 万次调用 0 失败'],['QPS','6700（Debug 单机，含模拟业务 5ms）'],['测试方式','100 线程 × 1000 次真实调用'],['服务发现','ZK 临时节点 + Watcher 动态感知']],gh:'https://github.com/Rrrayy/RPC'},
 	{key:'cache-system',name:'Cache-System',st:'done',lb:'已完成',de:'高性能缓存系统（C++17 纯头文件库）：实现 LRU / LFU / LRU-K / FIFO / Hash-LRU / LFU-Aging / ARC 七种淘汰策略，线程安全并发访问，附三种工作负载下的命中率 benchmark。',ar:['RLruCache.hpp','RLfuCache.hpp','RLru-kCache.hpp','RFIFOCaChe.hpp','RHashLruCache.hpp','RArcCache/','  RArcCache.hpp','  RArcCacheNode.hpp','  RArcLruPart.hpp','  RArcLfuPart.hpp'],ch:['ARC 自适应替换：幽灵缓存追踪淘汰历史，动态平衡 LRU/LFU 分区容量','Hash-LRU 分片锁设计，降低高并发下锁竞争','控制块多态设计：虚接口与模板实现的取舍'],bm:[['热点数据命中率','LRU 49.52% | LFU 66.76% | ARC 66.05% | LRU-K 53.69% | FIFO 37.30%'],['循环扫描命中率','LRU 4.50% | LFU 8.92% | ARC 9.54% | LRU-K 7.72% | FIFO 4.69%'],['工作负载变化','LRU 55.02% | LFU 36.57% | ARC 59.26% | LRU-K 56.47% | FIFO 53.83%'],['测试配置','缓存容量 20 / 50 万次操作 / 70% 热点概率']],gh:'https://github.com/Rrrayy/Cache-System'},
 	{key:'os-lab',name:'os_lab',st:'done',lb:'已完成',de:'操作系统核心机制的手写代码验证合集：系统调用、进程与调度、虚拟内存、内存分配、文件系统、并发、IO 模型、零拷贝——11 个实验目录，数据与源码全部可复现。',ar:['syscall_trace/','fork_test/','scheduler_sim/','mmap_test/','malloc_test/','inode_test/','multithread/','spinlock/','dead_lock/','io_model/','zero_copy/'],ch:['CFS 调度模拟器：FCFS/RR/MLFQ 三种算法 + 甘特图输出','零拷贝 benchmark：sendfile 126ms vs read+write 294ms（200MB）','COW 缺页验证：perf stat 观测 256MB 逐页写入 → 6.5 万次缺页','malloc 阈值实验：mallopt 调整 MMAP_THRESHOLD，strace 验证 brk/mmap 切换'],bm:[['零拷贝耗时','sendfile 126ms / read+write 294ms（200MB 文件）'],['自旋锁 vs mutex','短临界区自旋 339ms / mutex 115ms；长临界区自旋 27ms / mutex 45ms'],['缺页次数','1MB ≈ 256 次 / 256MB ≈ 65853 次'],['竞态验证','无锁版 count 达不到预期（4×PER_THREAD），竞态实证']],gh:'https://github.com/Rrrayy/os_lab'},
 	{key:'net-lab',name:'Net_lab',st:'done',lb:'已完成',de:'计算机网络核心机制验证合集：Wireshark 分层抓包、手写 HTTP 服务器、DNS 解析工具、TCP 握手与拥塞控制、Socket 编程全链路（hello → 回射 → select → epoll → 并发）。',ar:['wireshark_capture/','http_server/','dns_resolver/','tcp_congestion/','net_programming/'],ch:['拥塞控制模拟器：慢启动→拥塞避免→超时→快速重传全过程 + 窗口曲线图','阻塞 IO 验证：双客户端实验证明单线程阻塞服务器只能串行处理','TIME_WAIT 观察：ss 验证 2MSL ≈ 60 秒 + SO_REUSEADDR 实验'],bm:[['拥塞控制','慢启动 ssthresh=64，超时 cwnd 归 1，快速重传 cwnd/=2'],['TIME_WAIT','curl 触发 → ss 看到 TIME_WAIT，约 60 秒消失'],['阻塞 IO','双客户端：第二个连接就绪但无人处理（阻塞模型局限）']],gh:'https://github.com/Rrrayy/Net_lab'},
