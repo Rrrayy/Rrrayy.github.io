@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="传统方案：">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="零拷贝到底快在哪？">
+	<meta property="og:description" content="传统方案：">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/zero-copy.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/zero-copy.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>零拷贝到底快在哪？ | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "零拷贝到底快在哪？", "description": "传统方案：", "datePublished": "2026-07-27", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/zero-copy.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>
+		(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();
+	</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="zero-copy" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>IO 模型</span><span>发布日期：2026-07-27</span><span>2194 字 · 5 分钟</span></div><h1>零拷贝到底快在哪？</h1><p class="article_lead">传统方案：</p><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/163222717" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">一、先说结论</a><a class="toc_level_2" href="#section-2">二、传统 read+write</a><a class="toc_level_2" href="#section-3">三、sendfile 零拷贝</a><a class="toc_level_2" href="#section-4">四、实验</a><a class="toc_level_3" href="#section-5">4.1 测试代码</a><a class="toc_level_3" href="#section-6">4.2 运行结果</a><a class="toc_level_3" href="#section-7">4.3 strace 系统调用统计</a><a class="toc_level_2" href="#section-8">五、mmap+write 与 splice</a><a class="toc_level_3" href="#section-9">5.1 mmap+write：减少一次 CPU 拷贝</a><a class="toc_level_3" href="#section-10">5.2 splice：更通用的零拷贝接口</a><a class="toc_level_2" href="#section-11">六、零拷贝的适用边界</a><a class="toc_level_2" href="#section-12">总结</a><a class="toc_level_2" href="#section-13">参考资料</a></aside><div class="article_body"><blockquote><p><strong>实验环境</strong>：Ubuntu 24.04 x86_64（VMware 虚拟机），gcc 13.2，glibc 2.39，200MB 随机文件 <strong>注意</strong>：虚拟机的硬盘和网卡是 VMware 虚拟出来的，数据比物理机多绕了一层，所以 sendfile 的优势在物理机上会缩小一些。但系统调用十万次变一次、CPU 拷贝 2 次变 0 次——这些结论不依赖硬件，物理机上也一样成立。</p></blockquote>
+<hr>
+<h2 id="section-1">一、先说结论</h2>
+<pre class="code_block "><code class="">传统 read+write：   294 ms（外加 102,403 次系统调用）
+sendfile 零拷贝：    126 ms（外加 1 次系统调用）</code></pre>
+<p>关键指标对比如下：</p>
+<ul><li><strong>耗时</strong>：sendfile（126ms）为传统方案（294ms）的 43%，差距 2.3 倍</li><li><strong>系统调用</strong>：传统方案调用十万多次，sendfile 仅 1 次</li><li><strong>CPU 拷贝</strong>：传统方案 2 次，sendfile 0 次</li><li><strong>用户空间交互</strong>：传统方案全程参与，sendfile 数据不经过用户态</li></ul>
+<hr>
+<h2 id="section-2">二、传统 read+write</h2>
+<p>传统方案：</p>
+<pre class="code_block c"><code class="language-c">char buf[4096];
+while((n = read(src_fd, buf, sizeof(buf))) &gt; 0)
+    write(dst_fd, buf, n);</code></pre>
+<p>两行代码，背后数据走了四趟：</p>
+<pre class="code_block "><code class="">磁盘 -DMA- 内核缓冲 -CPU- 用户缓冲 -CPU- 内核socket缓冲 -DMA- 网卡</code></pre>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    disk[("磁盘")]
+    page_cache["内核 page cache"]
+    user_buf["用户空间 buf"]
+    sock_buf["内核 socket 缓冲"]
+    nic["网卡"]
+
+    disk -- " DMA" --&gt; page_cache
+    page_cache -- " CPU 拷贝" --&gt; user_buf
+    user_buf -- " CPU 拷贝" --&gt; sock_buf
+    sock_buf -- " DMA" --&gt; nic</code></pre>
+<div class="table_wrap"><table><thead><tr><th>步骤</th><th>硬件</th><th>工作原理</th><th>CPU参与？</th></tr></thead><tbody><tr><td>①</td><td>DMA控制器</td><td>磁盘→内核 page cache</td><td>不参与</td></tr><tr><td>②</td><td><strong>CPU</strong></td><td>内核 page cache→用户空间buf</td><td><strong>参与</strong></td></tr><tr><td>③</td><td><strong>CPU</strong></td><td>用户空间buf→内核socket缓冲</td><td><strong>参与</strong></td></tr><tr><td>④</td><td>DMA控制器</td><td>内核socket缓冲→网卡</td><td>不参与</td></tr></tbody></table></div>
+<p>从第二步和第三步可以看出，数据不需要修改却被迫经过用户空间，产生了两次不必要的 CPU 拷贝。</p>
+<p>再看系统调用次数。200MB ÷ 4096B = 51200 个数据块，每个数据块对应一次 read() 和一次 write() 调用，最后一次 read() 返回 0 指示 EOF。合计系统调用次数超过 <strong>十万次</strong>。每次系统调用涉及用户态到内核态的上下文切换——寄存器保存与恢复、栈切换、系统调用表查找——这些开销累加后，往往超过数据拷贝本身的时间开销。</p>
+<hr>
+<h2 id="section-3">三、sendfile 零拷贝</h2>
+<pre class="code_block c"><code class="language-c">#include &lt;sys/sendfile.h&gt;
+
+off_t offset = 0;
+sendfile(dst_fd, src_fd, &amp;offset, file_size);</code></pre>
+<p>sendfile 让数据全程待在内核里：</p>
+<pre class="code_block "><code class="">磁盘 -DMA- 内核 page cache  -DMA- 网卡 </code></pre>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    disk[(" 磁盘")]
+    page_cache["内核 page cache"]
+    nic[" 网卡"]
+
+    disk -- " DMA" --&gt; page_cache
+    page_cache -- " DMA" --&gt; nic</code></pre>
+<p><strong>两次拷贝均由 DMA 控制器完成，CPU 全程不参与数据搬运。</strong> sendfile 仅需向 DMA 传递描述信息——数据在 page cache 中的位置偏移与传输长度。这些元数据仅数十字节，传输 200GB 与 200MB 在该层面的开销并无差异。</p>
+<blockquote><p>sendfile 返回值可能小于你要的 <code>count</code>，不能只调一次，需配合循环使用：</p>
+<pre class="code_block c"><code class="language-c">while(offset &lt; file_size){
+    sent = sendfile(dst_fd, src_fd, &amp;offset, file_size - offset);
+    if(sent == -1){ perror("sendfile"); exit(1); }
+}</code></pre>
+<p>注意 <code>offset</code> 参数为指针类型，sendfile 会在每次调用后自动更新其值，无需手动推进。若忽略循环处理，大文件传输将出现数据截断。</p></blockquote>
+<hr>
+<h2 id="section-4">四、实验</h2>
+<h3 id="section-5">4.1 测试代码</h3>
+<p>两个程序实现相同的功能——读取源文件，写入目标文件。区别在于数据传输路径是否经过用户空间。</p>
+<p><strong>traditional.c</strong>（部分核心代码）：</p>
+<pre class="code_block c"><code class="language-c">while((n = read(src_fd, buf, sizeof(buf))) &gt; 0)
+    write(dst_fd, buf, n);</code></pre>
+<p><strong>sendfile.c</strong>：</p>
+<pre class="code_block c"><code class="language-c">off_t offset = 0;
+while(offset &lt; file_size)
+    sendfile(dst_fd, src_fd, &amp;offset, file_size - offset);</code></pre>
+<p>两个程序均采用 <code>clock_gettime(CLOCK_MONOTONIC)</code> 计时，输出毫秒级耗时。</p>
+<h3 id="section-6">4.2 运行结果</h3>
+<p>生成 200MB 测试文件：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ dd if=/dev/urandom of=test.bin bs=1M count=200
+200+0 records in
+200+0 records out
+209715200 bytes (210 MB, 200 MiB) transferred, 1.70802 s</code></pre>
+<p>编译：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ gcc -O2 -Wall traditional.c -o traditional
+rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ gcc -O2 -Wall sendfile.c -o sendfile</code></pre>
+<p>执行:</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ ./traditional test.bin /tmp/traditional_out.bin
+traditional: 294 ms
+
+rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ ./sendfile test.bin /tmp/sendfile_out.bin
+sendfile: 126 ms</code></pre>
+<p><strong>126ms vs 294ms，sendfile 耗时约为传统方案的 43%，差距 2.3 倍。</strong> 本实验在虚拟机中运行，VMware 的软件模拟层为两种方案都增加了额外开销——但传统方案中 CPU 拷贝和十万次系统调用的开销受虚拟机影响更显著，使得差距被放大。在物理机上耗时倍率预计小一点。不过，<strong>系统调用次数从十万次降至一次、CPU 拷贝次数从两次降为零——这些结构性优势是硬件无关的。</strong></p>
+<p>两种数据传输路径的对比如下：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    subgraph traditional["传统 read+write"]
+        direction LR
+        d1[("磁盘")] -- DMA --&gt; pc1["内核 page cache"]
+        pc1 -- "CPU 拷贝" --&gt; ub["用户空间 buf"]
+        ub -- "CPU 拷贝" --&gt; sb1["内核 socket 缓冲"]
+        sb1 -- DMA --&gt; n1["网卡"]
+    end
+
+    subgraph sendfile["sendfile 零拷贝"]
+        direction LR
+        d2[("磁盘")] -- DMA --&gt; pc2["内核 page cache"]
+        pc2 -- DMA --&gt; n2["网卡"]
+    end</code></pre>
+<h3 id="section-7">4.3 strace 系统调用统计</h3>
+<p>耗时数据之外，strace 可提供系统调用次数的精确统计：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ strace -e trace=read,write -c ./traditional test.bin /tmp/traditional_out.bin
+traditional: 12671 ms    
+% time     seconds  usecs/call     calls    errors syscall
+ 60.74    1.528800          29     51201           write
+ 39.26    0.988125          19     51202           read
+100.00    2.516925          24    102403           total</code></pre>
+<p><strong>传统方案：read 51202 次 + write 51201 次 = 102403 次系统调用。</strong></p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/zero_copy$ strace -e trace=sendfile -c ./sendfile test.bin /tmp/sendfile_out.bin
+sendfile: 65 ms
+% time     seconds  usecs/call     calls    errors syscall
+100.00    0.064770       64769         1           sendfile
+100.00    0.064770       64769         1           total</code></pre>
+<p><strong>sendfile：仅 1 次系统调用。</strong></p>
+<blockquote><p><strong>注</strong>：strace 下传统方案耗时从 294ms 升至 12671ms，是因为 strace 在每次系统调用前后插入 ptrace 拦截，十万次调用累积了大量额外上下文切换开销。strace 环境的绝对耗时不可作为性能依据，但系统调用次数统计是准确的。</p></blockquote>
+<hr>
+<h2 id="section-8">五、mmap+write 与 splice</h2>
+<h3 id="section-9">5.1 mmap+write：减少一次 CPU 拷贝</h3>
+<p>mmap 将文件映射至进程地址空间，用户空间的读写直接操作内核 page cache，省去了"内核-用户"的数据拷贝。但 write 时仍需从映射页拷贝至 socket 缓冲区，因此仍保留一次 CPU 拷贝。</p>
+<p>三种方案对比如下：</p>
+<ul><li><strong>read+write</strong>：CPU 拷贝 2 次，系统调用十万级</li><li><strong>mmap+write</strong>：CPU 拷贝 1 次，系统调用万级</li><li><strong>sendfile</strong>：CPU 拷贝 0 次，系统调用 1 次</li></ul>
+<h3 id="section-10">5.2 splice：更通用的零拷贝接口</h3>
+<p>sendfile 仅支持文件-socket 的传输。若需要在管道与 socket 之间、或两个 socket 之间实现零拷贝，可以使用 splice。</p>
+<pre class="code_block c"><code class="language-c">splice(file_fd, NULL, pipe_fd[1], NULL, 4096, 0);   // 文件-管道
+splice(pipe_fd[0], NULL, socket_fd, NULL, 4096, 0); // 管道-socket</code></pre>
+<p>splice 的使用限制：至少一端必须是管道。Nginx 即采用 splice 构建文件到网络的零拷贝流水线。不过 splice 的编程复杂度高于 sendfile，如果只需要文件-socket 传输，sendfile 仍是更简洁的选择。</p>
+<hr>
+<h2 id="section-11">六、零拷贝的适用边界</h2>
+<p>零拷贝虽能显著降低数据传输开销，但并非所有场景均适用。以下情况不建议采用 sendfile：</p>
+<ol><li><strong>需要修改数据</strong>：若传输前需对数据加工（如添加 HTTP 头部、压缩或加密），sendfile 绕过用户空间的特性使其无法对数据进行操作。此时可考虑 mmap+write，保留一次 CPU 拷贝给数据修改。</li><li><strong>传输数据量较小</strong>：当数据量仅为数十字节时，系统调用开销不显著，代码的可读性和可维护性较性能优化更为重要。</li><li><strong>随机读取场景</strong>：sendfile 按文件偏移顺序传输，不适用于跳跃式或非连续的数据读取模式。</li></ol>
+<hr>
+<h2 id="section-12">总结</h2>
+<p>零拷贝的核心思路在于：数据无需经用户空间处理时，应避免不必要的用户态介入。传统 read+write 路径产生了两次 CPU 拷贝与十万余次系统调用，这些开销中相当部分源自数据在用户空间与内核空间之间的往复传输。sendfile 将数据搬运交由 DMA 控制器完成，CPU 仅传递地址偏移与传输长度等描述信息，元数据开销仅数十字节。</p>
+<p>但零拷贝并非适用于所有场景。数据需要修改时 sendfile 无法胜任，数据量极小时系统调用开销不构成瓶颈，代码可读性更为优先。在实际工程中，sendfile 适用于静态文件分发等场景，mmap+write 则适合需要零拷贝但同时也需修改数据的中间情形。</p>
+<p>本文测试代码可在 <a href="https://github.com/Rrrayy/os_lab/tree/main/zero_copy">os_lab/zero_copy</a> 获取。</p>
+<p>本人能力有限，文章如有错误或遗漏之处，欢迎指正。</p>
+<h2 id="section-13">参考资料</h2>
+<ol><li>Linux <code>man 2 sendfile</code></li><li>Linux <code>man 2 splice</code></li><li>小林 coding → OS → 零拷贝篇</li><li><a href="https://github.com/Rrrayy/os_lab">os_lab/zero_copy</a> — 本文实验代码</li></ol></div></div></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

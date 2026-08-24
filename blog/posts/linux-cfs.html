@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="在讲 CFS 之前，先理解所有调度器都在解决同一个核心矛盾：">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Linux CFS 完全公平调度器（Completely Fair Scheduler）深度拆解">
+	<meta property="og:description" content="在讲 CFS 之前，先理解所有调度器都在解决同一个核心矛盾：">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/linux-cfs.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/linux-cfs.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>Linux CFS 完全公平调度器（Completely Fair Scheduler）深度拆解 | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Linux CFS 完全公平调度器（Completely Fair Scheduler）深度拆解", "description": "在讲 CFS 之前，先理解所有调度器都在解决同一个核心矛盾：", "datePublished": "2026-07-09", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/linux-cfs.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>
+		(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();
+	</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="linux-cfs" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>操作系统</span><span>发布日期：2026-07-09</span><span>5382 字 · 12 分钟</span></div><h1>Linux CFS 完全公平调度器（Completely Fair Scheduler）深度拆解</h1><p class="article_lead">在讲 CFS 之前，先理解所有调度器都在解决同一个核心矛盾：</p><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/162712345" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">目录</a><a class="toc_level_2" href="#section-2">一、调度器要解决的根本问题</a><a class="toc_level_3" href="#section-3">三个评价指标</a><a class="toc_level_3" href="#section-4">CFS 的思路</a><a class="toc_level_2" href="#section-5">二、vruntime —— 最核心的概念</a><a class="toc_level_3" href="#section-6">2.1 定义</a><a class="toc_level_3" href="#section-7">2.2 核心公式</a><a class="toc_level_3" href="#section-8">2.3 公式的直觉理解</a><a class="toc_level_2" href="#section-9">三、权重与 nice 值映射</a><a class="toc_level_3" href="#section-10">3.1 权重表</a><a class="toc_level_3" href="#section-11">3.2 规律</a><a class="toc_level_3" href="#section-12">3.3 CPU 分配比例</a><a class="toc_level_3" href="#section-13">3.4 阻塞进程的 vruntime 补偿</a><a class="toc_level_2" href="#section-14">四、红黑树 —— 为什么必须是它</a><a class="toc_level_3" href="#section-15">4.1 红黑树的五个性质</a><a class="toc_level_3" href="#section-16">4.2 四种数据结构的全面对比</a><a class="toc_level_3" href="#section-17">4.3 内核优化：rb_root_cached</a><a class="toc_level_2" href="#section-18">五、调度延迟与最小粒度</a><a class="toc_level_3" href="#section-19">5.1 核心矛盾</a><a class="toc_level_3" href="#section-20">5.2 Targeted Latency（目标延迟）</a><a class="toc_level_3" href="#section-21">5.3 Minimum Granularity（最小粒度）</a><a class="toc_level_3" href="#section-22">5.4 完整公式</a><a class="toc_level_2" href="#section-23">六、完整调度流程 —— 逐函数拆解</a><a class="toc_level_3" href="#section-24">宏观前提：推迟执行设计</a><a class="toc_level_3" href="#section-25">6.1 scheduler_tick() —— 时钟中断处理</a><a class="toc_level_3" href="#section-26">6.2 set_tsk_need_resched() —— 设标志位</a><a class="toc_level_3" href="#section-27">6.3 检查标志位的地方（安全点）</a><a class="toc_level_3" href="#section-28">6.4 schedule() —— 真正的调度函数</a><a class="toc_level_3" href="#section-29">6.5 pick_next_task() —— 选进程</a><a class="toc_level_3" href="#section-30">6.6 context_switch() —— 上下文切换</a><a class="toc_level_3" href="#section-31">6.7 switch_to() —— 汇编级栈切换</a><a class="toc_level_3" href="#section-32">6.8 sched_yield() —— 自愿让出 CPU</a><a class="toc_level_2" href="#section-33">七、上下文切换的三件开销</a><a class="toc_level_3" href="#section-34">7.1 寄存器保存/恢复（~50ns，占 1%）</a><a class="toc_level_3" href="#section-35">7.2 TLB 刷新（~500ns，占 10%）</a><a class="toc_level_3" href="#section-36">7.3 缓存污染（~5000ns，占 89%）← 最贵</a><a class="toc_level_3" href="#section-37">7.4 总开销汇总</a><a class="toc_level_2" href="#section-38">八、IO 密集型 vs CPU 密集型 —— 时间线分析</a><a class="toc_level_3" href="#section-39">8.1 场景</a><a class="toc_level_3" href="#section-40">8.2 时间线</a><a class="toc_level_3" href="#section-41">8.3 结论</a><a class="toc_level_2" href="#section-42">九、总结：CFS 为什么优雅</a></aside><div class="article_body"><blockquote><p><strong>作者</strong>：c弟 | <strong>分类</strong>：操作系统 | <strong>标签</strong>：Linux、调度器、CFS、内核</p>
+<p>⏱ <strong>阅读时间</strong>：约 25 分钟 | 🎯 <strong>前置知识</strong>：了解进程和线程基本概念即可</p>
+<p>本文从零开始拆解 Linux CFS 调度器，覆盖 vruntime、红黑树、调度延迟、完整调度流程、上下文切换开销，以及 IO 密集型 vs CPU 密集型调度分析。适合配合 OSTEP 或小林 coding 一起看，作为深入理解调度器的补充材料。</p></blockquote>
+<hr>
+<h2 id="section-1">目录</h2>
+<ul><li><a href="#一调度器要解决的根本问题">一、调度器要解决的根本问题</a></li><li><a href="#二vruntime--最核心的概念">二、vruntime —— 最核心的概念</a></li><li><a href="#三权重与-nice-值映射">三、权重与 nice 值映射</a></li><li><a href="#34-阻塞进程的-vruntime-补偿">3.4 阻塞进程的 vruntime 补偿</a></li><li><a href="#四红黑树--为什么必须是它">四、红黑树 —— 为什么必须是它</a></li><li><a href="#五调度延迟与最小粒度">五、调度延迟与最小粒度</a></li><li><a href="#六完整调度流程--逐函数拆解">六、完整调度流程 —— 逐函数拆解</a></li><li><a href="#68-sched_yield--自愿让出-cpu">6.8 sched_yield() —— 自愿让出 CPU</a></li><li><a href="#七上下文切换的三件开销">七、上下文切换的三件开销</a></li><li><a href="#八io-密集型-vs-cpu-密集型--时间线分析">八、IO 密集型 vs CPU 密集型 —— 时间线分析</a></li><li><a href="#九总结cfs-为什么优雅">九、总结：CFS 为什么优雅</a></li></ul>
+<hr>
+<h2 id="section-2">一、调度器要解决的根本问题</h2>
+<p>在讲 CFS 之前，先理解<strong>所有调度器都在解决同一个核心矛盾</strong>：</p>
+<pre class="code_block "><code class="">有限的 CPU 资源 vs 无限的进程需求</code></pre>
+<p>假设只有一个 CPU，但有 N 个进程要跑。调度器需要决定：<strong>谁先跑？跑多久？换谁？</strong></p>
+<h3 id="section-3">三个评价指标</h3>
+<div class="table_wrap"><table><thead><tr><th>指标</th><th>含义</th><th>反问自己</th></tr></thead><tbody><tr><td><strong>公平（Fairness）</strong></td><td>每个进程是否获得了应得的 CPU 份额</td><td>有没有进程被饿死？</td></tr><tr><td><strong>效率（Efficiency）</strong></td><td>上下文切换开销占比是否合理</td><td>切换太频繁会不会浪费 CPU？</td></tr><tr><td><strong>响应（Responsiveness）</strong></td><td>交互式进程是否能快速得到 CPU</td><td>敲键盘会不会卡？</td></tr></tbody></table></div>
+<h3 id="section-4">CFS 的思路</h3>
+<p><strong>传统调度器（MLFQ）</strong> 维护多个优先级队列，高优先级先跑，时间片用完降级。问题在于优先级怎么调？调不好交互式进程就卡了。</p>
+<p><strong>CFS 完全不同</strong>：它不搞"优先级队列"，而是用 <strong>"虚拟时间"</strong> 衡量每个进程的 CPU 消费量。谁消费得少，谁就上 CPU —— 一句话，CFS 用数学代替了策略。</p>
+<hr>
+<h2 id="section-5">二、vruntime —— 最核心的概念</h2>
+<h3 id="section-6">2.1 定义</h3>
+<p><strong>vruntime（virtual runtime，虚拟运行时间）</strong>：每个进程已经消耗的"加权 CPU 时间"，单位是纳秒。</p>
+<h3 id="section-7">2.2 核心公式</h3>
+<pre class="code_block "><code class="">vruntime += Δt × (NICE_0_LOAD / weight)</code></pre>
+<ul><li><code>Δt</code> = 进程本次实际运行的时间（纳秒）</li><li><code>NICE_0_LOAD</code> = 1024（nice=0 的标准权重，内核常量）</li><li><code>weight</code> = 该进程的权重（由 nice 值决定）</li></ul>
+<h3 id="section-8">2.3 公式的直觉理解</h3>
+<p>把公式看成一条分数：</p>
+<pre class="code_block "><code class="">vruntime = 物理运行时间 × (1024 / 权重)
+                          ↑
+                      优先级系数</code></pre>
+<div class="table_wrap"><table><thead><tr><th>情况</th><th>weight</th><th>1024/weight</th><th>vruntime 变化</th><th>含义</th></tr></thead><tbody><tr><td>nice=0（默认）</td><td>1024</td><td>1</td><td>vruntime = 实际时间</td><td>基准线</td></tr><tr><td>nice=-5（高优）</td><td>3121</td><td>~0.33</td><td>涨得慢 → CFS 多给它 CPU</td><td>1ms 实际时间只涨 0.33ms</td></tr><tr><td>nice=5（低优）</td><td>335</td><td>~3.06</td><td>涨得快 → CFS 少给它 CPU</td><td>1ms 实际时间涨 3.06ms</td></tr></tbody></table></div>
+<pre class="code_block "><code class="">nice=0  进程跑 1ms → vruntime += 1ms × 1.0  = 1ms      （正常走）
+nice=-5 进程跑 1ms → vruntime += 1ms × 0.33 = 0.33ms   （走得慢 → 调度器多给它跑）
+nice=5  进程跑 1ms → vruntime += 1ms × 3.06 = 3.06ms   （走得快 → 调度器少给它跑）</code></pre>
+<p><strong>一句话</strong>：高优先级的 vruntime 增长慢 → CFS 以为它"吃得少" → 多给它 CPU。</p>
+<hr>
+<h2 id="section-9">三、权重与 nice 值映射</h2>
+<h3 id="section-10">3.1 权重表</h3>
+<p>Linux 内核定义了完整的 40 级权重映射数组（<code>kernel/sched/core.c</code>）：</p>
+<pre class="code_block c"><code class="language-c">const int sched_prio_to_weight[40] = {
+    /* -20 */ 88761, 71755, 56483, 46273, 36291,
+    /* -15 */ 29154, 23254, 18705, 14949, 11916,
+    /* -10 */ 9548,  7620,  6100,  4904,  3906,
+    /* -5  */ 3121,  2501,  1991,  1586,  1277,
+    /*  0  */ 1024,  820,   655,   526,   423,
+    /*  5  */ 335,   272,   215,   172,   137,
+    /* 10  */ 110,   87,    70,    56,    45,
+    /* 15  */ 36,    29,    23,    18,    15,
+};</code></pre>
+<h3 id="section-11">3.2 规律</h3>
+<p><strong>nice 每差 1 级，权重相差约 25%。</strong></p>
+<p>从 nice=0 往下推（优先级降低）：</p>
+<pre class="code_block "><code class="">nice=0   权重 1024
+nice=1   权重 1024 ÷ 1.25 = 820
+nice=2   权重 820  ÷ 1.25 = 655
+nice=3   权重 655  ÷ 1.25 = 526
+nice=4   权重 526  ÷ 1.25 = 423
+nice=5   权重 423  ÷ 1.25 = 335</code></pre>
+<p>从 nice=0 往上推（优先级提升）：</p>
+<pre class="code_block "><code class="">nice=0   权重 1024
+nice=-1  权重 1024 × 1.25 = 1277
+nice=-2  权重 1277 × 1.25 = 1586
+nice=-3  权重 1586 × 1.25 = 1991
+nice=-4  权重 1991 × 1.25 = 2501
+nice=-5  权重 2501 × 1.25 = 3121</code></pre>
+<p><strong>权重值具体怎么算？</strong> 内核的规则是 <strong>nice 每差 1 级，权重 ×1.25 或 ÷1.25</strong>（这样设计是为了让 nice 差 1 ≈ CPU 份额差 10%）。</p>
+<p>nice=0 的权重定为 1024（2^10，好算），然后：</p>
+<pre class="code_block "><code class="">nice=-5 的权重 = 1024 × 1.25^5 = 1024 × 3.052 = 3125 → 内核取整 3121
+nice=5 的权重  = 1024 ÷ 1.25^5 = 1024 ÷ 3.052 = 335.5 → 取整 335</code></pre>
+<blockquote><p>内核数组里的值（3121）跟理论值（3125）差了一点，因为内核用了一个比 1.25 更精确的衰减因子，在编译时预算成整数查表——调度热路径上不能有浮点运算。</p></blockquote>
+<h3 id="section-12">3.3 CPU 分配比例</h3>
+<p>两个进程，nice=0（权重 1024）和 nice=1（权重 820）：</p>
+<pre class="code_block "><code class="">nice=0 得分 = 1024 / (1024 + 820) ≈ 55.5%
+nice=1 得分 = 820  / (1024 + 820) ≈ 44.5%</code></pre>
+<p>相差约 <strong>11%</strong>，符合预期。</p>
+<p>最极端——nice=0 与 nice=19：</p>
+<pre class="code_block "><code class="">nice=0  得分 = 1024 / (1024 + 15) = 98.6%
+nice=19 得分 = 15  / (1024 + 15) = 1.4%</code></pre>
+<p><strong>即使最低优先级的进程也不被饿死</strong>——CFS 的公平原则。</p>
+<h3 id="section-13">3.4 阻塞进程的 vruntime 补偿</h3>
+<p><strong>问题</strong>：进程阻塞了 100ms，vruntime 还是 0。恢复就绪后 vruntime=0 远小于别人，会长时间插队——不公平。</p>
+<p><strong>解决方案</strong>：内核维护了一个 <code>cfs_rq-&amp;gt;min_vruntime</code>，是当前就绪队列里最小的 vruntime。</p>
+<pre class="code_block c"><code class="language-c">// 进程恢复就绪时
+vruntime = max(原vruntime, cfs_rq-&gt;min_vruntime - 偏移量);</code></pre>
+<p>当 min_vruntime 已经涨到 80 时，恢复就绪进程的 vruntime 被拉到 80 附近——不会再插队。</p>
+<p><strong>更精细的设计</strong>：内核会从 min_vruntime 中<strong>减去一个小偏移</strong>（通常约一个时间片），让恢复就绪的进程略低于 min_vruntime。这是 CFS 的巧妙平衡——既不能让它无限插队，也不能让它恢复后被迫等太久。IO 密集型进程之所以响应快，正是靠这个微小的"阻塞补偿"。</p>
+<hr>
+<h2 id="section-14">四、红黑树 —— 为什么必须是它</h2>
+<h3 id="section-15">4.1 红黑树的五个性质</h3>
+<ol><li>每个节点要么红色要么黑色</li><li>根节点是黑色</li><li>叶子节点（NIL）是黑色</li><li>红色节点的子节点必须是黑色（不能连续红）</li><li>从任意节点到叶子节点的路径上，黑色节点数量相同</li></ol>
+<p>性质 4+5 保证了最长路径不超过最短路径的 2 倍，所以最坏情况也是 O(log n)。</p>
+<h3 id="section-16">4.2 四种数据结构的全面对比</h3>
+<div class="table_wrap"><table><thead><tr><th>维度</th><th>数组</th><th>链表</th><th>二叉堆</th><th>红黑树</th></tr></thead><tbody><tr><td><strong>找最小/取最左</strong></td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td><strong>O(1)</strong></td></tr><tr><td><strong>插入一个进程</strong></td><td>O(n)</td><td>O(n)</td><td>O(log n)</td><td><strong>O(log n)</strong></td></tr><tr><td><strong>删除一个进程</strong></td><td>O(n)</td><td>O(1)</td><td>O(log n)</td><td><strong>O(log n)</strong></td></tr><tr><td><strong>找任意指定进程</strong></td><td>O(1)¹</td><td>O(n)</td><td>O(n)</td><td><strong>O(log n)</strong></td></tr><tr><td><strong>最坏情况</strong></td><td>O(n)</td><td>O(n)</td><td>O(log n)</td><td><strong>O(log n)</strong></td></tr></tbody></table></div>
+<blockquote><p>¹ 数组的 O(1) 前提是已知下标；CFS 需要按 PID 定位进程而不是按数组下标，所以数组在该场景下实际也是 O(n)。</p></blockquote>
+<p><strong>红黑树胜出的核心原因</strong>：二叉堆虽然找最小/插入/删除都是 O(log n)，但<strong>查找任意指定元素需要 O(n) 遍历</strong>。而 CFS 经常需要精确操作某进程（如信号唤醒、<code>sched_yield()</code> 主动让出 CPU、定时器到期），这些操作都要先找到它然后重新插入——二叉堆做不到 O(log n) 精确查找，红黑树可以。</p>
+<p><strong>辅助记忆</strong>：Jemalloc 的 extent tree 也用了红黑树——内核和用户态内存管理的高频操作场景，红黑树是经典选择。</p>
+<h3 id="section-17">4.3 内核优化：rb_root_cached</h3>
+<pre class="code_block c"><code class="language-c">struct cfs_rq {
+    struct rb_root_cached tasks_timeline; // 红黑树根（缓存最左节点指针）
+    u64 min_vruntime;
+    // ...
+};</code></pre>
+<p><code>rb_root_cached</code> 在内核根节点里缓存了最左节点的指针，取最小元素是<strong>真正的 O(1)</strong> 而非 O(log n)。这就是那一丁点常数级的优化——高频路径上，每纳秒都算。</p>
+<hr>
+<h2 id="section-18">五、调度延迟与最小粒度</h2>
+<h3 id="section-19">5.1 核心矛盾</h3>
+<pre class="code_block "><code class="">上下文切换有开销（TLB 刷新 + 缓存污染 + 寄存器保存）
+→ 切换越频繁，CPU 花在"换人"上的比例越高
+
+不切换又不行，进程会饿死
+→ 切换越少，响应越差</code></pre>
+<h3 id="section-20">5.2 Targeted Latency（目标延迟）</h3>
+<p>CFS 保证所有就绪进程在 <strong>目标延迟</strong> 时间内至少各跑一次，默认 <strong>20ms</strong>。</p>
+<div class="table_wrap"><table><thead><tr><th>就绪进程数</th><th>每个进程时间片</th><th>轮一圈时间</th></tr></thead><tbody><tr><td>2</td><td>20/2 = 10ms</td><td>20ms</td></tr><tr><td>4</td><td>20/4 = 5ms</td><td>20ms</td></tr><tr><td>10</td><td>20/10 = 2ms</td><td>20ms</td></tr></tbody></table></div>
+<pre class="code_block "><code class="">每个进程的时间片 = targeted_latency / nr_running</code></pre>
+<h3 id="section-21">5.3 Minimum Granularity（最小粒度）</h3>
+<p>进程太多时，每个时间片会变得极小，切换开销占比失控：</p>
+<pre class="code_block "><code class="">100 个就绪进程 → 每个 0.2ms
+切换约 10μs → 10/200 = 5% CPU 花在切换上 → 不划算</code></pre>
+<p><strong>解决方案</strong>：设一个最小时间片，默认 <strong>1ms</strong>。</p>
+<pre class="code_block "><code class="">① 先按 targeted_latency / nr_running 算
+② 如果结果 &lt; min_granularity（1ms）：
+   → 每个进程固定 1ms
+   → 轮一圈总时间 = nr_running × 1ms（超过了 20ms，牺牲延迟保效率）</code></pre>
+<p><strong>临界点</strong>：20ms / 1ms = <strong>20 个进程</strong></p>
+<div class="table_wrap"><table><thead><tr><th>进程数</th><th>每个时间片</th><th>总周期</th></tr></thead><tbody><tr><td>≤ 20</td><td>动态分配</td><td>20ms</td></tr><tr><td>&gt; 20</td><td>固定 1ms</td><td>&gt; 20ms</td></tr></tbody></table></div>
+<p>为什么 1ms 合适？切换开销约 10μs / 1000μs = 1% 开销比——可接受。</p>
+<h3 id="section-22">5.4 完整公式</h3>
+<pre class="code_block c"><code class="language-c">time_slice = max(min_granularity, targeted_latency / nr_running);</code></pre>
+<hr>
+<h2 id="section-23">六、完整调度流程 —— 逐函数拆解</h2>
+<h3 id="section-24">宏观前提：推迟执行设计</h3>
+<pre class="code_block "><code class="">硬件时钟每 ~4ms 发一次中断
+         ↓
+中断来了 → 不能在中断上下文里直接切换（可能持有自旋锁）
+         ↓
+只干两件事：①更新 vruntime ②决定要不要换
+         ↓
+如果要换 → 设 TIF_NEED_RESCHED 标志位（一个位操作，零开销）
+         ↓
+等到安全点（中断返回/系统调用返回）→ 才真正 schedule() 换人</code></pre>
+<p>这种设计叫<strong>推迟执行（Deferred Scheduling）</strong>，所有现代操作系统都用。为什么？中断处理程序可能持有自旋锁，如果在中断里直接调用 <code>schedule()</code>，而 <code>schedule()</code> 又可能睡眠——持锁阻塞就是死锁。</p>
+<h3 id="section-25">6.1 scheduler_tick() —— 时钟中断处理</h3>
+<p><strong>调用者</strong>：硬件时钟中断（HPET/APIC timer）</p>
+<p>实际的调用链由 4 个函数组成，从入口到核心递进。以下源码均在本地提取，提取过程如下：</p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:~$ sudo apt install -y linux-source
+rr@rr-VMware-Virtual-Platform:~$ cd /usr/src &amp;&amp; sudo tar -xf linux-source-6.8.0.tar.bz2
+rr@rr-VMware-Virtual-Platform:~$ cd linux-source-6.8.0/kernel/sched</code></pre>
+<p><strong>① task_tick_fair —— 入口</strong></p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ grep -n "static void task_tick_fair" fair.c
+12680:static void task_tick_fair(struct rq *rq, struct task_struct *curr, int queued)
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ sed -n '12680,12693p' fair.c
+static void task_tick_fair(struct rq *rq, struct task_struct *curr, int queued)
+{
+    struct cfs_rq *cfs_rq;
+    struct sched_entity *se = &amp;curr-&gt;se;
+
+    for_each_sched_entity(se) {
+        cfs_rq = cfs_rq_of(se);
+        entity_tick(cfs_rq, se, queued);
+    }
+
+    if (static_branch_unlikely(&amp;sched_numa_balancing))
+        task_tick_numa(rq, curr);
+
+    update_misfit_status(curr, rq);
+    check_update_overutilized_status(task_rq(curr));
+    task_tick_core(rq, curr);
+}</code></pre>
+<p><strong>② entity_tick —— 逐实体处理</strong></p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ grep -n "entity_tick" fair.c | head -3
+5483:entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
+12687:        entity_tick(cfs_rq, se, queued);
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ sed -n '5483,5506p' fair.c
+entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
+{
+    /*
+     * Update run-time statistics of the 'current'.
+     */
+    update_curr(cfs_rq);
+
+    /*
+     * Ensure that runnable average is periodically updated.
+     */
+    update_load_avg(cfs_rq, curr, UPDATE_TG);
+    update_cfs_group(curr);
+
+#ifdef CONFIG_SCHED_HRTICK
+    if (queued) {
+        resched_curr(rq_of(cfs_rq));
+        return;
+    }
+    if (!sched_feat(DOUBLE_TICK) &amp;&amp;
+            hrtimer_active(&amp;rq_of(cfs_rq)-&gt;hrtick_timer))
+        return;
+#endif
+}</code></pre>
+<p><strong>③ update_curr —— 核心：更新 vruntime</strong> ⭐</p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ grep -n "static void update_curr" fair.c
+1151:static void update_curr(struct cfs_rq *cfs_rq)
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ sed -n '1151,1171p' fair.c
+static void update_curr(struct cfs_rq *cfs_rq)
+{
+    struct sched_entity *curr = cfs_rq-&gt;curr;
+    s64 delta_exec;
+
+    if (unlikely(!curr))
+        return;
+
+    delta_exec = update_curr_se(rq_of(cfs_rq), curr);
+    if (unlikely(delta_exec &lt;= 0))
+        return;
+
+    curr-&gt;vruntime += calc_delta_fair(delta_exec, curr);
+    update_deadline(cfs_rq, curr);
+
+    if (entity_is_task(curr))
+        update_curr_task(task_of(curr), delta_exec);
+
+    account_cfs_rq_runtime(cfs_rq, delta_exec);
+}</code></pre>
+<p><strong>④ calc_delta_fair —— 权重计算公式</strong> ⭐</p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ grep -n "calc_delta_fair" fair.c | head -3
+296:static inline u64 calc_delta_fair(u64 delta, struct sched_entity *se)
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ sed -n '296,301p' fair.c
+static inline u64 calc_delta_fair(u64 delta, struct sched_entity *se)
+{
+    if (unlikely(se-&gt;load.weight != NICE_0_LOAD))
+        delta = __calc_delta(delta, NICE_0_LOAD, &amp;se-&gt;load);
+
+    return delta;
+}</code></pre>
+<p>一行关键代码串联了整个调用链：</p>
+<pre class="code_block c"><code class="language-c">curr-&gt;vruntime += calc_delta_fair(delta_exec, curr);
+    // → 如果权重≠1024，则 __calc_delta(delta, 1024, &amp;se-&gt;load)
+    // → 等价于 vruntime += delta_exec × (1024 / weight)</code></pre>
+<p><strong>注意</strong>：Δ_t 不是固定 4ms。时钟中断可能被其他中断延迟，所以 Δ_t 是本次 tick 距离上次 tick 的真实时间间隔，由 <code>update_curr_se()</code> 精确测量。</p>
+<h3 id="section-26">6.2 set_tsk_need_resched() —— 设标志位</h3>
+<pre class="code_block c"><code class="language-c">static inline void set_tsk_need_resched(struct task_struct *tsk) {
+    set_tsk_thread_flag(tsk, TIF_NEED_RESCHED);
+}</code></pre>
+<p>就一行——把进程 <code>flags</code> 字段的 <code>TIF_NEED_RESCHED</code> 位设为 1。一个位操作，极轻量。</p>
+<p><strong>为什么设标志位而不是直接调 schedule()？</strong></p>
+<ul><li>中断上下文没有进程结构，无法切换</li><li>中断处理程序可能持有自旋锁</li><li>持锁状态下阻塞 = 死锁</li></ul>
+<h3 id="section-27">6.3 检查标志位的地方（安全点）</h3>
+<p>只有三个地方会检查 <code>TIF_NEED_RESCHED</code>：</p>
+<div class="table_wrap"><table><thead><tr><th>安全点</th><th>时机</th><th>说明</th></tr></thead><tbody><tr><td><strong>从内核态返回用户态</strong></td><td>系统调用/中断处理完毕</td><td>最常用，无锁无中断上下文</td></tr><tr><td><strong>从中断返回内核态</strong></td><td>中断嵌套时外层中断返回</td><td>仅当不嵌套时可调度</td></tr><tr><td><strong>进程主动让出 CPU</strong></td><td>sched_yield()/sleep()</td><td>自愿切换，不依赖标志位</td></tr></tbody></table></div>
+<h3 id="section-28">6.4 schedule() —— 真正的调度函数</h3>
+<pre class="code_block c"><code class="language-c">asmlinkage __visible void __sched schedule(void) {
+    struct task_struct *prev, *next;
+    struct rq *rq = cpu_rq(smp_processor_id());
+    prev = rq-&gt;curr;
+
+    preempt_disable();                     // ① 关抢占，避免重入
+
+    next = pick_next_task(rq, prev);      // ② 从红黑树选下一个进程
+
+    if (prev != next)
+        context_switch(rq, prev, next);    // ③ 上下文切换
+
+    preempt_enable();                      // ④ 开抢占
+}</code></pre>
+<h3 id="section-29">6.5 pick_next_task() —— 选进程</h3>
+<p>从红黑树取最左节点（vruntime 最小）：</p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ grep -n "__pick_first_entity" fair.c | head -3
+828:struct sched_entity *__pick_first_entity(struct cfs_rq *cfs_rq)
+880:    struct sched_entity *se = __pick_first_entity(cfs_rq);
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ sed -n '828,838p' fair.c
+struct sched_entity *__pick_first_entity(struct cfs_rq *cfs_rq)
+{
+    struct rb_node *left = rb_first_cached(&amp;cfs_rq-&gt;tasks_timeline);
+
+    if (!left)
+        return NULL;
+
+    return __node_2_se(left);
+}</code></pre>
+<p><code>rb_first_cached()</code> 取出红黑树最左节点——即 vruntime 最小的进程，O(1) 复杂度。再通过 <code>task_of(se)</code> 拿到外面的 <code>task_struct</code> 返回。</p>
+<h3 id="section-30">6.6 context_switch() —— 上下文切换</h3>
+<pre class="code_block c"><code class="language-c">static inline void
+context_switch(struct rq *rq, struct task_struct *prev,
+               struct task_struct *next) {
+    // ① 切换虚拟地址空间（含 TLB 刷新）
+    if (prev-&gt;mm != next-&gt;mm)
+        switch_mm_irqs_off(prev-&gt;active_mm, next-&gt;mm, next);
+        // 内部：加载 next 的页表基地址到 CR3 寄存器
+        // 硬件检测到 CR3 变了 → 自动清空所有 TLB 条目
+
+    // ② 切换寄存器和栈（汇编实现）
+    switch_to(prev, next, prev);
+}</code></pre>
+<p><strong>注意</strong>：同一进程的多个线程（<code>prev-&amp;gt;mm == next-&amp;gt;mm</code>）切换时不需要换页表，这是线程切换比进程切换快的原因之一。</p>
+<h3 id="section-31">6.7 switch_to() —— 汇编级栈切换</h3>
+<p>这个函数必须用汇编写，因为 C 语言无法直接操作栈指针 <code>rsp</code>。以下是从 x86-64 架构源码提取的真实实现：</p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/arch/x86/entry$ grep -n "__switch_to_asm" entry_64.S
+177:SYM_FUNC_START(__switch_to_asm)
+216:SYM_FUNC_END(__switch_to_asm)
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/arch/x86/entry$ sed -n '177,216p' entry_64.S
+SYM_FUNC_START(__switch_to_asm)
+    /*
+     * Save callee-saved registers
+     * This must match the order in inactive_task_frame
+     */
+    pushq    %rbp
+    pushq    %rbx
+    pushq    %r12
+    pushq    %r13
+    pushq    %r14
+    pushq    %r15
+
+    /* switch stack */
+    movq    %rsp, TASK_threadsp(%rdi)    # rdi=prev, 保存当前栈指针到 prev-&gt;thread.sp
+    movq    TASK_threadsp(%rsi), %rsp    # rsi=next, 加载 next 的栈指针到 rsp
+
+    /* restore callee-saved registers */
+    popq    %r15
+    popq    %r14
+    popq    %r13
+    popq    %r12
+    popq    %rbx
+    popq    %rbp
+
+    jmp    __switch_to                    # 跳到 C 函数 __switch_to() 继续处理
+SYM_FUNC_END(__switch_to_asm)</code></pre>
+<p><strong>最关键的一步</strong>：<code>movq TASK_threadsp(%rsi), %rsp</code> 执行完后，CPU 已经站在 next 的内核栈上了。后面的 <code>popq</code> 和 <code>jmp __switch_to</code> 都基于 next 的上下文执行——这就是"切换"的本质。</p>
+<h3 id="section-32">6.8 sched_yield() —— 自愿让出 CPU</h3>
+<p><code>sched_yield()</code> 让当前进程主动放弃 CPU。先看它的内核实现：</p>
+<pre class="code_block "><code class="">rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ grep -n "yield_task_fair" fair.c | head -3
+8561:static void yield_task_fair(struct rq *rq)
+8612:    yield_task_fair(rq);
+rr@rr-VMware-Virtual-Platform:/usr/src/linux-source-6.8.0/kernel/sched$ sed -n '8561,8595p' fair.c
+static void yield_task_fair(struct rq *rq)
+{
+    struct task_struct *curr = rq-&gt;curr;
+    struct cfs_rq *cfs_rq = task_cfs_rq(curr);
+    struct sched_entity *se = &amp;curr-&gt;se;
+
+    /*
+     * Are we the only task in the tree?
+     */
+    if (unlikely(rq-&gt;nr_running == 1))
+        return;
+
+    clear_buddies(cfs_rq, se);
+
+    update_rq_clock(rq);
+    /*
+     * Update run-time statistics of the 'current'.
+     */
+    update_curr(cfs_rq);
+    /*
+     * Tell update_rq_clock() that we've just updated,
+     * so we don't do microscopic update in schedule()
+     * and double the fastpath cost.
+     */
+    rq_clock_skip_update(rq);
+
+    /*
+     * Forfeit the remaining vruntime, only if the entity is eligible.
+     */
+    if (entity_eligible(cfs_rq, se))
+        se-&gt;vruntime = cfs_rq-&gt;min_vruntime;    // ← 关键：vruntime 拉到最小值
+
+    __dequeue_entity(cfs_rq, se);
+    __enqueue_entity(cfs_rq, se);                // ← 重新插入 -&gt; 放到红黑树右边
+}</code></pre>
+<p>关键逻辑：<code>se-&amp;gt;vruntime = cfs_rq-&amp;gt;min_vruntime</code> —— 把当前进程的 vruntime 拉到 min_vruntime 的位置，然后重新入队。因为它的 vruntime 被设大了（接近 min_vruntime），红黑树会把它插到右边——接下来调度的就是别人了。</p>
+<p><strong>man 手册的 CAVEATS：</strong></p>
+<blockquote><p><code>sched_yield()</code> is intended for use with real-time scheduling policies (i.e., <code>SCHED_FIFO</code> or <code>SCHED_RR</code>). Use of <code>sched_yield()</code> with nondeterministic scheduling policies such as <code>SCHED_OTHER</code> (即默认 CFS) is unspecified <strong>and very likely means your application design is broken.</strong></p></blockquote>
+<p>翻译：<code>sched_yield()</code> 是为实时调度设计的。在 CFS 下调它——<strong>大概率是你代码设计有问题。</strong></p>
+<p>原因：</p>
+<ul><li>CFS 用自己的 vruntime 算法做公平调度，你 yield 了，CFS 只是把你的 vruntime 拉到 min_vruntime，如果就绪队列里没有其他进程比你 vruntime 更小，你还是会被调度回来——白白上下文切换一次</li><li>如果你持有锁就 yield，别的线程跑起来也拿不到锁，白白浪费一次切换</li></ul>
+<hr>
+<h2 id="section-33">七、上下文切换的三件开销</h2>
+<p>一次上下文切换总开销约 <strong>3-10 微秒</strong>，拆成三块：</p>
+<h3 id="section-34">7.1 寄存器保存/恢复（~50ns，占 1%）</h3>
+<p>进程在 CPU 上跑时，所有瞬时状态都在寄存器里：<code>rip</code>（跑到哪了）、<code>rsp</code>（栈在哪）、<code>rax/rbx/...</code>（运算中间结果）。</p>
+<p>切换时这些全部保存到 PCB，再把 next 的寄存器从它的 PCB 加载回来。几十纳秒，最小头。</p>
+<h3 id="section-35">7.2 TLB 刷新（~500ns，占 10%）</h3>
+<p><strong>TLB（Translation Lookaside Buffer，地址翻译旁路缓存）</strong> 是 CPU 内部的一块高速缓存，存着最近用过的"虚拟地址 → 物理地址"映射对。</p>
+<pre class="code_block "><code class="">进程 A 跑久了 → TLB 里全是 A 的页表项
+→ 切换进程 → 加载 B 的页表基地址到 CR3 寄存器
+→ CPU 硬件检测到 CR3 变了 → 自动清空所有 TLB 条目
+→ B 第一次访问任何地址 → TLB 未命中 → 去内存里查页表（慢 100 倍）
+→ 查到的映射填回 TLB（下次就快了）</code></pre>
+<p><strong>TLB 命中 ~1ns，TLB 未命中（查内存页表）~100ns。</strong> 切换后最初几百次内存访问全是未命中——这是"TLB 冷启动"的代价。</p>
+<h3 id="section-36">7.3 缓存污染（~5000ns，占 89%）← 最贵</h3>
+<p>进程 A 长时间运行，CPU 的 L1/L2/L3 缓存里全是 A 的热数据：</p>
+<pre class="code_block "><code class="">切换到 B → B 加载自己的数据 → A 的热数据被挤出缓存（污染）
+再切回 A → A 的数据全没了 → 全部从主存重新加载</code></pre>
+<p><strong>L1 缓存 ~1ns vs 主存 ~100ns —— 差两个数量级。</strong> 一旦缓存被污染，切换回来时大量缓存未命中，性能断崖式下跌。</p>
+<h3 id="section-37">7.4 总开销汇总</h3>
+<pre class="code_block "><code class="">寄存器操作：     ~50ns     （占 1%）
+TLB 重新建温：   ~500ns    （占 10%）
+缓存重新建温：   ~5000ns   （占 89%）← 最贵
+─────────────────────────────────
+合计 ≈ 3-10μs</code></pre>
+<p>所以 min_granularity=1ms 是精确计算过的：10μs / 1000μs = 1% 开销比。如果把时间片砍到 0.1ms，10% 的 CPU 就全花在"换人"上了。</p>
+<hr>
+<h2 id="section-38">八、IO 密集型 vs CPU 密集型 —— 时间线分析</h2>
+<h3 id="section-39">8.1 场景</h3>
+<pre class="code_block "><code class="">进程 A：CPU 密集型，持续做数学计算
+进程 B：IO 密集型，每跑 4ms 发起磁盘 IO（阻塞 8ms）
+两者 nice=0，targeted_latency=20ms, min_granularity=1ms</code></pre>
+<h3 id="section-40">8.2 时间线</h3>
+<div class="table_wrap"><table><thead><tr><th>时段</th><th>谁在跑</th><th>A 的 vruntime</th><th>B 的 vruntime</th><th>事件</th></tr></thead><tbody><tr><td>0-4ms</td><td><strong>A</strong></td><td>4</td><td>0（阻塞）</td><td>B 在做 IO，不在就绪队列</td></tr><tr><td>4-8ms</td><td><strong>A</strong></td><td>8</td><td>0（阻塞）</td><td></td></tr><tr><td>8-10ms</td><td><strong>A</strong></td><td>10</td><td>0（阻塞）</td><td></td></tr><tr><td>10ms</td><td>—</td><td>10</td><td>0</td><td><strong>B IO 完成，恢复就绪</strong></td></tr><tr><td>10-12ms</td><td><strong>B ←</strong></td><td>10</td><td>2</td><td>CFS：B=0 &lt; A=10，选 B</td></tr><tr><td>12-14ms</td><td><strong>B</strong></td><td>10</td><td>4</td><td>B 跑完 4ms → 发起 IO → 阻塞</td></tr><tr><td>14-18ms</td><td><strong>A</strong></td><td>14</td><td>4（阻塞）</td><td></td></tr><tr><td>18-22ms</td><td><strong>A</strong></td><td>18</td><td>4（阻塞）</td><td></td></tr><tr><td>22ms</td><td>—</td><td>18</td><td>~10</td><td><strong>B IO 完成</strong>，min_vruntime 补偿到 ~10</td></tr><tr><td>22-24ms</td><td><strong>B ←</strong></td><td>18</td><td>12</td><td>CFS：B=10 &lt; A=18，又选 B</td></tr></tbody></table></div>
+<h3 id="section-41">8.3 结论</h3>
+<div class="table_wrap"><table><thead><tr><th>指标</th><th>CPU 密集型</th><th>IO 密集型</th></tr></thead><tbody><tr><td>总 CPU 时间</td><td>更多</td><td>更少</td></tr><tr><td>响应延迟</td><td>一般</td><td><strong>优秀</strong></td></tr><tr><td>vruntime 趋势</td><td>线性增长</td><td>停滞期 + 缓慢增长</td></tr></tbody></table></div>
+<p><strong>CFS 不需要 MLFQ 那种"手动标记 IO 进程并提升优先级"的 hack</strong>——一个 vruntime 公式自然让它恢复就绪后 vruntime 更小，优先被调度。这就是 CFS 被称为 "elegant" 的原因。</p>
+<hr>
+<h2 id="section-42">九、总结：CFS 为什么优雅</h2>
+<div class="table_wrap"><table><thead><tr><th>对比维度</th><th>MLFQ</th><th>CFS</th></tr></thead><tbody><tr><td>优先级模型</td><td>离散的多级队列</td><td>连续的权重值</td></tr><tr><td>时间片</td><td>固定长度</td><td><strong>按进程数动态计算</strong></td></tr><tr><td>公平性</td><td>高优先级可抢占低优，有饥饿风险</td><td>vruntime 保证所有进程最终都分配到 CPU</td></tr><tr><td>IO 处理</td><td>手动提升优先级（策略 hack）</td><td><strong>vruntime 自动解决</strong></td></tr><tr><td>配置参数</td><td>多（队列数、升降级规则…）</td><td>少（就 latency + granularity 两个）</td></tr></tbody></table></div>
+<p><strong>一句话总结</strong>：CFS 用<strong>数学代替了策略</strong>。MLFQ 说"优先级高的先跑"，CFS 说"大家公平地跑，高优先级的虚拟时钟走得慢一些——但谁都不会被饿死"。</p>
+<blockquote><p><strong>补充</strong>：Linux 6.6（2023 年）用 <strong>EEVDF</strong> 替代了 CFS。EEVDF 在 vruntime 基础上增加了截止时间（deadline）机制，进一步降低调度延迟。但核心思想一致——理解 CFS，EEVDF 就是顺水推舟。</p></blockquote>
+<hr>
+<blockquote><p><strong>许可</strong>：欢迎转载，署名并附原文链接即可。</p>
+<p><strong>参考资料</strong>：</p>
+<ul><li>Linux 内核源码 <code>kernel/sched/fair.c</code> —— CFS 的完整实现</li><li>OSTEP（Operating Systems: Three Easy Pieces）—— 第 9 章步调调度，第 10 章多处理器调度</li><li>小林 coding：https://xiaolincoding.com/ —— 图解清晰，入门友好</li><li>Linux man-pages: <code>man 2 sched_yield</code>, <code>man 7 sched</code></li></ul></blockquote></div></div></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

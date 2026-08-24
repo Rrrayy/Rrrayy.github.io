@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="学习完本文后，可以解决以下问题：">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="ext4文件系统详解：用dd和mkfs.ext4从零解剖">
+	<meta property="og:description" content="学习完本文后，可以解决以下问题：">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/ext4-layout.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/ext4-layout.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>ext4文件系统详解：用dd和mkfs.ext4从零解剖 | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "ext4文件系统详解：用dd和mkfs.ext4从零解剖", "description": "学习完本文后，可以解决以下问题：", "datePublished": "2026-07-14", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/ext4-layout.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>
+		(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();
+	</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="ext4-layout" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>文件系统</span><span>发布日期：2026-07-14</span><span>4052 字 · 9 分钟</span></div><h1>ext4文件系统详解：用dd和mkfs.ext4从零解剖</h1><p class="article_lead">学习完本文后，可以解决以下问题：</p><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/162878654" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">一、前言</a><a class="toc_level_2" href="#section-2">二、准备实验环境</a><a class="toc_level_3" href="#section-3">第一步：创建磁盘镜像</a><a class="toc_level_3" href="#section-4">第二步：格式化为 ext4</a><a class="toc_level_2" href="#section-5">三、整体布局</a><a class="toc_level_2" href="#section-6">四、超级块（Superblock）</a><a class="toc_level_2" href="#section-7">五、位图（Bitmap）</a><a class="toc_level_3" href="#section-8">5.1 块位图</a><a class="toc_level_3" href="#section-9">5.2 inode 位图</a><a class="toc_level_2" href="#section-10">六、写入文件后的变化</a><a class="toc_level_3" href="#section-11">6.1 挂载并写入文件</a><a class="toc_level_3" href="#section-12">6.2 重新查看块位图</a><a class="toc_level_3" href="#section-13">6.3 定位数据块</a><a class="toc_level_3" href="#section-14">6.4 看数据块内容</a><a class="toc_level_2" href="#section-15">七、验证全链路</a><a class="toc_level_2" href="#section-16">八、总结</a></aside><div class="article_body"><hr>
+<h2 id="section-1">一、前言</h2>
+<p>学习完本文后，可以解决以下问题：</p>
+<ol><li><code>ls -l</code> 看到的信息存在磁盘的什么位置？</li><li>格式化时往磁盘上写了什么内容？</li><li>inode、位图在磁盘上的原始长相是怎样的？</li></ol>
+<hr>
+<h2 id="section-2">二、准备实验环境</h2>
+<h3 id="section-3">第一步：创建磁盘镜像</h3>
+<blockquote><p><code>dd</code> 命令是 Linux 的复制工具——按块复制数据，不考虑文件格式。</p>
+<ul><li><code>if=/dev/zero</code>：输入文件，<code>/dev/zero</code> 是一个全零设备，读它就会不断输出 0x00</li><li><code>of=ext4_demo.img</code>：输出文件，就是我们的磁盘镜像</li><li><code>bs=1M</code>：每次读写 1MB（block size）</li><li><code>count=32</code>：读 32 次 → 32×1MB = 32MB 总大小</li></ul>
+<p>这行命令的意思就是："从零设备读 32 个 1MB 的块，写到一个文件里"，结果是一个全零的 32MB 文件。</p></blockquote>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ dd if=/dev/zero of=ext4_demo.img bs=1M count=32
+输入了 32+0 块记录
+输出了 32+0 块记录
+33554432 字节 (34 MB, 32 MiB) 已复制，0.117051 s，287 MB/s</code></pre>
+<p>从 <code>/dev/zero</code> 读出 32MB 的全零数据，写入一个镜像文件。现在假定文件就是一块空白磁盘。</p>
+<h3 id="section-4">第二步：格式化为 ext4</h3>
+<blockquote><p><code>mkfs.ext4</code> = <strong>M</strong>aKe <strong>F</strong>ile<strong>S</strong>ystem <strong>ext4</strong>。在指定设备上创建一个空的 ext4 文件系统。</p>
+<ul><li>它会自动检测设备大小，选择合适的块大小和 inode 数量</li><li>写入超级块、组描述符、位图、inode 表、日志等元数据</li><li>本文核心就是格式化后用 <code>hexdump</code> 把这些元数据读出来进行分析。</li></ul></blockquote>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ mkfs.ext4 ext4_demo.img
+mke2fs 1.47.0 (5-Feb-2023)
+丢弃设备块： 完成                            
+创建含有 8192 个块（每块 4k）和 8192 个 inode 的文件系统
+正在分配组表： 完成                            
+正在写入 inode表： 完成                            
+创建日志（1024 个块）： 完成
+写入超级块和文件系统账户统计信息： 已完成</code></pre>
+<p>32MB 格式化后自动选择了块大小 <strong>4096 字节</strong>（4K），共有 <strong>8192 个块</strong>、<strong>8192 个 inode</strong>。注意它自动创建了 <strong>1024 个块</strong>的日志。</p>
+<hr>
+<h2 id="section-5">三、整体布局</h2>
+<p>ext4 把磁盘分成若干个<strong>组</strong>，每块组内部有一套完整的元数据副本。ext4 默认每 <strong>128MB</strong> 划分一个组，我们这个镜像只有 32MB，所以只创建了<strong>组 0</strong> 这一个组，内部按固定顺序排列：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    SB["超级块\nsuperblock"] --&gt; GDT["组描述符"]
+    GDT --&gt; DBM["块位图"]
+    DBM --&gt; IBM["inode 位图"]
+    IBM --&gt; IT["inode 表"]
+    IT --&gt; J["日志\njournal"]
+    J --&gt; DB["数据块\ndata blocks"]</code></pre>
+<p>每块区域的作用：</p>
+<div class="table_wrap"><table><thead><tr><th>区域</th><th>存放内容</th></tr></thead><tbody><tr><td><strong>超级块</strong></td><td>文件系统元数据入口——记录 inode/block 总量、块大小、魔数、时间戳等全局信息</td></tr><tr><td><strong>组描述符(GDT)</strong></td><td>每组的结构描述表——保存块位图、inode 位图、inode 表各自的起始块号</td></tr><tr><td><strong>块位图</strong></td><td>以 bit 为单位标记数据块的分配状态，1=已分配，0=空闲，每 bit 对应一个 block</td></tr><tr><td><strong>inode 位图</strong></td><td>以 bit 为单位标记 inode 的分配状态，1=已占用，0=空闲</td></tr><tr><td><strong>inode 表</strong></td><td>inode 结构体的连续存储区域，每个 inode 固定 256 字节</td></tr><tr><td><strong>日志</strong></td><td>预写日志（WAL）区域，通过记录元数据变更实现崩溃一致性</td></tr><tr><td><strong>数据块区</strong></td><td>文件数据和目录项的实际物理存储空间</td></tr></tbody></table></div>
+<blockquote><p><code>dumpe2fs</code> = <strong>Dump</strong> <strong>Ext2</strong> <strong>F</strong>ile<strong>S</strong>ystem（该命令支持 ext2/3/4 文件系统）。打印 ext 系列文件系统的超级块和块组信息，不用自己算二进制偏移就能看到元数据。</p></blockquote>
+<p>用 <code>dumpe2fs</code> 看组信息：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ dumpe2fs ext4_demo.img
+...
+组 0：(块 0-8191) 校验和 0xb725 [ITABLE_ZEROED]
+  主 超级块位于 0，组描述符位于 1-1
+  保留的 GDT 块位于 2-4
+  块位图位于 5 (+5)，校验和 0x85336636
+  inode 位图位于 21 (+21)，校验和 0x1c53302d
+  inode 表位于 37-548 (+37)
+  6643 个可用块，8181 个可用 inode，2 个目录 ，8181 个未使用的 inode
+  可用块数： 1549-8191
+  可用 inode 数： 12-8192</code></pre>
+<p>这说明组 0 的布局是：</p>
+<ul><li><strong>块 0</strong>：超级块</li><li><strong>块 1</strong>：组描述符</li><li><strong>块 2-4</strong>：保留 GDT</li><li><strong>块 5</strong>：块位图</li><li><strong>块 21</strong>：inode 位图（注意 6-20 未使用，为了对齐）</li><li><strong>块 37-548</strong>：inode 表（512 个块，存 8192 个 inode，每个 inode 256 字节）</li><li><strong>块 549-1548</strong>：日志（mkfs.ext4 输出 1024 块，但 549~1548 只覆盖 1000 块，差额可能分散在日志元数据块中）</li><li><strong>块 1549-8191</strong>：数据块区</li></ul>
+<hr>
+<h2 id="section-6">四、超级块（Superblock）</h2>
+<p>超级块固定在磁盘的 <strong>1024 字节偏移</strong>处，即块 0 的 1024~2047 字节。</p>
+<pre class="code_block bash"><code class="language-bash"># 同一命令输出的上半部分——超级块信息
+rr@rr-VMware-Virtual-Platform:~/桌面$ dumpe2fs ext4_demo.img
+Filesystem volume name:   &lt;none&gt;
+Filesystem UUID:          640a028c-696e-48df-86a6-427c4a504fda
+Filesystem magic number:  0xEF53
+Filesystem revision #:    1 (dynamic)
+Inode count:              8192
+Block count:              8192
+Reserved block count:     409
+Block size:               4096
+Inode size:               256
+First inode:              11
+...</code></pre>
+<p>关键字段：</p>
+<div class="table_wrap"><table><thead><tr><th>字段</th><th>值</th><th>含义</th></tr></thead><tbody><tr><td>Inode count</td><td>8192</td><td>最多 8192 个文件</td></tr><tr><td>Block count</td><td>8192</td><td>总块数</td></tr><tr><td>Block size</td><td>4096</td><td>每块 4K</td></tr><tr><td>Inode size</td><td>256</td><td>每个 inode 256 字节</td></tr><tr><td>First inode</td><td>11</td><td>第一个可用 inode 编号是 11（0-10 保留）</td></tr><tr><td>Magic number</td><td>0xEF53</td><td>ext4 魔数，系统启动时校验</td></tr></tbody></table></div>
+<p><strong>看原始字节：</strong></p>
+<p>超级块从偏移 1024（0x400）开始。</p>
+<p>###  hexdump 输出解析</p>
+<blockquote><p><code>hexdump -C</code> 的输出分三列：</p>
+<pre class="code_block "><code class="">偏移量          十六进制内容（每行16字节，分成两半）            ASCII翻译
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+           ↑ 第1-8字节  ↑ 第9-16字节                              ↑ 16个点 = 全是不可见字符
+
+00000430  8f 9e 54 6a 00 00 ff ff  53 ef 01 00 01 00 00 00  |..Tj....S.......|
+                                     ↑↑
+                                  53 ef = 魔数 0xEF53</code></pre>
+<ul><li><strong>第一列</strong> <code>00000000</code> / <code>00000430</code>：当前行在文件中的偏移量（字节数），十六进制</li><li><strong>中间两段</strong> <code>8f 9e 54 6a ...</code>：每段 8 字节，两段共 16 字节，就是这行代表的原始数据</li><li><strong>最后一列</strong> <code>|......|</code>：右边是对应的 ASCII 字符，<code>.</code> 表示不可见（0x00~0x1F 的控制字符或高位字节）</li></ul></blockquote>
+<p>###  小端序：将 <code>53 ef</code> 读成 <code>0xEF53</code></p>
+<blockquote><p>Intel x86 CPU 存多字节数字时，<strong>低位字节存低地址，高位字节存高地址</strong>。</p>
+<p>看 <code>0x438</code> 处这两个字节：<code>53 ef</code>。正常从左往右读是 <code>0x53EF</code>——但 CPU 具有独特逻辑：</p>
+<ul><li>地址 0x438 存 <code>53</code>（低位字节）</li><li>地址 0x439 存 <code>ef</code>（高位字节）</li><li>CPU 从 0x438 开始读 2 字节，小端解析为：<code>0xef</code> 在高位 + <code>0x53</code> 在低位 = <strong><code>0xEF53</code></strong></li></ul>
+<p>这叫<strong>小端序（little-endian）</strong>。Windows 和 Linux 普及的 x86 都是小端序，后面看到反直觉的值（比如 <code>00 20 00 00</code> = 0x2000 而不是 0x00200000）都是这个原因。</p></blockquote>
+<blockquote><p><code>hexdump -C</code>：把文件的原始字节以十六进制+ASCII 双列显示，是探索磁盘结构最直接的工具。</p>
+<ul><li><code>-C</code>：同时显示十六进制和对应的 ASCII 字符</li><li><code>-n 2048</code>：只读前 2048 字节</li><li><code>-s 偏移量</code>：跳过指定字节数，从中间开始读</li></ul></blockquote>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ hexdump -C -n 2048 ext4_demo.img
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+00000400  00 20 00 00 00 20 00 00  99 01 00 00 f3 19 00 00  |. ... ..........|
+00000410  f5 1f 00 00 00 00 00 00  02 00 00 00 02 00 00 00  |................|
+00000420  00 80 00 00 00 80 00 00  00 20 00 00 00 00 00 00  |......... ......|
+00000430  8f 9e 54 6a 00 00 ff ff  53 ef 01 00 01 00 00 00  |..Tj....S.......|
+00000440  8f 9e 54 6a 00 00 00 00  00 00 00 00 01 00 00 00  |..Tj............|
+00000450  00 00 00 00 0b 00 00 00  00 01 00 00 3c 00 00 00  |............&lt;...|
+00000460  c2 02 00 00 6b 04 00 00  64 0a 02 8c 69 6e 48 df  |....k...d...inH.|
+00000470  86 a6 42 7c 4a 50 4f da  00 00 00 00 00 00 00 00  |..B|JPO.........|
+00000480  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+000004c0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 03 00  |................|
+000004d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+000004e0  08 00 00 00 00 00 00 00  00 00 00 00 3f 2c 6b af  |............?,k.|
+000004f0  ce eb 4a 8a 8a e4 76 10  90 cb 3c 5a 01 01 40 00  |..J...v...&lt;Z..@.|
+00000500  0c 00 00 00 00 00 00 00  8f 9e 54 6a 0a f3 03 00  |..........Tj....|
+00000510  04 00 00 00 00 00 00 00  00 00 00 00 0a 00 00 00  |................|
+00000520  0b 00 00 00 0a 00 00 00  0f 00 00 00 16 00 00 00  |................|
+00000530  19 00 00 00 e7 03 00 00  26 02 00 00 00 00 00 00  |........&amp;.......|
+00000540  00 00 00 00 00 00 00 00  00 00 00 00 00 00 40 00  |..............@.|
+00000550  00 00 00 00 00 00 00 00  00 00 00 00 20 00 20 00  |............ . .|
+00000560  01 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000570  00 00 00 00 04 01 00 00  19 00 00 00 00 00 00 00  |................|
+00000580  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+00000640  00 00 00 00 00 00 00 00  07 06 00 00 00 00 00 00  |................|
+00000650  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+000007f0  00 00 00 00 00 00 00 00  00 00 00 00 20 a8 5d 9d  |............ .].|
+00000800</code></pre>
+<p>从 <code>0x400</code> 开始解读关键字段（注意小端序）：</p>
+<div class="table_wrap"><table><thead><tr><th>偏移</th><th>字节</th><th>小端值</th><th>含义</th></tr></thead><tbody><tr><td>0x400</td><td>00 20 00 00</td><td>0x00002000 = <strong>8192</strong></td><td>inode 总数</td></tr><tr><td>0x404</td><td>00 20 00 00</td><td>0x00002000 = <strong>8192</strong></td><td>块总数</td></tr><tr><td>0x418</td><td>02 00 00 00</td><td>2（log2值）</td><td>块大小 = 2^(2+10) = <strong>4096</strong></td></tr><tr><td>0x428</td><td>00 80 00 00</td><td>0x00008000 = <strong>32768</strong></td><td>每组块数</td></tr><tr><td>0x438</td><td>53 ef</td><td><strong>0xEF53</strong></td><td><strong>魔数！</strong> ext4 身份标识</td></tr></tbody></table></div>
+<blockquote><p>魔数 0xEF53 在文件中以小端序存储为 <code>53 ef</code>——前面文章提到的 inode 硬链接实验中也见过这个值。系统挂载时先读这个数，对不上就拒绝挂载。</p></blockquote>
+<hr>
+<h2 id="section-7">五、位图（Bitmap）</h2>
+<p>位图用 1 个 bit 标记一个块/inode 的状态：<strong>1=已占用，0=空闲</strong>。</p>
+<h3 id="section-8">5.1 块位图</h3>
+<p>根据前文执行的dumpe2fs指令可知：</p>
+<p>块位图在 <strong>块 5</strong>（偏移 5×4096 = 0x5000）：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ hexdump -C -s $((4096*5)) -n 4096 ext4_demo.img
+00005000  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
+*
+000050c0  ff 3f 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |.?..............|
+000050d0  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+00005400  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
+*
+00006000</code></pre>
+<p>解读：</p>
+<ul><li><strong>0x0000-0x00bf</strong>（192 字节）：全 <code>ff</code>，表示 <strong>块 0~1535</strong> 全部已占用（超级块、GDT、位图、inode 表、日志）</li><li><strong>0x00c0</strong>：<code>ff 3f 00 00</code>，<code>3f</code> = <code>0011 1111</code>，表示 <strong>块 1536~1549</strong> 已占用（数据块区最开始的部分：根目录目录项、lost+found 的数据块）</li><li><strong>0x00c4+</strong>：全 00，<strong>块 1550~8191</strong> 空闲</li></ul>
+<p>以 <code>0x00c0</code> 处的 <code>ff 3f</code> 为例，转为表格更直观：</p>
+<div class="table_wrap"><table><thead><tr><th>字节索引（相对块5）</th><th>十六进制</th><th>二进制低位→高位</th><th>对应块号</th><th>状态</th></tr></thead><tbody><tr><td>0x00c0</td><td>ff</td><td>1111 1111</td><td>1536~1543</td><td>已分配</td></tr><tr><td>0x00c1</td><td>3f</td><td>0011 1111</td><td>1544~1549</td><td>已分配</td></tr><tr><td>0x00c2+</td><td>00</td><td>0000 0000</td><td>1550+</td><td>空闲</td></tr></tbody></table></div>
+<blockquote><p>位图只占 8192 bit = 1024 字节，即块 5 的前 <code>0x5000</code>~<code>0x53ff</code>。但 hexdump 显示 <code>0x5400</code> 处还有 <code>ff</code>——这不是位图数据。块 5 共 4096 字节，位图只用前 1024 字节，剩下的 3072 字节是<strong>块内的剩余空间</strong>（mkfs.ext4 格式化为全 ff），ext4 不会把它们当作位图来解析。</p></blockquote>
+<h3 id="section-9">5.2 inode 位图</h3>
+<p>inode 位图在 <strong>块 21</strong>（偏移 21×4096 = 0x15000）：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ hexdump -C -s $((4096*21)) -n 256 ext4_demo.img
+00015000  ff 0f 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00015010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+00015100</code></pre>
+<p><code>ff 0f</code> = <code>0000 1111 1111 1111</code>（小端序），bit 0~11 已置 1，表示 <strong>inode 0~11 已被占用</strong>：</p>
+<ul><li>inode 0：保留</li><li>inode 1：坏块映射</li><li>inode 2：根目录</li><li>inode 8：日志（journal）</li><li>inode 11：lost+found</li></ul>
+<p>其余 inode（12~8191）全部空闲。</p>
+<hr>
+<h2 id="section-10">六、写入文件后的变化</h2>
+<blockquote><p><code>mount -o loop ext4_demo.img ~/mnt_demo</code>：把镜像文件当作硬盘设备挂载到目录。</p>
+<ul><li><code>mount</code>：挂载命令，把一个文件系统接到目录树上</li><li><code>-o loop</code>：<strong>loop</strong> 模式，将普通文件映射为虚拟块设备（背后内核创建 <code>/dev/loop0</code>），这样就能像挂载硬盘一样挂载一个文件</li><li><code>ext4_demo.img</code>：要挂载的镜像文件（虚拟硬盘）</li><li><code>~/mnt_demo</code>：挂载点，之后访问这个目录就等于访问镜像里的文件系统</li></ul></blockquote>
+<h3 id="section-11">6.1 挂载并写入文件</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ sudo mount -o loop ext4_demo.img ~/mnt_demo
+rr@rr-VMware-Virtual-Platform:~/桌面$ sudo sh -c 'echo "Hello, filesystem!" &gt; /home/rr/mnt_demo/test.txt'
+rr@rr-VMware-Virtual-Platform:~/桌面$ sudo ls -la /home/rr/mnt_demo/
+总计 28
+drwxr-xr-x  3 root root  4096  7月 13 16:17 .
+drwxr-x--- 27 rr   rr    4096  7月 13 16:15 ..
+drwx------  2 root root 16384  7月 13 16:15 lost+found
+-rw-r--r--  1 root root    19  7月 13 16:17 test.txt
+
+rr@rr-VMware-Virtual-Platform:~/桌面$ sudo umount /home/rr/mnt_demo  # umount只断开挂载，镜像文件ext4_demo.img还在桌面上，之后用hexdump分析它</code></pre>
+<p>test.txt 已被创建，19 字节（"Hello, filesystem!\n"）。</p>
+<h3 id="section-12">6.2 重新查看块位图</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ dumpe2fs ext4_demo.img 2&gt;/dev/null | grep -A2 "组 0"
+组 0：(块 0-8191) 校验和 0x91d8 [ITABLE_ZEROED]
+  6642 个可用块，8180 个可用 inode，2 个目录 ，8180 个未使用的 inode
+  可用块数： 1550-8191</code></pre>
+<p>对比之前：<strong>可用块从 6643 减少到 6642</strong>，<strong>可用 inode 从 8181 减少到 8180</strong>——test.txt 占用了 1 个块和 1 个 inode。</p>
+<h3 id="section-13">6.3 定位数据块</h3>
+<blockquote><p><code>xxd</code> 和 <code>hexdump</code> 类似，也是看文件十六进制的工具。<code>xxd</code> 的输出格式略有不同（偏移在行首，后跟十六进制列），但配合 <code>grep</code> 搜索特定字节序列很方便。</p></blockquote>
+<p>根据ASCII表得知 <code>4865 6c6c 6f</code> 就是 "Hello" 的 ASCII 十六进制（H=0x48, e=0x65, l=0x6c, l=0x6c, o=0x6f）：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ xxd ext4_demo.img | grep "4865 6c6c 6f"
+0060d000: 4865 6c6c 6f2c 2066 696c 6573 7973 7465  Hello, filesyste</code></pre>
+<p>"Hello, filesyste" 在偏移 <strong>0x60d000</strong>，即块号 <code>0x60d000 ÷ 4096 = **1549**</code>。</p>
+<p>这正是之前块位图中最后一个被占用的块——第 1549 号数据块。</p>
+<h3 id="section-14">6.4 看数据块内容</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ hexdump -C -s 0x60d000 -n 64 ext4_demo.img
+0060d000  48 65 6c 6c 6f 2c 20 66  69 6c 65 73 79 73 74 65  |Hello, filesyste|
+0060d010  6d 21 0a 00 00 00 00 00  00 00 00 00 00 00 00 00  |m!..............|
+0060d020  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+0060d040</code></pre>
+<ul><li><code>48 65 6c 6c 6f 2c 20 66 69 6c 65 73 79 73 74 65 6d 21 0a</code> = ASCII 文本 "Hello, filesystem!\n"</li><li>之后全 00 填充到块末尾</li></ul>
+<p><strong>这就是一个文件在磁盘上的最终形态</strong>——数据清晰地存放在某个块里，<code>hexdump</code> 直接能看到。</p>
+<hr>
+<h2 id="section-15">七、验证全链路</h2>
+<p>重新挂载验证文件是否可读。<code>mount</code> 时会先读超级块校验魔数 <code>0xEF53</code>，确认这是一个 ext4 文件系统后才挂载：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/桌面$ sudo mount -o loop ext4_demo.img ~/mnt_demo
+rr@rr-VMware-Virtual-Platform:~/桌面$ sudo cat /home/rr/mnt_demo/test.txt
+Hello, filesystem!
+rr@rr-VMware-Virtual-Platform:~/桌面$ sudo umount /home/rr/mnt_demo </code></pre>
+<p>文件系统完整可读，说明我们上面拆解的每一层结构都是正确的：超级块的魔数匹配 → 位图标记正确 → inode 表指向的块位置正确 → 数据块里确实存着 <code>Hello</code>。这一整套流程能走通，证明从格式化到写入的每一步分析都经得起验证。</p>
+<hr>
+<h2 id="section-16">八、总结</h2>
+<p>本文主要干了两件事：<strong>写文件前读一次  写文件后再读一次  前后对比。</strong></p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart TD
+    A["dd 创建空白镜像 → mkfs.ext4 格式化"]
+    A --&gt; B["超级块&lt;br/&gt;魔数·块数·inode数"]
+    A --&gt; C["块位图&lt;br/&gt;0=空闲，1=占用&lt;br/&gt;前1549块被元数据占用"]
+    A --&gt; D["inode位图&lt;br/&gt;0~11已被系统保留"]
+    A --&gt; E["数据块&lt;br/&gt;写文件前全00&lt;br/&gt;写文件后出现内容"]
+    A --&gt; F["最终验证&lt;br/&gt;挂载后 cat 能看到"]</code></pre>
+<p>ext4 其实并没有特别复杂，"文件系统"就是在磁盘上按固定格式摆放的几块区域：<strong>超级块、位图、inode 表、数据块</strong>。位图的哪些 bit 置 1 了、数据块里存放了哪些字符，用 <code>hexdump</code> 命令可以直接清晰地查到。</p>
+<p>本文的这套 <code>dd + hexdump </code> 的实验流程不只适用于 ext4，换一个文件系统（FAT、NTFS、XFS、Btrfs），元数据布局不同，但分析思路是一样的。</p>
+<p>本文是作者关于操作系统中文件系统的第二篇文章，以下是文件系统系列至今的知识点进度：</p>
+<p><strong>第 1 篇已覆盖</strong>（<a href="https://blog.csdn.net/rr666888/article/details/162816776">inode、硬链接与软链接探究</a>）：inode 概念、硬软链接原理、删除本质、cp/mv/rm 系统调用</p>
+<p><strong>本篇已覆盖</strong>：磁盘布局、小端序 hexdump 解析、写入后位图和数据块变化</p>
+<p>文件系统剩余的知识点，接下来会陆续产出。对于计算机学习中操作系统这一板块，限于篇幅也限于本人能力，某些细节无法一一展开，如有补充或建议，欢迎在评论区留言！</p></div></div></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

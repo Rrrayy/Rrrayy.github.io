@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="malloc 底层通过 brk 或 mmap 实现，但没有说明 brk 一次扩展多少。">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="malloc(1) 背后的 brk 与 mmap">
+	<meta property="og:description" content="malloc 底层通过 brk 或 mmap 实现，但没有说明 brk 一次扩展多少。">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/malloc-brk-mmap.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/malloc-brk-mmap.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>malloc(1) 背后的 brk 与 mmap | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "malloc(1) 背后的 brk 与 mmap", "description": "malloc 底层通过 brk 或 mmap 实现，但没有说明 brk 一次扩展多少。", "datePublished": "2026-07-11", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/malloc-brk-mmap.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>
+		(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();
+	</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="malloc-brk-mmap" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>内存管理</span><span>发布日期：2026-07-11</span><span>4763 字 · 11 分钟</span></div><h1>malloc(1) 背后的 brk 与 mmap</h1><p class="article_lead">malloc 底层通过 brk 或 mmap 实现，但没有说明 brk 一次扩展多少。</p><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/162793574" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">一、实验：malloc(1) 触发了什么？</a><a class="toc_level_2" href="#section-2">二、glibc 管理内存的基本单位：chunk</a><a class="toc_level_2" href="#section-3">三、glibc 的分配路径</a><a class="toc_level_2" href="#section-4">四、top chunk 与 132 KB 的来源</a><a class="toc_level_3" href="#section-5">4.1 top chunk 是什么</a><a class="toc_level_3" href="#section-6">4.2 132 KB 的实验事实</a><a class="toc_level_3" href="#section-7">4.3 验证：后续 malloc 零系统调用</a><a class="toc_level_2" href="#section-8">五、mmap 阈值与路径切换</a><a class="toc_level_3" href="#section-9">5.1 M_MMAP_THRESHOLD 的设计</a><a class="toc_level_3" href="#section-10">5.2 验证：malloc(1MB) 走 mmap</a><a class="toc_level_3" href="#section-11">5.3 malopt 调阈值后的行为验证</a><a class="toc_level_2" href="#section-12">六、free 的两条路径</a><a class="toc_level_3" href="#section-13">6.1 实验验证：两条 free 路径的不同行为</a><a class="toc_level_2" href="#section-14">七、总结</a><a class="toc_level_2" href="#section-15">参考资料</a></aside><div class="article_body"><blockquote><p><strong>glibc 版本</strong>：本文所有源码分析基于 glibc 2.39，实验环境为 Ubuntu 24.04 x86_64。</p></blockquote>
+<blockquote><p>学习操作系统内存管理时，常看到"小内存走 brk，大内存走 mmap"的描述，但很少见到说明 brk 一次扩展的具体量级。我用三行代码做了个实验：malloc(1) 前后分别调 sbrk(0) 观察堆顶地址，结果发现 brk 一次性扩展了 132 KB。这个量级远大于 1 字节的请求。带着这个疑问查阅了 glibc 源码，发现背后涉及 chunk 管理、top chunk 机制、mmap 阈值判定和 free 路径选择等一系列设计。本文记录了完整的实验过程和源码分析笔记。</p></blockquote>
+<hr>
+<h2 id="section-1">一、实验：malloc(1) 触发了什么？</h2>
+<p>malloc 底层通过 brk 或 mmap 实现，但没有说明 brk 一次扩展多少。</p>
+<pre class="code_block c"><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;unistd.h&gt;
+
+int main(){
+    printf("heap top: %p\n", sbrk(0));
+    int *p1 = (int*)malloc(1);
+    printf("heap top now: %p\n", sbrk(0));
+    printf("malloc addr: %p\n", p1);
+    free(p1);
+    return 0;
+}</code></pre>
+<p><code>sbrk(0)</code> 返回当前堆顶地址，在 malloc 前后各调一次，差值就是堆扩展的大小。</p>
+<p>编译运行：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/malloc_test$ gcc demo1.c -o demo1
+rr@rr-VMware-Virtual-Platform:~/os_lab/malloc_test$ ./demo1</code></pre>
+<p>输出：</p>
+<pre class="code_block "><code class="">heap top:     0x6248b68aa000
+heap top now: 0x6248b68cb000
+malloc addr:  0x6248b68aa6b0</code></pre>
+<p>堆顶从 <code>0x6248b68aa000</code> 移到 <code>0x6248b68cb000</code>，增量 <code>0x21000</code> = 132 KB。malloc(1) 实际触发了 132 KB 的堆扩展，远大于请求的 1 字节。</p>
+<p>再用 strace 从系统调用层面确认一下：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/malloc_test$ strace ./demo1 2&gt;&amp;1 | grep -E 'brk|mmap'</code></pre>
+<p>输出：</p>
+<pre class="code_block "><code class="">brk(NULL)                               = 0x6371eb416000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x77f0e861d000
+mmap(NULL, 71343, PROT_READ, MAP_PRIVATE, 3, 0) = 0x77f0e860b000
+mmap(NULL, 2170256, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x77f0e8200000
+mmap(0x77f0e8228000, 1605632, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x28000) = 0x77f0e8228000
+mmap(0x77f0e83b0000, 323584, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1b0000) = 0x77f0e83b0000
+mmap(0x77f0e83ff000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1fe000) = 0x77f0e83ff000
+mmap(0x77f0e8405000, 52624, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x77f0e8405000
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x77f0e8608000
+brk(NULL)                               = 0x6371eb416000
+brk(0x6371eb437000)                     = 0x6371eb437000</code></pre>
+<p>前面 8 个 mmap 是动态链接器加载 libc.so 等共享库时产生的——程序调 printf、malloc，它们的代码在 libc.so 里，必须先加载到内存。真正与 malloc 相关的，是最后两条 brk：</p>
+<pre class="code_block "><code class="">brk(NULL)                   = 0x6371eb416000    ← sbrk(0) 查当前堆顶
+brk(0x6371eb437000)         = 0x6371eb437000    ← malloc(1) 触发的堆扩展</code></pre>
+<p><code>0x6371eb416000</code> → <code>0x6371eb437000</code>，增量 0x21000 = 132 KB。未观察到 mmap，因为 1 字节请求远低于 mmap 阈值（默认 128 KB）。</p>
+<p>实验结论明确，但留下一个问题：<strong>glibc 为什么一次性申请 132 KB，而不是仅扩展 4 KB 或恰好满足请求的 1 字节？</strong> 要回答这个问题，需要先了解 glibc 管理内存的基本单位。</p>
+<hr>
+<h2 id="section-2">二、glibc 管理内存的基本单位：chunk</h2>
+<p>查阅 glibc 源码 <code>malloc/malloc.c</code>，发现 glibc 管理堆内存的基本单位是 <strong>chunk</strong>。每个 chunk 有一个固定格式的头部，一个 chunk 在内存中的布局如下（以 64 位系统为例）：</p>
+<pre class="code_block "><code class="">低地址
+  ┌──────────────────────────────┐
+  │ mchunk_prev_size  (8 字节)    │  ← 前一个 chunk 的大小（前一个空闲时有效）
+  ├──────────────────────────────┤
+  │ mchunk_size      (8 字节)    │  ← 当前 chunk 大小 + 低 3 位标志位
+  ├══════════════════════════════┤  ← 以上 16 字节是固定元数据
+  │ 用户数据（fd/bk 等在此复用）     │  ← malloc 返回的指针指向这里
+  │ 大小 ≥ 16 字节                │
+  │                              │
+  └──────────────────────────────┘
+高地址</code></pre>
+<p>源码中定义如下：</p>
+<pre class="code_block c"><code class="language-c">struct malloc_chunk {
+    INTERNAL_SIZE_T      mchunk_prev_size;  // 前一个 chunk 的大小（仅在前一个 chunk 空闲时才有意义，用于合并空闲块）
+    INTERNAL_SIZE_T      mchunk_size;       // 当前 chunk 的大小，低 3 位借用作标志位
+
+    // 以下字段仅在 chunk 空闲时有效（分配给用户后，这片内存被用户数据覆盖）
+    struct malloc_chunk* fd;  // 前驱指针，指向前一个空闲 chunk
+    struct malloc_chunk* bk;  // 后继指针，指向后一个空闲 chunk
+
+    // 仅 largebin 中的大块空闲 chunk 使用，跳过不匹配的块加速查找
+    struct malloc_chunk* fd_nextsize;
+    struct malloc_chunk* bk_nextsize;
+};</code></pre>
+<p>（可以在 glibc 源码仓库的 <code>malloc/malloc.c</code> 中搜索 <code>struct malloc_chunk</code> 查看完整定义。）</p>
+<p><code>mchunk_size</code> 的低 3 位被借用作标志位——由于 chunk 按 16 字节对齐，低 3 位必然为 0，因此可以复用。</p>
+<div class="table_wrap"><table><thead><tr><th>位</th><th>宏</th><th>含义</th></tr></thead><tbody><tr><td>bit 0</td><td>PREV_INUSE</td><td>前一个 chunk 正在使用（未空闲）</td></tr><tr><td>bit 1</td><td>IS_MMAPPED</td><td>该 chunk 由 mmap 分配</td></tr><tr><td>bit 2</td><td>NON_MAIN_ARENA</td><td>该 chunk 属于非主 arena</td></tr></tbody></table></div>
+<p>这里出现的 arena 可以理解为 glibc 管理堆内存的一个"工作区"，下面讲的 tcache、各种 bin、top chunk 都在 arena 里。单线程时只有一个主 arena（main_arena），多线程时 glibc 会为各线程分配独立的 arena 以减少锁竞争，这类 arena 就叫非主 arena。位 2 置 1 就表示这个 chunk 来自非主 arena。</p>
+<p>注意一个设计细节：<strong>fd、bk 等指针字段仅在 chunk 空闲时有效。</strong> 当 chunk 被分配给用户后，这片内存被用户数据覆盖。换句话说，每个 chunk 只有前 16 字节（mchunk_prev_size + mchunk_size）是固定不变的元数据，后面的指针字段在分配出去时"借"给了用户数据，不额外占空间。</p>
+<p>对 malloc(1) 而言，glibc 实际分配的 chunk 大小为：16 字节头部 + 至少 16 字节用户数据，合计 <strong>32 字节</strong>。</p>
+<p>用户数据区最小 16 字节的原因在于：<strong>chunk 被 free 后会进入空闲链表，它的用户数据区要被 <code>fd</code> 和 <code>bk</code> 两个指针复用</strong>。64 位系统上一个指针 8 字节，fd + bk 共 16 字节。如果用户数据区小于 16 字节，free 后就放不下这两个指针，无法链入空闲链表。因此 glibc 强制每个 chunk 的用户数据区至少 16 字节，你 malloc(1) 虽然只要 1 字节，但底层按这个最小粒度分配。这就是"malloc(1) 最小 chunk 32 字节"的完整含义。</p>
+<p>这里需要区分两个不同层级的对齐要求：glibc 的 chunk 按 <strong>16 字节</strong> 对齐（保证 mchunk_size 低 3 位可用于标志位），而内核的 brk/mmap 接口按 <strong>4 KB（页）</strong> 对齐。两者互不冲突——glibc 向内核申请页对齐的大块内存，再在内部按 16 字节对齐切割成 chunk。</p>
+<p>但 32 字节只是 glibc 层面的分配粒度。实验中内核返回了 132 KB——glibc 从这 132 KB 中切出 32 字节给用户后，剩下的空间怎么管理？这引出了 glibc 的分层分配路径和 top chunk 机制。</p>
+<hr>
+<h2 id="section-3">三、glibc 的分配路径</h2>
+<p>继续阅读 <code>malloc/malloc.c</code> 中的 <code>__libc_malloc</code> 和 <code>_int_malloc</code> 函数，可以看到 malloc 的分配路径是分层的，每一层都是一个缓存。整理自 glibc 2.39 源码的实际调用顺序：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    A["__libc_malloc"] --&gt; B{"tcache?"}
+    B --&gt;|"有"| C["直接返回"]
+    B --&gt;|"无"| D["_int_malloc"]
+
+    D --&gt; E{"fastbin?"}
+    E --&gt;|"是"| F["返回"]
+    E --&gt;|"否"| G{"smallbin?"}
+    G --&gt;|"是"| H["返回"]
+    G --&gt;|"否"| I["unsorted bin"]
+
+    I --&gt; J{"精确匹配?"}
+    J --&gt;|"是"| K["返回"]
+    J --&gt;|"否"| L["归类"]
+
+    L --&gt; M{"largebin?"}
+    M --&gt;|"是"| N["返回"]
+    M --&gt;|"否"| O{"top chunk?"}
+    O --&gt;|"够"| P["切割返回"]
+    O --&gt;|"不够"| Q["sysmalloc"]
+
+    Q --&gt; R{"大小?"}
+    R --&gt;|"≥128KB"| S["mmap"]
+    R --&gt;|"&lt;128KB"| T["brk"]</code></pre>
+<p>能触发 brk 的场景只有一个：<strong>当前 arena 中的所有缓存（tcache、各类 bin、top chunk）都无法满足分配请求</strong>。</p>
+<p>首次 malloc(1) 时，这些缓存全都为空，所以分配路径从第一级一直走到最后一级。在往下看之前，有必要先了解这几层缓存分别是什么。</p>
+<p>· <strong>tcache（线程缓存）</strong>— 每个线程私有的仓库，最快因为不用加锁，LIFO 顺序，每个 bin 默认存 7 个。 · <strong>fastbin（快速bin）</strong>— 最近 free 的小块内存，单链表结构，不合并相邻空闲块，大小一般在 64 字节以下。 · <strong>smallbin（小bin）</strong>— 固定大小的小块内存，双链表，每种大小一个独立的 bin，查找是 O(1)。 · <strong>unsorted bin（未排序bin）</strong>— 中转站。刚 free 的 chunk 先扔这里，下次 malloc 时遍历它，如果能精确匹配大小就直接用，否则归类到对应的 smallbin 或 largebin 里。 · <strong>largebin（大bin）</strong>— 大块内存，每个 bin 覆盖一个大小范围，用 skip list 加速查找。 · <strong>top chunk（堆顶储备）</strong>— 堆顶的最后备用区域，上面这些全都不满足时才从它这里切；如果 top chunk 也不够，就调 sysmalloc 向内核要。</p>
+<p>可以把它们类比成 CPU 的多级缓存：tcache 像 L1（最快但最小）→ fastbin/small bin 像 L2 → unsorted/large bin 像 L3 → top chunk 像内存条 → sysmalloc 像去硬盘取数据。每一层都在试图避免进入下一层，因为系统调用涉及用户态到内核态的切换，开销是数百个 CPU 周期。</p>
+<p>首次 malloc(1) 时，各级缓存全部为空，top chunk 也尚未初始化，所以分配路径一口气走到最后一级，触发 brk——这就是实验一中 132 KB 的来源。</p>
+<p>后续的 malloc 调用，只要前 5 步中任意一步命中，就不会触发系统调用。glibc 减少用户态和内核态互相切换的核心思路是：<strong>能复用就不新申请</strong>。</p>
+<p>至此，首次 malloc(1) 触发 brk 的原因清楚了：各级缓存全部为空。但 brk 具体扩展多少，还需要看 top chunk 的初始大小计算。</p>
+<hr>
+<h2 id="section-4">四、top chunk 与 132 KB 的来源</h2>
+<h3 id="section-5">4.1 top chunk 是什么</h3>
+<p>top chunk 是位于堆顶（最高地址）的特殊 chunk。它不属于任何 bin，因为bin 管理的是已经被 free 的 chunk，而是作为 arena 的"储备空间"。当所有 bin 都无法满足分配请求时，malloc 从 top chunk 中切割。</p>
+<p>top chunk 没有 fd/bk 指针（因为它不在空闲链表中），其大小由 sbrk 扩展后的末地址减去已分配 chunk 的总大小决定。</p>
+<h3 id="section-6">4.2 132 KB 的实验事实</h3>
+<p>查阅 glibc 2.39 的 <code>sysmalloc()</code> 函数，可以看到首次堆扩展的公式：</p>
+<pre class="code_block c"><code class="language-c">// glibc malloc/malloc.c — sysmalloc() 中 main_arena 首次扩展的逻辑
+size = nb + mp_.top_pad + MINSIZE;
+if (contiguous (av))
+    size -= old_size;
+size = ALIGN_UP (size, pagesize);</code></pre>
+<p>各参数值：</p>
+<ul><li><code>nb</code> = 32（malloc(1) 对齐后的 chunk 大小）</li><li><code>mp_.top_pad</code> = 0（<code>DEFAULT_TOP_PAD</code> 默认为 0）</li><li><code>MINSIZE</code> = 32（最小 chunk 大小，即 <code>offsetof(struct malloc_chunk, fd_nextsize)</code> 对齐后）</li><li><code>old_size</code> = 0（首次分配，top chunk 尚未初始化）</li><li>页对齐后计算结果为 4 KB</li></ul>
+<p>然而 strace 实际观测结果是 132 KB（33 页），与公式直接计算结果不符。这说明 brk 扩展 132 KB 并非完全由 <code>sysmalloc()</code> 中这一段公式决定——132 KB 可能来自初始化路径（<code>ptmalloc_init()</code>）或内存管理系统底层的行为。由于作者对这部分源码的理解还不够深入，暂不给出 132 KB 的精确推导，待进一步学习之后，会出此方面的理解。</p>
+<p>从内核返回 132 KB 后，glibc 将前 32 字节作为用户 chunk 返回，剩余 135,136 字节成为 top chunk，后续小分配从此处切割。</p>
+<h3 id="section-7">4.3 验证：后续 malloc 零系统调用</h3>
+<p>如果 132 KB 是 glibc 一次性通过 brk 申请的，那么后续的 malloc 应该不会再次触发 brk。通过程序验证：</p>
+<pre class="code_block c"><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;unistd.h&gt;
+
+int main(){
+    void *p1 = malloc(1);
+    void *p2 = malloc(100);
+    void *p3 = malloc(1000);
+    printf("p1: %p  p2: %p  p3: %p\n", p1, p2, p3);
+    free(p1); free(p2); free(p3);
+    return 0;
+}</code></pre>
+<p>观察 brk 和 mmap 系统调用：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/malloc_test$ strace ./demo2 2&gt;&amp;1 | grep -E 'brk|mmap'
+brk(NULL)                               = 0x619c65d0d000
+mmap(NULL, 8192, ...)                                  ← lib 加载，非 malloc 行为
+mmap(NULL, 71343, ...)
+mmap(NULL, 2170256, ...)
+mmap(0x..., 1605632, ...)
+mmap(0x..., 323584, ...)
+mmap(0x..., 24576, ...)
+mmap(0x..., 52624, ...)
+mmap(NULL, 12288, ...)
+brk(NULL)                               = 0x619c65d0d000
+brk(0x619c65d2e000)                     = 0x619c65d2e000    ← 仅一次 brk 扩展</code></pre>
+<p>三次 malloc 仅触发了一次 brk，后两次均未产生系统调用。这是因为 top chunk 在首次 brk 后拥有约 135 KB 的空闲空间，第二次和第三次 malloc 直接在 top chunk 中完成切割：</p>
+<pre class="code_block "><code class="">malloc(100)
+  → tcache 无空闲
+  → fastbin/smallbin 无空闲
+  → top chunk（剩余 ~135 KB）满足请求
+  → 从 top chunk 头部切出对齐后的 32 字节，返回给用户
+  → top chunk 起始地址后移，大小减小
+  → 零系统调用</code></pre>
+<p>一次 brk 的系统调用成本摊到后续多次 malloc 上，平均每次接近零。这就是 glibc 的批量预分配、按需零散分配策略。</p>
+<hr>
+<h2 id="section-8">五、mmap 阈值与路径切换</h2>
+<h3 id="section-9">5.1 M_MMAP_THRESHOLD 的设计</h3>
+<p>brk 管理的堆是连续线性区域。小内存用 brk 分配效率较高（仅修改一个指针），但如果用 brk 分配大块内存后再 free，堆区可能产生无法回收的"空洞"——除非 free 的 chunk 恰好与 top chunk 相邻。相邻时两者会合并成更大的 top chunk，堆顶下移，brk 可以回缩释放内存；不相邻时中间夹着正在使用的 chunk，堆顶动不了，所以空洞就存在了。</p>
+<p>mmap 分配的内存是独立的 VMA（虚拟内存区域），free 时通过 munmap 可以完全释放，不会产生堆内碎片。代价是 mmap/munmap 每次涉及页表的建立和拆除，系统调用开销比 brk 更大。</p>
+<p>阈值 <code>M_MMAP_THRESHOLD</code>（默认 128 KB）正是在两种机制间做取舍：小内存走 brk 以减少系统调用次数，大内存走 mmap 以避免堆区碎片化。</p>
+<p>glibc 源码中走 mmap 的条件判定：</p>
+<pre class="code_block c"><code class="language-c">// glibc malloc/malloc.c — sysmalloc() 中走 mmap 的条件
+if (nb &gt;= mp_.mmap_threshold &amp;&amp; (unsigned long)nb &gt;= mp_.mmap_threshold
+    &amp;&amp; (mp_.n_mmaps &lt; mp_.n_mmaps_max)){
+    char *mm = (char *)MMAP(0, size, ...);
+}</code></pre>
+<p>通过 mmap 分配的 chunk 会在头部标记 <code>IS_MMAPPED</code> 位（<code>mchunk_size</code> 的 bit 1），free 时据此走不同的回收路径。</p>
+<h3 id="section-10">5.2 验证：malloc(1MB) 走 mmap</h3>
+<p>验证大内存分配路径：</p>
+<pre class="code_block c"><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;unistd.h&gt;
+
+int main(){
+    printf("heap top before: %p\n", sbrk(0));
+    int *p = (int*)malloc(1024*1024);
+    printf("heap top after:  %p\n", sbrk(0));
+    printf("malloc 1MB: %p\n", p);
+    free(p);
+    return 0;
+}</code></pre>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/malloc_test$ ./demo3
+heap top before: 0x6276cf6db000
+heap top after:  0x6276cf6fc000
+malloc 1MB:      0x7760b8ec6010</code></pre>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/malloc_test$ strace ./demo3 2&gt;&amp;1 | grep -E 'brk|mmap'
+brk(NULL)                               = 0x6185060f8000
+  ...（lib 加载的 mmap 省略）
+brk(NULL)                               = 0x6185060f8000
+brk(0x618506119000)                     = 0x618506119000
+mmap(NULL, 1052672, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x754905efc000</code></pre>
+<p>strace 输出中同时出现了 <code>brk</code> 和 <code>mmap</code>。<code>brk(0x618506119000)</code> 扩展了 132 KB——这是 main arena 尚未初始化时的首次堆扩展，并非为 1 MB 请求而做的分配。<code>mmap(1052672)</code> 才是实际分配 1 MB 内存的调用。</p>
+<p>注意 mmap 的返回大小是 1052672 字节，而非精确的 1 MB（1048576 字节）。多出的 4096 字节（1 页）是 mmap 映射的页对齐开销和 glibc 管理的元数据空间。这说明 mmap 分配的最小粒度是一页。</p>
+<p>这里还有一个细节：<strong>如果先执行一次小 malloc 初始化了 arena，再执行大块内存分配则仅有 mmap 而无 brk</strong>。在该实验之前如果先调一次 malloc(1) 再调 malloc(1MB)，strace 结果中 malloc(1MB) 时只有 mmap，堆顶未变化——因为 arena 已经初始化过了，brk 不需要再次扩展。</p>
+<h3 id="section-11">5.3 malopt 调阈值后的行为验证</h3>
+<p>如果通过 <code>mallopt</code> 将阈值调低，小内存会走 mmap 吗？</p>
+<pre class="code_block c"><code class="language-c">mallopt(M_MMAP_THRESHOLD, 1024);
+int *p3 = (int*)malloc(2048);  // 2KB &gt; 1024
+printf("p3: %p\n", p3);</code></pre>
+<p>输出：</p>
+<pre class="code_block "><code class="">p3: 0x611b5d5446d0</code></pre>
+<p>p3 的地址 <code>0x611b5d5446d0</code> 在堆区范围内——<strong>未触发 mmap</strong>。起初怀疑是阈值未生效，重新分析分配路径后发现：</p>
+<p><strong>glibc 的判定顺序是优先检索空闲内存，再比较阈值。</strong> 此时 top chunk 仍有充足空闲空间，malloc(2048) 在 top chunk 切割阶段即可满足，不会进入阈值判定步骤。</p>
+<p>仅当 top chunk 也无法满足时，才会将请求大小与阈值比较，决定走 brk 还是 mmap。这个优先级关系容易被忽略。</p>
+<hr>
+<h2 id="section-12">六、free 的两条路径</h2>
+<p>free 的行为取决于 chunk 头部的标志位。glibc 源码中 <code>__libc_free()</code> 的实现：</p>
+<pre class="code_block c"><code class="language-c">// glibc malloc/malloc.c — __libc_free()
+void __libc_free(void* mem){
+    malloc_state* ar_ptr;
+    mchunkptr p = mem2chunk(mem);
+
+    if (chunk_is_mmapped(p)){                // 检查 IS_MMAPPED 位
+        munmap_chunk(p);                     // → munmap，归还 OS
+        return;
+    }
+
+    ar_ptr = arena_for_chunk(p);
+    _int_free(ar_ptr, p, 0);                 // → 放回 bins/tcache
+}</code></pre>
+<p><strong>mmap 路径：</strong> 检查 <code>IS_MMAPPED</code> 位，如果为 1 → 调用 <code>munmap_chunk()</code> → <code>munmap()</code> 系统调用 → 内核解除 VMA 映射，物理内存归还给操作系统。</p>
+<p><strong>brk 路径：</strong> 将 chunk 放回 glibc 内部的空闲链表，不调用 brk 回缩。具体流程：</p>
+<ol><li>若 chunk 大小 ≤ <code>MAX_FAST_SIZE</code>（64 字节），放入 <strong>fastbin</strong>（LIFO 单链表，不合并相邻空闲块）</li><li>否则，检查前后 chunk 是否空闲：若空闲则合并，根据合并后大小放入 <strong>unsorted bin</strong> / <strong>smallbin</strong> / <strong>largebin</strong></li><li>若合并后的 chunk 与 top chunk 相邻，直接合并到 top chunk</li></ol>
+<p>当 top chunk 的大小超过 <code>M_TRIM_THRESHOLD</code>（默认也是 128 KB）时，<code>malloc_trim()</code> 可能调用 <code>brk()</code> 回缩堆空间。但在实际运行中较少发生——绝大多数长时间运行的程序不会主动收缩堆。</p>
+<p>这也解释了一个现象：<strong>长期运行的 server 在反复 malloc/free 小内存后，RSS(物理内存占用)只涨不降</strong>——这并非内存泄漏，而是 glibc 将 freed chunk 缓存在 free list 中供后续复用。 通俗的解释就是，用空间换取时间，glibc将free掉的chunk没有归还给操作系统，而是将free掉的chunk留在了自己的缓存池中，下次malloc同等大小或者比上次分配的内存小的时候，可以直接在缓存池中取走，而不用系统调用。</p>
+<h3 id="section-13">6.1 实验验证：两条 free 路径的不同行为</h3>
+<p>写一个程序分别验证 mmap 和 brk 两种 free 路径：</p>
+<pre class="code_block c"><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;unistd.h&gt;
+
+int main(){
+    // brk 路径：小内存 free 后不归还 OS
+    int *p1 = (int*)malloc(1);
+    free(p1);
+    printf("小内存 free 完成\n");
+
+    // mmap 路径：大内存 free 后通过 munmap 归还 OS
+    int *p2 = (int*)malloc(1024*1024);
+    free(p2);
+    printf("大内存 free 完成\n");
+
+    pause();  // 暂停，方便 strace 观察
+    return 0;
+}</code></pre>
+<p>strace 跟踪：</p>
+<pre class="code_block bash"><code class="language-bash">strace -e trace=brk,mmap,munmap ./demo_free 2&gt;&amp;1</code></pre>
+<p>输出：</p>
+<pre class="code_block "><code class="">brk(NULL)                               = 0x5ff4083e8000
+mmap(NULL, 8192, ...)                                  ← lib 加载，非 malloc 行为
+mmap(NULL, 71343, ...)
+...（lib 加载的其他 mmap 省略）
+munmap(0x..., 71343)                                   ← lib 加载的清理
+brk(NULL)                               = 0x5ff4083e8000
+brk(0x5ff408409000)                     = 0x5ff408409000    ← malloc(1) 触发 brk 扩展堆
+malloc(1) addr: 0x5ff4083e82a0
+小内存 free 完成                                        ← ← 没有任何系统调用！chunk 进了缓存
+mmap(NULL, 1052672, ...)                = 0x76ece3afc000    ← malloc(1MB) 走 mmap
+malloc(1MB) addr: 0x76ece3afc010
+munmap(0x76ece3afc000, 1052672)         = 0                ← free(1MB) 触发 munmap 归还 OS
+大内存 free 完成</code></pre>
+<p>可以清楚看到：小内存 free 后没有产生任何 brk/mmap/munmap 系统调用——chunk 被 glibc 缓存了。大内存 free 触发了 <code>munmap</code>，将整块内存归还给操作系统。这就是两条 free 路径在系统调用层面的区别。</p>
+<hr>
+<h2 id="section-14">七、总结</h2>
+<p>文章起因是发现malloc(1)不是分配4kb，进而通过程序验证得到132kb,不知从何而来，顺着这个疑问去翻 glibc 源码，从 chunk 结构体一路看到分配路径、top chunk、sysmalloc。整个过程梳理下来，glibc 的设计可以归纳为三层：</p>
+<ul><li><strong>内核层面</strong>按页扩展，首次 brk 申请 132 KB，分摊系统调用成本。</li><li><strong>glibc 层面</strong>按需切割，从内核拿回来的大块内存切成 chunk 分配出去，剩余的做 top chunk。</li><li><strong>free 层面</strong>按策略缓存，小块放 fastbin/tcache，大块进 unsorted/largebin，下次复用。</li></ul>
+<p>不过，该篇文章对于 132 KB 的精确计算还没完全搞清楚，阅读sysmalloc源码发现公式算出来是 4 KB，跟 strace 结果对不上，本人会进一步学习深入，后续也会产出相关文章。</p>
+<hr>
+<h2 id="section-15">参考资料</h2>
+<ol><li>glibc 2.39 源码 — <code>malloc/malloc.c</code>，Ubuntu 24.04 自带</li><li><code>man 3 mallopt</code> — glibc 内存分配参数调节手册</li></ol></div></div></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

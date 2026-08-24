@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+	<channel>
+		<title>Rray | Systems Notes</title>
+		<link>https://rrrayy.github.io/blog/</link>
+		<description>Rray 的 C++、系统编程与后端工程实践。</description>
+		<language>zh-CN</language>
+		<item>
+			<title>lambda 闭包原理</title>
+			<link>https://rrrayy.github.io/blog/posts/lambda-closure.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/lambda-closure.html</guid>
+			<pubDate>2026-08-15</pubDate>
+			<description>在写代码时经常要给 std::sort 传比较器。有次我需要按&quot;与某个阈值距离的远近&quot;排序：</description>
+		</item>
+		<item>
+			<title>零拷贝到底快在哪？</title>
+			<link>https://rrrayy.github.io/blog/posts/zero-copy.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/zero-copy.html</guid>
+			<pubDate>2026-07-27</pubDate>
+			<description>传统方案：</description>
+		</item>
+		<item>
+			<title>锁的进阶：从自旋锁到手写实现，再到死锁与条件变量</title>
+			<link>https://rrrayy.github.io/blog/posts/locks-and-condition-variables.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/locks-and-condition-variables.html</guid>
+			<pubDate>2026-07-21</pubDate>
+			<description>本文是多线程编程系列的第二篇，分三部分：自旋锁原理与手写实现、死锁复现与 gdb 定位、条件变量与生产者消费者模型。每部分都有完整代码和实验数据。</description>
+		</item>
+		<item>
+			<title>C++ 多线程入门：创建线程、加锁、计数</title>
+			<link>https://rrrayy.github.io/blog/posts/cpp-threads.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/cpp-threads.html</guid>
+			<pubDate>2026-07-17</pubDate>
+			<description>单线程程序像一个人在干活——干完一件才能干下一件。但现实中很多事是可以同时进行的：</description>
+		</item>
+		<item>
+			<title>ext4文件系统详解：用dd和mkfs.ext4从零解剖</title>
+			<link>https://rrrayy.github.io/blog/posts/ext4-layout.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/ext4-layout.html</guid>
+			<pubDate>2026-07-14</pubDate>
+			<description>学习完本文后，可以解决以下问题：</description>
+		</item>
+		<item>
+			<title>硬链接和软链接的区别--inode 详解</title>
+			<link>https://rrrayy.github.io/blog/posts/inode-links.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/inode-links.html</guid>
+			<pubDate>2026-07-13</pubDate>
+			<description>日常学习时会产生几个现实中的疑问</description>
+		</item>
+		<item>
+			<title>malloc(1) 背后的 brk 与 mmap</title>
+			<link>https://rrrayy.github.io/blog/posts/malloc-brk-mmap.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/malloc-brk-mmap.html</guid>
+			<pubDate>2026-07-11</pubDate>
+			<description>malloc 底层通过 brk 或 mmap 实现，但没有说明 brk 一次扩展多少。</description>
+		</item>
+		<item>
+			<title>Linux CFS 完全公平调度器（Completely Fair Scheduler）深度拆解</title>
+			<link>https://rrrayy.github.io/blog/posts/linux-cfs.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/linux-cfs.html</guid>
+			<pubDate>2026-07-09</pubDate>
+			<description>在讲 CFS 之前，先理解所有调度器都在解决同一个核心矛盾：</description>
+		</item>
+		<item>
+			<title>g++ 从入门到忘记</title>
+			<link>https://rrrayy.github.io/blog/posts/gcc-from-zero.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/gcc-from-zero.html</guid>
+			<pubDate>2026-07-07 01:30:44</pubDate>
+			<description>习惯用vscode的运行键一键编译，当接触我的第一个项目时，发现怎么能把多个文件合到一块运行。gcc刚好帮我解决了这个问题........</description>
+		</item>
+	</channel>
+</rss>

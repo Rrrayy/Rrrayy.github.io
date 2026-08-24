@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Rray 的 C++17 RPC Framework 项目：Protobuf、muduo、Zookeeper 服务发现与连接复用。">
+	<link rel="canonical" href="https://rrrayy.github.io/projects/rpc-framework.html">
+	<title>RPC Framework | Rray</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../index.html" aria-label="返回首页"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav>
+	<main class="project_shell"><article class="project_page">
+		<header class="project_header"><div class="project_meta"><span class="status_badge">已完成</span><span>分布式通信</span><span>C++17</span><span>项目档案 / 01</span></div><h1>RPC Framework</h1><p class="project_lead">从一次远程调用出发，把协议、网络、服务发现和连接复用拆成可理解、可运行的 C++ 工程。</p><div class="project_facts"><div class="project_fact"><span>核心依赖</span><strong>Protobuf · muduo · Zookeeper</strong></div><div class="project_fact"><span>关键能力</span><strong>服务注册与发现 · 一致性哈希</strong></div><div class="project_fact"><span>压测记录</span><strong>100,000 次调用 · 0 失败 · QPS 6700</strong></div></div></header>
+		<section class="project_section"><h2>项目做了什么</h2><p>客户端不直接依赖服务端地址，而是通过服务名找到可用节点。<strong>Protobuf</strong> 负责消息定义与序列化，<strong>muduo</strong> 提供 Reactor 网络模型，<strong>Zookeeper</strong> 保存服务注册信息并通过 Watcher 感知节点变化。</p><p>项目还包含连接池和一致性哈希，让调用方可以复用 TCP 长连接，并把请求稳定地分配到服务节点。</p></section>
+		<section class="project_section"><h2>一次调用经过哪些层</h2><pre class="architecture_block">Caller
+  │
+  ├─ RpcChannel：根据服务名选择节点
+  ├─ ConnectionPool：复用 TCP 长连接
+  ├─ Protobuf：序列化请求与响应
+  ├─ Zookeeper：注册、发现、Watcher 更新
+  └─ Provider：反序列化并分发到具体方法
+  │
+  └─ Response</pre><p>这条链路把业务方法和传输细节分离开来：业务只描述服务和方法，框架负责寻址、编码、连接和回包。</p></section>
+		<section class="project_section"><h2>技术取舍</h2><ul><li><strong>TCP + 自定义消息头：</strong>在 Protobuf 二进制数据外增加长度和类型信息，处理粘包与拆包。</li><li><strong>临时节点 + Watcher：</strong>服务进程退出或会话断开后，注册信息可以随连接状态清理，客户端收到变化后刷新本地节点列表。</li><li><strong>连接池 + 一致性哈希：</strong>减少重复建连，并让节点变化时的请求迁移范围更可控。</li></ul></section>
+		<section class="project_section"><h2>实验记录</h2><p>当前记录来自 Debug 单机环境，测试包含 <strong>100,000 次调用、100 个线程、每线程 1,000 次调用</strong>，结果为 <strong>0 次失败、QPS 6700</strong>。测试中包含 5ms 模拟业务耗时，因此这个数字只描述当前实验条件，不作为跨环境结论。</p><p>后续优化清单已经记录超时重试、服务健康检测、连接池参数化、P99 延迟统计和多 EventLoop 等方向。</p></section>
+		<div class="project_footer_links"><a class="button button_primary" href="https://github.com/Rrrayy/RPC" target="_blank" rel="noopener">查看源码 <i data-lucide="github"></i></a><a class="button button_ghost" href="index.html">返回项目档案 <i data-lucide="arrow-left"></i></a></div>
+	</article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本页浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../blog/index.html">阅读博客</a></footer>
+	<script src="../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

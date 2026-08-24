@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Rray 的 Cache-System：基于 C++17 模板的缓存策略库与统一 benchmark。">
+	<link rel="canonical" href="https://rrrayy.github.io/projects/cache-system.html">
+	<title>Cache-System | Rray</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../index.html" aria-label="返回首页"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav>
+	<main class="project_shell"><article class="project_page">
+		<header class="project_header"><div class="project_meta"><span class="status_badge">已完成</span><span>缓存策略</span><span>C++17</span><span>项目档案 / 02</span></div><h1>Cache-System</h1><p class="project_lead">一个纯头文件、模板化的缓存策略库。统一接口之下，比较不同访问模式对淘汰策略的影响。</p><div class="project_facts"><div class="project_fact"><span>接口形态</span><strong>Header-only · Template</strong></div><div class="project_fact"><span>核心策略</span><strong>FIFO · LRU · LFU · ARC</strong></div><div class="project_fact"><span>验证方式</span><strong>统一访问序列 benchmark</strong></div></div></header>
+		<section class="project_section"><h2>项目做了什么</h2><p>缓存淘汰不是只有一个“最快算法”。项目在统一的 <strong>put / get</strong> 接口下实现多种策略，重点观察时间局部性、频率局部性、一次性扫描和工作负载变化对命中率的影响。</p><p>库本身没有运行时依赖，使用 C++17 模板让 key 和 value 类型保持通用，适合直接嵌入其他工程。</p></section>
+		<section class="project_section"><h2>策略与数据结构</h2><pre class="architecture_block">cache_system&lt;Key, Value&gt;        abstract interface
+  ├─ RFIFOCache                  queue + hash map
+  ├─ RLruCache                   doubly-linked list + hash map
+  │    └─ RLruKCache              history cache + main cache
+  ├─ RLfuCache                   frequency lists + aging
+  ├─ RHashLruCache                sharded LRU instances
+  └─ RArcCache                   LRU/LFU regions + ghost queues</pre><p>其中 ARC 用幽灵队列观察被淘汰 key 的再次访问情况，再动态调整 LRU 与 LFU 区域的容量；Hash-LRU 则把缓存拆成多个分片，降低高并发读场景下的锁竞争范围。</p></section>
+		<section class="project_section"><h2>技术取舍</h2><ul><li><strong>统一接口：</strong>让策略可以在同一访问序列下替换，比较结果关注算法差异而不是调用方式差异。</li><li><strong>哨兵节点：</strong>链表操作不需要为头尾节点写额外的空指针分支，热点路径更清楚。</li><li><strong>LFU 衰减：</strong>历史热点的频次会影响后续负载，因此加入衰减机制，让策略能对变化中的访问模式重新响应。</li><li><strong>ARC 幽灵队列：</strong>只记录淘汰 key，不保存 value，用较小额外空间反馈工作负载变化。</li></ul></section>
+		<section class="project_section"><h2>Benchmark</h2><p>仓库提供统一 benchmark，使用相同容量和访问序列对策略进行对照，覆盖热点访问、循环扫描和工作负载变化等场景。当前页面只展示实验方法，具体命中率和运行环境以仓库 README 中的原始记录为准。</p><p>这组实验的重点不是证明某一个策略永远最好，而是建立“访问模式 → 策略选择”的判断依据。</p></section>
+		<div class="project_footer_links"><a class="button button_primary" href="https://github.com/Rrrayy/Cache-System" target="_blank" rel="noopener">查看源码 <i data-lucide="github"></i></a><a class="button button_ghost" href="index.html">返回项目档案 <i data-lucide="arrow-left"></i></a></div>
+	</article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本页浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../blog/index.html">阅读博客</a></footer>
+	<script src="../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

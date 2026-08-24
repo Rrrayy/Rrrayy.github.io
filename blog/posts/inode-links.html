@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="日常学习时会产生几个现实中的疑问">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="硬链接和软链接的区别--inode 详解">
+	<meta property="og:description" content="日常学习时会产生几个现实中的疑问">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/inode-links.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/inode-links.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>硬链接和软链接的区别--inode 详解 | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "硬链接和软链接的区别--inode 详解", "description": "日常学习时会产生几个现实中的疑问", "datePublished": "2026-07-13", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/inode-links.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>
+		(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();
+	</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="inode-links" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>文件系统</span><span>发布日期：2026-07-13</span><span>3882 字 · 9 分钟</span></div><h1>硬链接和软链接的区别--inode 详解</h1><p class="article_lead">日常学习时会产生几个现实中的疑问</p><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/162816776" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">一、前言</a><a class="toc_level_2" href="#section-2">二、stat 命令--详细理解文件信息</a><a class="toc_level_3" href="#section-3">用 C 程序读取 inode 信息</a><a class="toc_level_2" href="#section-4">三、文件名的误区</a><a class="toc_level_3" href="#section-5">目录的底层实现：不只是简单列表</a><a class="toc_level_2" href="#section-6">四、硬链接：同一个 inode 的多个名字</a><a class="toc_level_3" href="#section-7">4.1 实验</a><a class="toc_level_3" href="#section-8">4.2 测试删除原文件对硬链接的影响</a><a class="toc_level_3" href="#section-9">4.3 硬链接的本质</a><a class="toc_level_3" href="#section-10">4.4 硬链接的限制</a><a class="toc_level_2" href="#section-11">五、软链接：存路径的独立文件</a><a class="toc_level_3" href="#section-12">5.1 实验</a><a class="toc_level_3" href="#section-13">5.2 软链接数据块内容</a><a class="toc_level_3" href="#section-14">5.3 测试删除原文件对软链接的影响</a><a class="toc_level_3" href="#section-15">5.4 硬链接、软链接特点与对比</a><a class="toc_level_2" href="#section-16">六、删除(rm)的本质</a><a class="toc_level_3" href="#section-17">6.1 strace 观察</a><a class="toc_level_3" href="#section-18">6.2 用 strace 验证 cp 和 mv 的底层操作</a><a class="toc_level_2" href="#section-19">七、排查场景</a><a class="toc_level_2" href="#section-20">八、总结</a></aside><div class="article_body"><blockquote><p>OSTEP中说明：在文件系统中，关于存储虚拟化有两个抽象，第一个是文件，而文件的低级名称通常称为inode号。第二个抽象则是目录，它包含一个（用户可读名字，低级名字）对的列表。本文从 stat 命令出发，通过 ln、strace 一步步验证硬链接、软链接、删除的本质，并把这些现象跟 inode 的设计联系起来。</p></blockquote>
+<hr>
+<h2 id="section-1">一、前言</h2>
+<p>日常学习时会产生几个现实中的疑问</p>
+<ol><li>每当在目录里用 <code>ls -l</code> 看到的一大堆信息——大小、权限、时间——存在哪里？</li><li>硬链接的本质到底是什么？跟软链接有什么区别？</li><li><code>rm</code> 删文件，是真的"删掉"了吗？</li></ol>
+<p>这篇文章我通过理论加实验的方式对这些问题一一解答。</p>
+<hr>
+<h2 id="section-2">二、stat 命令--详细理解文件信息</h2>
+<p>平时查看文件信息最常用的是 <code>ls -l</code>：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ls -l a.txt
+-rw-rw-r-- 1 rr rr 6 Jul 12 00:01 a.txt</code></pre>
+<p>这里能看到权限、硬链接数、所有者、大小、修改时间。但有一个最关键的信息没显示——<strong>inode 号</strong>。加 <code>-i</code> 参数就能看到：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ls -li a.txt
+442403 -rw-rw-r-- 2 rr rr 6 Jul 12 00:01 a.txt</code></pre>
+<p>第一列的 <code>442403</code> 就是这个文件的 inode 号。每个文件都有一个唯一的 inode 号，可以理解为文件在文件系统中的<strong>身份证号码</strong>。</p>
+<p>更详细的信息需要用 <code>stat</code> 命令：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ stat a.txt
+  File: a.txt
+  Size: 6         	Blocks: 8          IO Block: 4096   regular file
+Device: 811h/2065d	Inode: 442403      Links: 2
+Access: (0664/-rw-rw-r--)  Uid: ( 1000/      rr)
+Access: 2026-07-12 00:00:00.000000000 +0000
+Modify: 2026-07-12 00:01:00.000000000 +0000
+Change: 2026-07-12 00:01:05.000000000 +0000</code></pre>
+<p>每一行都是在读 inode 这个数据结构里的一个字段：</p>
+<div class="table_wrap"><table><thead><tr><th>stat 输出</th><th>里面的信息</th></tr></thead><tbody><tr><td>Inode: 442403</td><td>inode 号，C 里叫 <code>st_ino</code>，文件的身份证</td></tr><tr><td>Size: 6</td><td>文件大小（<code>st_size</code>），单位字节</td></tr><tr><td>Links: 2</td><td>硬链接数（<code>st_nlink</code>），有几个目录项指向这个 inode</td></tr><tr><td>权限字</td><td>文件类型和权限（<code>st_mode</code>），0664 就是 -rw-rw-r--</td></tr><tr><td>Uid/Gid</td><td>所有者（<code>st_uid</code>）和所属组（<code>st_gid</code>）</td></tr><tr><td>三个时间</td><td><code>st_atime</code> 最后访问 / <code>st_mtime</code> 最后修改 / <code>st_ctime</code> 最后状态变更</td></tr><tr><td>Blocks: 8</td><td>磁盘占用（<code>st_blocks</code>），计数单位 512 字节，不是文件系统的分配单位</td></tr></tbody></table></div>
+<blockquote><p>为什么不是 Blocks: 1？ 文件系统按 4096 字节分配（IO Block），6 字节文件也得占一整块。<code>st_blocks</code> 只是个统计口径，单位固定是 512 字节（POSIX 遗留标准），所以显示 <code>4096 ÷ 512 = 8</code>。不是文件系统按 512字节 分配。</p></blockquote>
+<p>这里有一个细节：Links（硬链接数）显示为 2。普通文件刚创建时硬链接数应该是 1——这个值偏高是因为我在开始写这篇文章之前已经对这个文件做过硬链接实验，并非刚创建时的状态。</p>
+<h3 id="section-3">用 C 程序读取 inode 信息</h3>
+<p>命令行的 <code>stat</code> 本质上就是读取 inode 结构体。用 C 语言也可以做同样的事： 说明一下：inode 号和硬链接数不可能为负，所以用无符号 %lu；文件大小虽然也不为负，但 off_t 标准定义是有符号的（因为 lseek 需要支持负偏移），所以用 %ld。</p>
+<pre class="code_block c"><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;sys/stat.h&gt;
+
+int main(){
+    struct stat s;
+    stat("a.txt", &amp;s);
+    printf("inode: %lu\n", s.st_ino);
+    printf("size: %ld\n", s.st_size);
+    printf("hard links: %lu\n", s.st_nlink);
+    return 0;
+}</code></pre>
+<p>编译运行：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ gcc stat_test.c -o stat_test &amp;&amp; ./stat_test
+inode: 442403
+size: 6
+hard links: 2</code></pre>
+<p>C 语言的 <code>struct stat</code> 和磁盘上的 inode 结构是对应的——当你调用 <code>stat()</code> 时，内核从 inode 缓存（若未缓存则先从磁盘读到缓存）读取 inode 结构体，填充这个结构体返回给用户态。</p>
+<hr>
+<h2 id="section-4">三、文件名的误区</h2>
+<p>很多人会下意识地认为"文件名就是文件"。但通过上面的 stat 输出可以意识到一个问题：<strong>文件名并没有出现在 inode 里。</strong></p>
+<p>inode 存的是大小、权限、时间、数据块位置——但不存文件名。</p>
+<p>在文章开头介绍了<strong>目录</strong>包含了用户可读名字，所以文件名存放在目录里。</p>
+<p>然而目录本质上也是一个文件，也有自己的 inode。但目录的数据块内容很特殊——它存的是一张映射表：</p>
+<pre class="code_block "><code class="">文件名 → inode号</code></pre>
+<p><code>/</code> 目录的结构大致如下：</p>
+<pre class="code_block "><code class="">.      → 2       （当前目录）
+..     → 2       （父目录，根目录的父目录也是自己）
+home   → 12345
+usr    → 67890
+tmp    → 11111</code></pre>
+<p>这就是为什么 inode 里没有文件名——<strong>文件名是属于目录的，不属于文件本身</strong>。同一个 inode 可以有多个文件名，这就是硬链接。</p>
+<p>用图来表示这三者的关系：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    subgraph 目录
+        A["目录项 a.txt"] --&gt;|inode 号| B["inode 442403"]
+        C["目录项 b.txt"] --&gt;|inode 号| B
+    end
+    subgraph inode
+        B --&gt;|大小| D["6 字节"]
+        B --&gt;|硬链接数| E["2"]
+        B --&gt;|指针| F["数据块位置"]
+    end
+    subgraph 数据块
+        F --&gt;|内容| G["'hello\\n'"]
+    end</code></pre>
+<p>流程：目录项存文件名→inode号 → inode存元数据+数据块指针 → 数据块存真正内容。</p>
+<h3 id="section-5">目录的底层实现：不只是简单列表</h3>
+<p>把目录看作一张"文件名→inode号"的映射表，在概念上是正确的。但不同文件系统实际存储这张表的方式不同。</p>
+<p><strong>ext4 用线性列表</strong>。目录的数据块中按顺序存放一个个条目，每个条目包含 inode 号、文件名的长度和文件名本身。要查找一个文件，ext4 从头到尾扫描这个列表，逐个比较文件名。目录中的文件越多，查找就越慢（O(n) 复杂度）。所以如果一个目录下放几十万个小文件，性能会显著下降。</p>
+<p><strong>XFS 用 B 树索引</strong>。XFS 在目录较大时自动把线性列表转换成 B 树结构，查找复杂度降到 O(log n)。所以在 XFS 上，即使一个目录下有百万个文件，创建和查找的性能依然稳定。</p>
+<p>这个差异在面试中可能会被问到。一个简单的验证方式：在 ext4 和 XFS 上分别创建大量文件，对比 <code>ls</code> 的响应时间。</p>
+<p>但无论底层怎么存，目录对外暴露的抽象始终没变——文件名到 inode 号的映射。上层应用不需要关心它是线性扫描还是 B 树查找。</p>
+<hr>
+<h2 id="section-6">四、硬链接：同一个 inode 的多个名字</h2>
+<h3 id="section-7">4.1 实验</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ echo "hello" &gt; a.txt
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ln a.txt b.txt    # 创建硬链接
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ls -li
+442403 -rw-rw-r-- 2 rr rr 6 Jul 12 00:01 a.txt
+442403 -rw-rw-r-- 2 rr rr 6 Jul 12 00:01 b.txt</code></pre>
+<p>两个文件 inode 号相同，都是 442403。这说明 <strong>a.txt 和 b.txt 根本就是同一个文件</strong>——只是两个名字指向同一个 inode。</p>
+<p>注意看硬链接数列：<code>ls -l</code> 的第二列从 1 变成了 2。这个数字就是 inode 里 nlink 记录的硬链接引用计数，表示有多少个目录项指向这个 inode。</p>
+<h3 id="section-8">4.2 测试删除原文件对硬链接的影响</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ rm a.txt
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ls -li
+442403 -rw-rw-r-- 1 rr rr 6 Jul 12 00:01 b.txt
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ cat b.txt
+hello</code></pre>
+<p><code>a.txt</code> 被删了，但 <code>b.txt</code> 还在，内容完好。因为 <code>rm a.txt</code> 只是<strong>删除了指向 inode 442403 的一个目录项</strong>，nlink 从 2 减为 1。inode 还在，数据块还在，通过 b.txt 照样可以访问。</p>
+<h3 id="section-9">4.3 硬链接的本质</h3>
+<p>简单来说：<strong>硬链接不是创建文件，而是创建一个新的目录项，指向已有的 inode。</strong></p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    subgraph 硬链接
+        A["目录项 a.txt"] --&gt; B["inode 442403"]
+        C["目录项 b.txt"] --&gt; B
+        B --&gt; D[" 'hello\\n'"]
+    end</code></pre>
+<p>创建硬链接后，两个目录项指向同一个 inode，共享同一份数据。</p>
+<h3 id="section-10">4.4 硬链接的限制</h3>
+<ol><li><strong>不能跨文件系统</strong>。因为 inode 号只在当前文件系统内唯一，不同文件系统的 inode 号是各自独立管理的，同一个编号可能指向完全不同的文件。</li><li><strong>不能链接目录</strong>。假设现在有个目录 <code>/home/user/projects/</code>，如果允许对它建硬链接，在 projects 里建一个指向根目录 <code>/</code> 的硬链接：</li></ol>
+<pre class="code_block "><code class="">   /home/user/projects/root  →  /</code></pre>
+<p>然后从根目录遍历：</p>
+<pre class="code_block "><code class="">   /  →  /home/  →  /user/  →  /projects/  →  /root（又回到 /）
+                                                  →  /home/  →  ……</code></pre>
+<p><code>find</code>、<code>du</code>、<code>rm -rf</code> 一旦陷入循环就跳不出来了。所以 POSIX 禁止对目录建硬链接。</p>
+<p><code>.</code> 和 <code>..</code> 虽然也是目录硬链接，但那是内核自己维护的，遍历时内核会识别并直接跳过。自己个人建的目录硬链接内核没法区分，只能往下继续遍历，必然会陷入循环。</p>
+<hr>
+<h2 id="section-11">五、软链接：存路径的独立文件</h2>
+<h3 id="section-12">5.1 实验</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ln -s a.txt c.txt    # 创建软链接
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ ls -li
+442403 -rw-rw-r-- 1 rr rr 6 Jul 12 00:01 a.txt
+442398 lrwxrwxrwx 1 rr rr 5 Jul 12 00:01 c.txt -&gt; a.txt</code></pre>
+<p>注意区别：<strong>c.txt 的 inode 号是 442398，跟 a.txt（442403）完全不同。</strong> 文件类型显示为 <code>l</code>（link），大小只有 5 个字节——正好是目标文件名 "a.txt" 的长度。</p>
+<h3 id="section-13">5.2 软链接数据块内容</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ cat c.txt
+hello</code></pre>
+<p>通过软链接访问到了内容。但如果看它本身的数据，其实是路径字符串：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ readlink c.txt
+a.txt</code></pre>
+<p>软链接的工作原理可以用图说清：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+    subgraph 软链接
+        S1["目录项 c.txt"] --&gt; S2["inode 442398"]
+        S2 --&gt; S3[" 'a.txt'"]
+    end
+    subgraph cat c.txt 时
+        S3 -.-&gt; T1["读 c.txt 数据块"]
+        T1 --&gt; T2["拿到 'a.txt'"]
+        T2 --&gt; T3["访问 a.txt 的 inode"]
+        T3 --&gt; T4["读数据块 'hello\\n'"]
+    end</code></pre>
+<p>c.txt 是一个独立文件，它的数据块存的是路径字符串 "a.txt"。</p>
+<h3 id="section-14">5.3 测试删除原文件对软链接的影响</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ rm a.txt
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ cat b.txt    # 硬链接
+hello
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ cat c.txt    # 软链接
+cat: c.txt: No such file or directory</code></pre>
+<p>硬链接还能访问，软链接报错——因为原文件的路径不存在了。详细来说，cat c.txt 时读取 c.txt 的数据块，也就是拿到了字符串 a.txt，然后再从目录中根据文件名和 inode 号映射找对应的 inode 号，但是此时已经 remove 了 a.txt，所以找不到对应的 inode 号，进而报错。这就是所谓的<strong>悬空引用（dangling reference）</strong>。</p>
+<h3 id="section-15">5.4 硬链接、软链接特点与对比</h3>
+<div class="table_wrap"><table><thead><tr><th>维度</th><th>硬链接</th><th>软链接</th></tr></thead><tbody><tr><td>inode 号</td><td>与原文件相同</td><td>独立 inode</td></tr><tr><td>数据块</td><td>共享（不占额外数据空间）</td><td>存路径字符串（占少量数据空间）</td></tr><tr><td>nlink（硬链接数）</td><td>增加原 inode 的引用计数</td><td>不影响原文件</td></tr><tr><td>跨文件系统</td><td>不能</td><td>可以</td></tr><tr><td>链接目录</td><td>不能（POSIX 禁止）</td><td>可以</td></tr><tr><td>原文件被删</td><td>还在（引用计数 &gt; 0）</td><td>悬空（路径失效）</td></tr><tr><td><code>ls -li</code> 表现</td><td>同 inode 号</td><td>不同 inode 号，显示 <code>-&amp;gt;</code></td></tr></tbody></table></div>
+<p>一张图汇总三者的关系：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart TD
+    subgraph 目录
+        A["a.txt"] --&gt; I1["inode 442403"]
+        B["b.txt（硬链接）"] --&gt; I1
+        C["c.txt（软链接）"] --&gt; I2["inode 442398"]
+    end
+    subgraph 数据
+        I1 --&gt; D1["数据块 hello"]
+        I2 --&gt; D2["数据块 a.txt"]
+        D2 -.-&gt;|读取路径后解析| D1
+    end</code></pre>
+<hr>
+<h2 id="section-16">六、删除(rm)的本质</h2>
+<h3 id="section-17">6.1 strace 观察</h3>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ strace rm b.txt 2&gt;&amp;1 | grep unlink
+unlinkat(AT_FDCWD, "b.txt", 0) = 0</code></pre>
+<p><code>rm</code> 的底层是 <code>unlinkat</code> 系统调用（新版本 Linux 用 unlinkat 替代了早期的 unlink）。该调用做了两件事：</p>
+<ol><li>从目录中删除 "b.txt" 这个映射条目</li><li>将 inode 442403 的 nlink 减 1</li></ol>
+<p>此时 nlink 从 1 变成 0，如果满足以下两个条件，内核才会真正释放这个 inode 和数据块：</p>
+<ul><li>nlink == 0（没有目录项指向它）</li><li>没有进程持有这个文件的文件描述符（没有进程正在读写它）</li></ul>
+<p>这也解释了为什么有时磁盘空间没释放——可能是一个进程仍然持有已删除文件的 fd。</p>
+<h3 id="section-18">6.2 用 strace 验证 cp 和 mv 的底层操作</h3>
+<p>继续实验，对比 cp 和 mv：</p>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ echo "hello" &gt; a.txt
+rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ strace cp a.txt d.txt 2&gt;&amp;1 | grep -E 'openat.*\.txt'
+openat(AT_FDCWD, "a.txt", O_RDONLY)     = 3
+openat(AT_FDCWD, "d.txt", O_WRONLY|O_TRUNC) = 4</code></pre>
+<p>cp 创建了一个新的 inode（<code>d.txt</code>），打开了源文件（<code>a.txt</code>），从源文件读数据，写入新文件，数据被完整复制了一遍。 因为 grep 只过滤了 openat 的行，所以没有看到调用 read/write 的语句，若想查看，可执行：</p>
+<pre class="code_block bash"><code class="language-bash"> strace cp a.txt d.txt 2&gt;&amp;1 | grep -E 'read|write'  </code></pre>
+<pre class="code_block bash"><code class="language-bash">rr@rr-VMware-Virtual-Platform:~/os_lab/inode_test$ strace mv d.txt e.txt 2&gt;&amp;1 | grep rename
+renameat2(AT_FDCWD, "d.txt", AT_FDCWD, "e.txt", RENAME_NOREPLACE) = 0</code></pre>
+<p>mv 只调了一个 rename 系统调用——没有读数据也没有写数据，只是在目录中改了文件名。这也说明了 mv 命令无论文件有多大，都能快速执行。</p>
+<p>这里有一个边界情况：<strong>跨文件系统的 mv 相当于 cp + rm</strong>。因为 rename 无法跨文件系统操作，系统会退化成"复制到目标位置→删除原文件"，inode 号会发生变化。</p>
+<hr>
+<h2 id="section-19">七、排查场景</h2>
+<p>理论归理论，在实践中可能会碰到以下场景：</p>
+<p><strong>磁盘空间没释放</strong>——<code>df -h</code> 显示满了但找不出大文件。用 <code>lsof | grep deleted</code> 排查，看是否有进程持有了已删除文件的 fd。原因就是文章讲的：nlink 归零但 fd 还在，内核不释放。</p>
+<p><strong>硬链接数异常</strong>——<code>stat</code> 看到 nlink 比你预期的多。用 <code>find / -inum &amp;lt;inode号&amp;gt;</code> 找出所有指向这个 inode 的文件名，看看多了哪个硬链接。</p>
+<p><strong>软链接断裂</strong>——<code>ls -l</code> 看到一堆红底白字的链接。用 <code>find -L /path -type l</code> 批量列出所有悬空引用，然后决定是删掉还是重建目标文件。</p>
+<hr>
+<h2 id="section-20">八、总结</h2>
+<p>读完本文之后，即可解决开头的几个问题：</p>
+<ol><li><strong><code>ls -l</code> 看到的大小、权限、时间存在哪里</strong>——存在 inode 里。<code>stat</code> 命令输出的每一行，本质上都是读 inode 结构体里的一个字段。</li></ol>
+<ol><li><strong>硬链接的本质是什么，跟软链接有什么区别</strong>——硬链接不是创建文件，而是在目录中新增一个条目指向已有 inode，nlink 加 1，删除原文件后数据依然可访问。软链接是创建一个独立文件（类型 <code>l</code>），数据块存放的是目标路径字符串，<code>cat</code> 时先读 c.txt 的数据块拿到 "a.txt"，再去目录查找 a.txt 的 inode，然后读取数据；若原文件已被删除，路径解析失败即报错。</li></ol>
+<ol><li><strong>rm 删文件到底删了什么</strong>——删目录项，inode 引用计数（nlink）减 1。只有 nlink 归零且没有进程持有文件描述符（fd）时，内核才真正释放磁盘空间。</li></ol>
+<p>本文是作者关于操作系统文件系统的第一篇文章。本文涉及到 inode 结构，硬链接和软链接的本质。但这只是文件系统的一小部分。后续会继续推进关于文件系统的相关博客，一步步往深了走，把这块彻底聊透。</p></div></div></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

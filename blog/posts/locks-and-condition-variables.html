@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="本文是多线程编程系列的第二篇，分三部分：自旋锁原理与手写实现、死锁复现与 gdb 定位、条件变量与生产者消费者模型。每部分都有完整代码和实验数据。">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="锁的进阶：从自旋锁到手写实现，再到死锁与条件变量">
+	<meta property="og:description" content="本文是多线程编程系列的第二篇，分三部分：自旋锁原理与手写实现、死锁复现与 gdb 定位、条件变量与生产者消费者模型。每部分都有完整代码和实验数据。">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/locks-and-condition-variables.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/locks-and-condition-variables.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>锁的进阶：从自旋锁到手写实现，再到死锁与条件变量 | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "锁的进阶：从自旋锁到手写实现，再到死锁与条件变量", "description": "本文是多线程编程系列的第二篇，分三部分：自旋锁原理与手写实现、死锁复现与 gdb 定位、条件变量与生产者消费者模型。每部分都有完整代码和实验数据。", "datePublished": "2026-07-21", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/locks-and-condition-variables.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>
+		(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();
+	</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="locks-and-condition-variables" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>并发编程</span><span>发布日期：2026-07-21</span><span>4132 字 · 9 分钟</span></div><h1>锁的进阶：从自旋锁到手写实现，再到死锁与条件变量</h1><p class="article_lead">本文是多线程编程系列的第二篇，分三部分：自旋锁原理与手写实现、死锁复现与 gdb 定位、条件变量与生产者消费者模型。每部分都有完整代码和实验数据。</p><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/163084384" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">一、自旋锁</a><a class="toc_level_3" href="#section-2">1.1 硬件原语：Test-and-Set</a><a class="toc_level_3" href="#section-3">1.2 手写 spin_lock</a><a class="toc_level_3" href="#section-4">1.3 自旋锁 vs 互斥锁</a><a class="toc_level_2" href="#section-5">二、死锁</a><a class="toc_level_3" href="#section-6">2.1 死锁四条件</a><a class="toc_level_3" href="#section-7">2.2 死锁复现</a><a class="toc_level_3" href="#section-8">2.3 gdb attach：</a><a class="toc_level_3" href="#section-9">2.4 输出解读：</a><a class="toc_level_3" href="#section-10">2.5 解决死锁</a><a class="toc_level_2" href="#section-11">三、条件变量</a><a class="toc_level_3" href="#section-12">3.1 接口</a><a class="toc_level_3" href="#section-13">3.2 为什么必须用 unique_lock 而不是 lock_guard</a><a class="toc_level_3" href="#section-14">3.3 生产者消费者</a><a class="toc_level_3" href="#section-15">3.4 运行结果</a><a class="toc_level_3" href="#section-16">3.5 结果分析</a><a class="toc_level_3" href="#section-17">3.6 wait 必须用 while 检查条件</a><a class="toc_level_2" href="#section-18">四、总结</a><a class="toc_level_3" href="#section-19">参考资料</a></aside><div class="article_body"><blockquote><p><strong>实验环境</strong>：VMware VM（4核，Ubuntu 24.04），g++ 13.2，C++17，glibc 2.39</p></blockquote>
+<p>本文是多线程编程系列的第二篇，分三部分：自旋锁原理与手写实现、死锁复现与 gdb 定位、条件变量与生产者消费者模型。每部分都有完整代码和实验数据。</p>
+<hr>
+<h2 id="section-1">一、自旋锁</h2>
+<h3 id="section-2">1.1 硬件原语：Test-and-Set</h3>
+<p>在实现锁之前，先理解 CPU 提供了什么原子指令。</p>
+<p><strong>Test-and-Set（TAS）：</strong> 一条 CPU 原子指令，读取目标地址的旧值，将其设为 1，返回旧值。整个过程不可打断。</p>
+<pre class="code_block asm"><code class="language-asm">x86 上的 lock bts 指令（Bit Test and Set）
+lock bts [flag], 0    ; 锁住内存总线，原子操作</code></pre>
+<p><strong>Compare-and-Swap（CAS）：</strong> 比较目标地址的值是否等于预期值，相等则换成新值，返回是否成功。x86 上对应 <code>cmpxchg</code> 指令。</p>
+<p>C++11 将这些硬件原语封装进了标准库。<code>std::atomic_flag</code> 是对 TAS 的封装，<code>std::atomic&amp;lt;T&amp;gt;::compare_exchange_strong</code> 是对 CAS 的封装。</p>
+<h3 id="section-3">1.2 手写 spin_lock</h3>
+<p>自旋锁的核心逻辑极其简单：用一个原子标志位表示"锁是否被占用"，<code>lock()</code> 通过 TAS 原子地尝试抢锁，没抢到就继续试；<code>unlock()</code> 把标志位清空。</p>
+<pre class="code_block cpp"><code class="language-cpp">#include &lt;atomic&gt;
+
+class spin_lock{
+    std::atomic_flag flag = ATOMIC_FLAG_INIT;
+public:
+    void lock(){
+        // test_and_set 返回旧值
+        // flag=false（空闲）→ 设成 true → 返回 false → 拿到锁，退出循环
+        // flag=true（被占）→ 返回 true → 继续循环等待
+        // memory_order_acquire 保证 lock 之后的操作不会重排到 lock 前面
+        while(flag.test_and_set(std::memory_order_acquire)){
+        }
+    }
+
+    void unlock(){
+        // memory_order_release 保证 unlock 之前的操作不会重排到 unlock 后面
+        flag.clear(std::memory_order_release);
+    }
+};</code></pre>
+<p>整个自旋锁的核心就是 <code>test_and_set</code>——它原子地完成"读旧值→写 true → 返回旧值"三步。两个线程同时调 <code>lock()</code>，只有一个能拿到 <code>false</code>（锁空闲），另一个拿到 <code>true</code> 继续转圈。没有系统调用，没有内核态切换，全程在用户态用一条 CPU 指令完成。这就是自旋锁"轻量"的本质。</p>
+<h3 id="section-4">1.3 自旋锁 vs 互斥锁</h3>
+<p>理论归理论，还需要实际实验去验证。设计一组对照实验，分别测试短临界区、长临界区、阻塞临界区（IO/sleep 型）三种场景下自旋锁和 <code>std::mutex</code> 的表现。</p>
+<blockquote><p><strong>实验环境备注</strong>：本文所有 benchmark 在 VMware VM（4核，Ubuntu 24.04）上运行。</p></blockquote>
+<h4>实验设计</h4>
+<p>实验统一采用 4 线程各累加一定次数，用 <code>std::chrono::steady_clock</code> 计时。临界区类型通过调整临界区内的操作来控制：</p>
+<div class="table_wrap"><table><thead><tr><th>实验编号</th><th>临界区类型</th><th>临界区内容</th><th>内层循环次数</th><th>重复次数</th></tr></thead><tbody><tr><td>①</td><td>短临界区（无条件竞争）</td><td><code>count++</code></td><td>—</td><td>4×100万</td></tr><tr><td>②</td><td>长临界区·纯计算</td><td><code>volatile int x; for(k) x+=k; count++</code></td><td>10万</td><td>4×1000</td></tr><tr><td>③</td><td>长临界区·重度计算</td><td>同上</td><td>100万</td><td>4×1000</td></tr><tr><td>④</td><td>阻塞临界区</td><td><code>count++; usleep(1ms)</code></td><td>—</td><td>4×1000</td></tr></tbody></table></div>
+<p>每种场景分别测试无锁、自旋锁、<code>std::mutex</code> 三个版本，记录最终 count 和总耗时。</p>
+<p>完整源码如下</p>
+<pre class="code_block cpp"><code class="language-cpp">#include&lt;iostream&gt;
+#include&lt;unistd.h&gt;
+#include&lt;mutex&gt;
+#include&lt;atomic&gt;
+#include&lt;thread&gt;
+#include&lt;vector&gt;
+#include&lt;chrono&gt;
+
+class spin_lock{
+    std::atomic_flag flag = ATOMIC_FLAG_INIT;
+public:
+    void lock(){
+        while(flag.test_and_set()){}
+    }
+    void unlock(){
+        flag.clear();
+    }
+};
+
+int count=0;
+spin_lock splk;
+std::mutex mux;
+const int PER_THREAD=1000000;
+const int THREAD_NUM=4;
+
+void test_no_lock(){
+    std::vector&lt;std::thread&gt; threads;
+    for(int i=0;i&lt;THREAD_NUM;++i){
+        threads.emplace_back([&amp;]{
+            for(int j=0;j&lt;PER_THREAD;++j) count++;
+        });
+    }
+    for(auto &amp;t:threads) t.join();
+}
+
+void test_spin_lock(){
+    std::vector&lt;std::thread&gt; threads;
+    for(int i=0;i&lt;THREAD_NUM;++i){
+        threads.emplace_back([&amp;]{
+            for(int j=0;j&lt;PER_THREAD;++j){
+                splk.lock(); count++; splk.unlock();
+            }
+        });
+    }
+    for(auto &amp;t:threads) t.join();
+}
+
+void test_mutex(){
+    std::vector&lt;std::thread&gt; threads;
+    for(int i=0;i&lt;THREAD_NUM;++i){
+        threads.emplace_back([&amp;]{
+            for(int j=0;j&lt;PER_THREAD;++j){
+                mux.lock(); count++; mux.unlock();
+            }
+        });
+    }
+    for(auto &amp;t:threads) t.join();
+}
+
+template&lt;typename F&gt;
+long long time_ms(F f){
+    auto start = std::chrono::steady_clock::now();
+    f();
+    auto end = std::chrono::steady_clock::now();
+    return std::chrono::duration_cast&lt;std::chrono::milliseconds&gt;(end-start).count();
+}
+
+void test_long_critical(){
+    std::vector&lt;std::thread&gt; threads;
+    for(int i=0;i&lt;THREAD_NUM;++i){
+        threads.emplace_back([&amp;](){
+            for(int j=0;j&lt;1000;++j){
+                splk.lock();
+                volatile int x=0;
+                for(int k=0;k&lt;1000000;++k) x+=k;
+                count++;
+                splk.unlock();
+            }
+        });
+    }
+    for(auto &amp;t:threads) t.join();
+}
+
+void test_long_critical_mutex(){
+    std::vector&lt;std::thread&gt; threads;
+    for(int i=0;i&lt;THREAD_NUM;++i){
+        threads.emplace_back([&amp;](){
+            for(int j=0;j&lt;1000;++j){
+                mux.lock();
+                volatile int x=0;
+                for(int k=0;k&lt;1000000;++k) x+=k;
+                count++;
+                mux.unlock();
+            }
+        });
+    }
+    for(auto &amp;t:threads) t.join();
+}
+
+int main(){
+    count = 0;
+    auto t1 = time_ms(test_no_lock);
+    std::cout &lt;&lt; "无锁版  → count=" &lt;&lt; count &lt;&lt; " 耗时" &lt;&lt; t1 &lt;&lt; "ms\n";
+
+    count = 0;
+    auto t2 = time_ms(test_spin_lock);
+    std::cout &lt;&lt; "自旋锁版 → count=" &lt;&lt; count &lt;&lt; " 耗时" &lt;&lt; t2 &lt;&lt; "ms\n";
+
+    count = 0;
+    auto t3 = time_ms(test_mutex);
+    std::cout &lt;&lt; "mutex版  → count=" &lt;&lt; count &lt;&lt; " 耗时" &lt;&lt; t3 &lt;&lt; "ms\n";
+
+    count = 0;
+    auto t4 = time_ms(test_long_critical);
+    std::cout &lt;&lt; "长临界区(自旋锁) → count=" &lt;&lt; count &lt;&lt; " 耗时" &lt;&lt; t4 &lt;&lt; "ms\n";
+
+    count = 0;
+    auto t5 = time_ms(test_long_critical_mutex);
+    std::cout &lt;&lt; "长临界区(mutex)  → count=" &lt;&lt; count &lt;&lt; " 耗时" &lt;&lt; t5 &lt;&lt; "ms\n";
+    return 0;
+}</code></pre>
+<p>完整代码见 <a href="https://github.com/Rrrayy/os_lab/tree/main/spinlock">spinlock.cpp</a>。</p>
+<h4>实验结果</h4>
+<p>编译运行：</p>
+<pre class="code_block bash"><code class="language-bash">g++ -std=c++17 -pthread spinlock.cpp -o spinlock_test
+./spinlock_test</code></pre>
+<p><strong>▎4核环境（4 线程 × 100 万次）</strong></p>
+<pre class="code_block "><code class=""># ── 实验①：短临界区（4×100 万次 count++）──
+无锁版  → count=1619179 耗时37ms
+自旋锁版 → count=4000000 耗时339ms
+mutex版  → count=4000000  耗时115ms
+
+# ── 实验②：长临界区·纯计算 10 万次（4×1000）──
+长临界区(自旋锁) → count=4000 耗时27ms
+长临界区(mutex)  → count=4000 耗时45ms
+
+# ── 实验③：长临界区·重度计算 100 万次（4×1000）──
+长临界区(自旋锁) → count=4000 耗时2805ms
+长临界区(mutex)  → count=4000 耗时2722ms
+
+# ── 实验④：阻塞临界区 usleep(1ms)（仅供参考）──
+长临界区(自旋锁) → count=4000 耗时6028ms
+长临界区(mutex)  → count=4000 耗时5908ms</code></pre>
+<p><strong>▎12核环境（4 线程 × 100 万次）</strong></p>
+<pre class="code_block "><code class=""># ── 实验①：短临界区（4×100 万次 count++）──
+无锁版  → count=1619179 耗时37ms
+自旋锁版 → count=4000000 耗时322ms
+mutex版  → count=4000000 耗时133ms
+
+# ── 实验②：长临界区·重度计算（4×1000）──
+长临界区(自旋锁) → count=4000 耗时2778ms
+长临界区(mutex)  → count=4000 耗时2751ms</code></pre>
+<h4>结果分析：两套环境（4核 vs 12核），四组实验</h4>
+<p><strong>▎4核环境（4核VM，4 线程）</strong></p>
+<div class="table_wrap"><table><thead><tr><th>实验</th><th>场景</th><th>自旋锁耗时</th><th>mutex耗时</th><th>胜负</th></tr></thead><tbody><tr><td>①</td><td>短临界区</td><td>339ms</td><td><strong>115ms</strong></td><td>自旋锁慢几乎3倍</td></tr><tr><td>②</td><td>长临界区·10万次计算</td><td><strong>27ms</strong></td><td>45ms</td><td>自旋锁快 40%</td></tr><tr><td>③</td><td>长临界区·100万次计算</td><td>2805ms</td><td>2722ms</td><td>几乎持平</td></tr></tbody></table></div>
+<blockquote><p><strong>实验④单独说明</strong>：usleep 触发系统调用，不能代表真正的长临界区行为。4 核下自旋锁 6028ms vs mutex 5908ms，两者均被系统调用开销淹没，仅作参考。</p></blockquote>
+<p><strong>▎12核环境（12核VM，4 线程）</strong></p>
+<div class="table_wrap"><table><thead><tr><th>实验</th><th>场景</th><th>自旋锁耗时</th><th>mutex耗时</th><th>胜负</th></tr></thead><tbody><tr><td>①</td><td>短临界区</td><td>322ms</td><td><strong>133ms</strong></td><td>自旋锁慢 2.4倍</td></tr><tr><td>②</td><td>长临界区·重度计算</td><td>2778ms</td><td>2751ms</td><td>几乎持平</td></tr></tbody></table></div>
+<p>两套环境的数据呈现出一致的模式，说明背后是同一个原因在起作用：</p>
+<p><strong>短临界区：自旋锁始终慢于 mutex。</strong> 4核和12核下，4个线程各自跑在一个核上。每个核都在 while 循环里对同一个 atomic_flag 做 test_and_set——这就触发了 <strong>cache line bouncing</strong>：</p>
+<pre class="code_block "><code class="">核0: 线程A持有锁，跑临界区
+核1: 线程B自旋等锁，test_and_set(flag) → 读取 flag
+核2: 线程C自旋等锁，test_and_set(flag) → 读取 flag
+核3: 线程D自旋等锁，test_and_set(flag) → 读取 flag
+
+线程A unlock，flag=0 → 核1/2/3的缓存全部失效
+核1: test_and_set 成功（flag=1）→ 核2/3的缓存又失效
+核2: 从内存重读 flag=1 → 继续自旋
+核3: 从内存重读 flag=1 → 继续自旋
+
+每次锁的释放和获取，都引发所有等锁核的缓存失效。</code></pre>
+<p>这个开销是自旋锁自有的：锁变量只能在一个时刻被一个核持有，但所有等锁的核都在频繁读它。核越多，缓存一致性流量越大。</p>
+<p>而 mutex 不存在这个问题：没抢到锁的线程被 OS 挂起，不产生任何内存访问，只有抢到锁的那个核在正常运行。</p>
+<p><strong>长临界区·纯计算（实验②）：自旋锁反超。</strong> 当临界区是纯计算（10 万次累加），线程一直占着 CPU 不切走。此时自旋锁只在用户态转圈，而 mutex 每次锁竞争都调 futex 系统调用进内核挂起再唤醒——两次上下文切换的开销远超自旋锁的等待。自旋锁快 40%。</p>
+<p><strong>临界区极长（实验③）：两者持平。</strong> 临界区计算时间（3ms 级）远大于锁操作开销，锁的类型不再是考虑因素。</p>
+<p><strong>阻塞临界区：usleep 不能用来测长临界区。</strong> usleep 本身是系统调用，调用它的线程会主动让出 CPU。此时锁开销被上下文切换淹没了。要测"长临界区"必须用纯计算让线程占着 CPU。</p>
+<p><strong>关键结论：自旋锁的性能优势依赖较少的核数竞争——核数越多，cache bouncing 对吞吐的削弱越显著。</strong></p>
+<hr>
+<h2 id="section-5">二、死锁</h2>
+<p>自旋锁的特点是"抢不到就一直忙等"，如果线程等不到，就引出了死锁。</p>
+<h3 id="section-6">2.1 死锁四条件</h3>
+<p>死锁发生需要同时满足四个条件，缺一不可：互斥、持有并等待、非抢占、循环等待。</p>
+<p>预防死锁的本质，就是<strong>打破这四个条件中的任意一个</strong>。最实用的做法是"破坏循环等待"——固定加锁顺序，所有线程按同样的顺序抢锁。</p>
+<h3 id="section-7">2.2 死锁复现</h3>
+<p>最容易写出死锁的方式就是<strong>两个线程用相反的顺序抢锁</strong>：</p>
+<pre class="code_block cpp"><code class="language-cpp">#include&lt;mutex&gt;
+#include&lt;iostream&gt;
+#include&lt;thread&gt;
+#include&lt;unistd.h&gt;
+
+std::mutex mtx1;
+std::mutex mtx2;
+
+void func1(){
+	// 先锁 mtx1，再锁 mtx2
+	std::lock_guard&lt;std::mutex&gt; lk1(mtx1);
+	sleep(1);                    
+	std::lock_guard&lt;std::mutex&gt; lk2(mtx2);  
+}
+
+void func2(){
+	// 先锁 mtx2，再锁 mtx1 
+	std::lock_guard&lt;std::mutex&gt; lk2(mtx2);
+	sleep(1);                   
+	std::lock_guard&lt;std::mutex&gt; lk1(mtx1);  
+}
+
+int main(){
+	std::thread t1(func1);
+	std::thread t2(func2);
+	t1.join();   // 等 func1 结束
+	t2.join();   // 等 func2 结束
+	return 0;
+}</code></pre>
+<p>编译运行：</p>
+<pre class="code_block bash"><code class="language-bash">g++ -std=c++17 -pthread -g deadlock.cpp -o deadlock_test
+./deadlock_test &amp;</code></pre>
+<p>程序不会结束。控制台没有任何输出，两个线程已经互相锁死了。</p>
+<h3 id="section-8">2.3 gdb attach：</h3>
+<p>死锁没有报错、没有崩溃，程序就是不动。需要用 GDB 看一下线程到底卡在哪：</p>
+<pre class="code_block bash"><code class="language-bash"># 先查到进程 ID
+ps aux | grep deadlock_test
+
+# 用 gdb 
+sudo gdb ./deadlock_test -p &lt;PID&gt;</code></pre>
+<p>进入 GDB 后，关键命令就两个：</p>
+<div class="table_wrap"><table><thead><tr><th>命令</th><th>作用</th></tr></thead><tbody><tr><td><code>thread apply all bt</code></td><td>看所有线程的调用栈（卡在哪）</td></tr><tr><td><code>info threads</code></td><td>看线程列表总览</td></tr></tbody></table></div>
+<h3 id="section-9">2.4 输出解读：</h3>
+<pre class="code_block "><code class="">(gdb) info threads
+  Id   Target Id                                         Frame 
+* 1    Thread ... "deadlock_test"  __futex_abstimed_wait_common64  ← main 在 join
+  2    Thread ... "deadlock_test"  futex_wait(mux1)                ← 等 mtx1
+  3    Thread ... "deadlock_test"  futex_wait(mux2)                ← 等 mtx2</code></pre>
+<p>三个线程：</p>
+<ul><li><strong>Thread 1（main）</strong>：在 <code>join</code> 等两个子线程结束</li><li><strong>Thread 2（func2）</strong>：卡在 <code>futex_wait</code>，正等着锁 mtx1</li><li><strong>Thread 3（func1）</strong>：卡在 <code>futex_wait</code>，正等着锁 mtx2</li></ul>
+<pre class="code_block "><code class="">(gdb) thread apply all bt
+
+Thread 3 (func1):
+#7  func1()
+#6  lock_guard&lt;std::mutex&gt;            正在构造 lock_guard（加锁）
+#1  __lll_lock_wait                   底层在等锁
+futex_word: &lt;mux2&gt;                    等的锁是 mux2
+
+Thread 2 (func2):
+#7  func2()
+#6  lock_guard&lt;std::mutex&gt;
+#1  __lll_lock_wait
+futex_word: &lt;mux1&gt;                    等的锁是 mux1
+
+Thread 1 (main):
+#5  main()
+#4  std::thread::join()               主线程在 join 等子线程</code></pre>
+<p>GDB 输出的 <code>futex_word</code> 字段明确指出了每个线程在等哪把锁，这是排查死锁最直接的证据。</p>
+<h3 id="section-10">2.5 解决死锁</h3>
+<p>预防死锁最常用的手段：</p>
+<p><strong>固定加锁顺序</strong> 两个线程都按"先 mtx1 后 mtx2"的顺序取锁，循环等待就不可能存在：</p>
+<pre class="code_block cpp"><code class="language-cpp">void func2(){
+	std::lock_guard&lt;std::mutex&gt; lk1(mtx1);  // 先 mtx1
+	sleep(1);
+	std::lock_guard&lt;std::mutex&gt; lk2(mtx2);  // 再 mtx2
+	// 没问题了，因为 func1 也是这个顺序
+}</code></pre>
+<p>其他破坏死锁的手段还有：</p>
+<ul><li><strong>trylock 失败释放重试</strong>：破坏"非抢占"条件，但可能引入活锁</li><li><strong>全局预防锁</strong>：破坏"持有并等待"，一把大锁包住所有抢锁操作</li><li><strong>无等待数据结构</strong>：用 CAS 原子指令实现无锁数据结构——破坏"互斥"条件，但实现极复杂</li></ul>
+<hr>
+<h2 id="section-11">三、条件变量</h2>
+<p>死锁是"线程互相等对方手里的锁"，整个程序卡住了。那有没有一种机制，让线程<strong>在条件不满足时主动休眠，条件好了再被唤醒</strong>？这就是条件变量。</p>
+<p>自旋锁的问题是"等的时候占着 CPU 空转"，mutex 虽然不空转但只解决互斥、不解决同步</p>
+<h3 id="section-12">3.1 接口</h3>
+<p>条件变量提供了两个核心操作：<code>wait</code> 让线程在条件不满足时休眠，<code>notify_one</code>/<code>notify_all</code> 在条件满足时唤醒等待的线程。</p>
+<p><code>wait</code> 带谓词的版本等价于 <code>while(!条件()) wait(lk)</code>——不满足就睡，醒来再检查。不带谓词的版本必须手动写 while 循环。</p>
+<p><code>wait</code> 的内部流程：检查条件，不满足则解锁 mutex - 线程休眠 - 被 notify 后重新加锁 - 再次检查条件。wait 返回后锁是持有的，因为调用方需要接着操作共享数据。</p>
+<h3 id="section-13">3.2 为什么必须用 unique_lock 而不是 lock_guard</h3>
+<p><code>lock_guard</code> 不支持手动 unlock/lock，而 wait 内部需要"解锁→休眠→醒来再加锁"这三个步骤。只有 <code>unique_lock</code> 提供了 unlock() 和 lock() 成员函数，所以条件变量用它更合适。</p>
+<h3 id="section-14">3.3 生产者消费者</h3>
+<p>完整代码：</p>
+<pre class="code_block cpp"><code class="language-cpp">#include&lt;queue&gt;
+#include&lt;mutex&gt;
+#include&lt;condition_variable&gt;
+#include&lt;thread&gt;
+#include&lt;iostream&gt;
+
+std::queue&lt;int&gt; q;
+std::mutex mtx;
+std::condition_variable not_empty;  
+std::condition_variable not_full;   
+const int MAX_SIZE = 5;
+const int PRODUCE_NUM = 10;
+
+void producer(int id){
+    for(int i = 0; i &lt; PRODUCE_NUM; ++i){
+        std::unique_lock&lt;std::mutex&gt; lk(mtx);
+        // 队列满了就等待
+        // 等价于 while(q.size() &gt;= MAX_SIZE) { not_full.wait(lk); }
+        not_full.wait(lk, []{ return q.size() &lt; MAX_SIZE; });
+
+        q.push(i);
+        std::cout &lt;&lt; "[P" &lt;&lt; id &lt;&lt; "] produce " &lt;&lt; i &lt;&lt; std::endl;
+
+        not_empty.notify_one();  
+    }
+}
+
+void consumer(int id){
+    for(int i = 0; i &lt; PRODUCE_NUM; ++i){
+        std::unique_lock&lt;std::mutex&gt; lk(mtx);
+        // 队列空了就等待
+        not_empty.wait(lk, []{ return !q.empty(); });
+
+        int val = q.front();
+        q.pop();
+        std::cout &lt;&lt; "[C" &lt;&lt; id &lt;&lt; "] consume " &lt;&lt; val &lt;&lt; std::endl;
+
+        not_full.notify_one();  
+    }
+}
+
+int main(){
+    std::thread p1(producer, 1);
+    std::thread p2(producer, 2);
+    std::thread c1(consumer, 1);
+    std::thread c2(consumer, 2);
+    p1.join(); p2.join(); c1.join(); c2.join();
+    std::cout &lt;&lt; "ok" &lt;&lt; std::endl;
+    return 0;
+}</code></pre>
+<p>编译运行：</p>
+<pre class="code_block bash"><code class="language-bash">g++ -std=c++17 -pthread -g prod_cons.cpp -o prod_cons
+./prod_cons</code></pre>
+<h3 id="section-15">3.4 运行结果</h3>
+<pre class="code_block "><code class="">[P1] produce 0       # P1 连续生产 0~4至队列满-P1 挂起
+[P1] produce 1
+[P1] produce 2
+[P1] produce 3
+[P1] produce 4
+[C2] consume 0       # C2 连续消费 0~4至队列空-C2 挂起
+[C2] consume 1
+[C2] consume 2
+[C2] consume 3
+[C2] consume 4
+...
+[P1] produce 5~9, [C1] consume 5~9     # C1 消费 P1
+[P2] produce 0~4, [C2] consume 0~4     # C2 消费 P2
+[P2] produce 5~9, [C1] consume 5~9     # C1 消费 P2
+ok                                       # 所有线程正常结束</code></pre>
+<h3 id="section-16">3.5 结果分析</h3>
+<p>运行日志显示生产者连续生产至队列满（MAX_SIZE=5）后挂起，消费者连续消费至队空后挂起，双方通过条件变量交替唤醒。4 个线程并发操作 5 容量的队列，未出现溢出或空读，说明条件变量正确保证了每次操作前条件满足。最终生产日志 20 条（2 生产者 × 10）、消费日志 20 条（2 消费者 × 10），数据完整无丢失，所有线程正常结束。</p>
+<h3 id="section-17">3.6 wait 必须用 while 检查条件</h3>
+<p>有两种写法：</p>
+<pre class="code_block cpp"><code class="language-cpp">//  正确写法
+while (q.size() == MAX_SIZE){
+    not_full.wait(lk);
+}
+
+//  等价正确写法（wait 的谓词重载内置了 while）
+not_full.wait(lk, []{ return q.size() &lt; MAX_SIZE; });</code></pre>
+<p>但下面这种是错的：</p>
+<pre class="code_block cpp"><code class="language-cpp">//  错误写法
+if (q.size() == MAX_SIZE){
+    not_full.wait(lk);
+}
+// wait 返回后直接 push——可能队列还是满的！</code></pre>
+<p>原因叫做<strong>虚假唤醒</strong>——线程可能在没有被 notify 的情况下从 wait 返回。这不是 bug，POSIX 和 C++ 标准都允许。操作系统为了调度效率，偶尔会唤醒等待的线程。</p>
+<p>如果用的是 if，醒来后条件可能仍然不满足，但代码已经继续进行了——要么 push 进一个满队列，要么 pop 一个空队列。</p>
+<hr>
+<h2 id="section-18">四、总结</h2>
+<ul><li><strong>自旋锁</strong>：基于 CPU 原子指令 TAS/CAS，用户态无系统调用。短临界区多核竞争下因 cache bouncing 比 mutex 慢 2-3 倍；长临界区纯计算场景比 mutex 快 40%；临界区极长时两者持平。自旋锁的性能优势依赖较少的核数竞争。</li><li><strong>死锁</strong>：需同时满足互斥、持有并等待、非抢占、循环等待四个条件。预防核心是破坏循环等待——固定加锁顺序。排查用 gdb attach 后 <code>thread apply all bt</code> 查看 <code>futex_word</code>。</li><li><strong>条件变量</strong>：让线程在条件不满足时休眠，被唤醒后重新检查条件。<code>wait</code> 必须用 while 或谓词重载防止虚假唤醒。</li><li><strong>生产者消费者</strong>：双条件变量（not_empty + not_full）+ <code>unique_lock</code> 实现，4 线程 40 条日志完整无错。</li></ul>
+<hr>
+<h3 id="section-19">参考资料</h3>
+<ul><li>cppreference.com <code>std::memory_order</code>—— acquire-release / seq_cst 说明</li><li>Linux man page <code>futex(2)</code>，<code>man 7 pthreads</code></li><li>OSTEP 第30章，第31章，第 32 章：条件变量，信号量，常见并发问题</li></ul>
+<hr>
+<p>本文是多线程编程系列的第二篇，从自旋锁的硬件原语出发，经过手写实现、benchmark 验证、cache bouncing 分析，再到死锁的复现与排查，最后用条件变量实现了一个完整的生产者消费者模型。由于本人还在学习，如有问题，欢迎评论留言。</p>
+<p><strong>系列上一篇</strong>：<a href="https://blog.csdn.net/rr666888/article/details/162950541">C++多线程入门：创建线程、加锁、计数</a></p></div></div></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

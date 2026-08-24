@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<url><loc>https://rrrayy.github.io/index.html</loc></url>
+	<url><loc>https://rrrayy.github.io/about.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/index.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/index.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/algorithm-problems.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/cache-system.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/cpp-internals.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/memory-pool.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/mysql-lab.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/net-lab.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/os-lab.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/rpc-framework.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/stl-internals.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/thread-pool.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/unix-internals.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/lambda-closure.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/zero-copy.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/locks-and-condition-variables.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/cpp-threads.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/ext4-layout.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/inode-links.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/malloc-brk-mmap.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/linux-cfs.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/gcc-from-zero.html</loc></url>
+</urlset>

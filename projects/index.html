@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Rray 的 C++ 系统架构、缓存和内存管理项目档案。">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="项目档案 | Rray">
+	<meta property="og:description" content="Rray 的 C++ 系统架构、缓存和内存管理项目档案。">
+	<meta property="og:url" content="https://rrrayy.github.io/projects/">
+	<link rel="canonical" href="https://rrrayy.github.io/projects/">
+	<title>项目档案 | Rray</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+	<script>(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();</script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../index.html" aria-label="返回首页"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav>
+	<main>
+		<section class="project_intro"><p class="section_kicker">PROJECT ARCHIVE / 2026</p><h1>项目档案，<br><em>按系统问题整理。</em></h1><p>这里记录我实际写过、调过和复盘过的工程。每个项目页只保留能被源码、实验或 benchmark 支撑的内容，完整代码继续放在 GitHub。</p></section>
+		<section class="project_archive" aria-label="项目列表">
+			<a class="project_archive_row" href="rpc-framework.html"><div><h2>RPC Framework</h2><p>C++17 RPC 框架：从 Protobuf 协议、muduo 网络层到 Zookeeper 服务发现，串起一次远程调用。</p></div><span class="project_archive_meta">已完成<br>分布式通信</span><span class="project_archive_tags">C++17 · TCP<br>Protobuf · ZK</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="cache-system.html"><div><h2>Cache-System</h2><p>纯头文件缓存策略库，在统一接口下实现 FIFO、LRU、LRU-K、Hash-LRU、LFU 和 ARC。</p></div><span class="project_archive_meta">已完成<br>缓存策略</span><span class="project_archive_tags">C++17 · STL<br>Benchmark</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="memory-pool.html"><div><h2>memory-pool</h2><p>按大小分桶的内存池实验，记录 CAS 无锁 free list 在并发复用场景中的 ABA 问题。</p></div><span class="project_archive_meta">进行中<br>内存管理</span><span class="project_archive_tags">CAS · ABA<br>size-class</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="thread-pool.html"><div><h2>ThreadPool</h2><p>C++17 手写线程池：任务队列、工作线程、packaged_task/future 和可排空的优雅停机。</p></div><span class="project_archive_meta">已完成<br>并发编程</span><span class="project_archive_tags">C++17 · 线程池<br>future</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="os-lab.html"><div><h2>os_lab</h2><p>操作系统核心机制实验：系统调用、进程调度、虚拟内存、文件系统、并发与零拷贝。</p></div><span class="project_archive_meta">已完成<br>操作系统</span><span class="project_archive_tags">C++ · Linux<br>实验验证</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="net-lab.html"><div><h2>Net_lab</h2><p>网络机制验证合集：HTTP 服务器、DNS 解析、TCP 状态、拥塞控制和 Socket 编程。</p></div><span class="project_archive_meta">已完成<br>计算机网络</span><span class="project_archive_tags">C++ · Socket<br>TCP · epoll</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="stl-internals.html"><div><h2>STL-internals</h2><p>手写 vector 与 unordered_map，记录扩容、rehash、负载因子和 benchmark 验证。</p></div><span class="project_archive_meta">进行中<br>容器实现</span><span class="project_archive_tags">C++ · STL<br>Benchmark</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="cpp-internals.html"><div><h2>cpp-internals</h2><p>围绕虚函数表、RAII、const 正确性和异常安全的 C++ 语言机制实验。</p></div><span class="project_archive_meta">进行中<br>C++ 机制</span><span class="project_archive_tags">C++17 · ASan<br>底层原理</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="unix-internals.html"><div><h2>unix-internals</h2><p>Unix 系统编程实验：文件 I/O、进程、IPC、线程同步、epoll 和内存管理。</p></div><span class="project_archive_meta">进行中<br>系统编程</span><span class="project_archive_tags">Linux · C<br>系统调用</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="algorithm-problems.html"><div><h2>Algorithm-Problems</h2><p>按数据结构与算法模块持续整理的 C++ 解题仓库，覆盖数组、链表、树、回溯、贪心和动态规划。</p></div><span class="project_archive_meta">进行中<br>算法训练</span><span class="project_archive_tags">C++ · DSA<br>持续更新</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="mysql-lab.html"><div><h2>MySQL Lab</h2><p>数据库学习与实验记录，整理 SQL、索引、事务和存储引擎等基础主题。</p></div><span class="project_archive_meta">学习中<br>数据库</span><span class="project_archive_tags">MySQL · SQL<br>实验记录</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+		</section>
+		<section class="section_block"><p class="section_kicker">SOURCE</p><h2>代码和提交记录</h2><p class="project_archive_note">项目详情页用于解释设计和实验，仓库中的源码、构建文件与提交历史才是最终实现。</p><div class="project_footer_links"><a class="button button_primary" href="https://github.com/Rrrayy" target="_blank" rel="noopener">打开 GitHub <i data-lucide="github"></i></a><a class="button button_ghost" href="../index.html">返回首页 <i data-lucide="arrow-left"></i></a></div></section>
+	</main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本页浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="https://github.com/Rrrayy" target="_blank" rel="noopener">GitHub</a></footer>
+	<script src="../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>
