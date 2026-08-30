@@ -20,7 +20,8 @@ published_meta={
 	"C++多线程编程/C++多线程入门-创建线程-加锁-计数.md":("2026-07-17","https://blog.csdn.net/rr666888/article/details/162950541"),
 	"C++多线程编程/锁的进阶-自旋锁-死锁-条件变量.md":("2026-07-21","https://blog.csdn.net/rr666888/article/details/163084384"),
 	"IO模型/零拷贝到底快在哪-sendfile-vs-read-write-benchmark.md":("2026-07-27","https://blog.csdn.net/rr666888/article/details/163222717"),
-	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":("2026-08-15","https://blog.csdn.net/rr666888/article/details/163764597")
+	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":("2026-08-15","https://blog.csdn.net/rr666888/article/details/163764597"),
+	"C++新特性/C++移动语义与完美转发.md":("2026-08-30","https://blog.csdn.net/rr666888/article/details/164191908")
 }
 
 slug_map={
@@ -32,7 +33,8 @@ slug_map={
 	"C++多线程编程/C++多线程入门-创建线程-加锁-计数.md":"cpp-threads",
 	"C++多线程编程/锁的进阶-自旋锁-死锁-条件变量.md":"locks-and-condition-variables",
 	"IO模型/零拷贝到底快在哪-sendfile-vs-read-write-benchmark.md":"zero-copy",
-	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":"lambda-closure"
+	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":"lambda-closure",
+	"C++新特性/C++移动语义与完美转发.md":"cpp-move-forward"
 }
 
 category_names={
@@ -254,6 +256,30 @@ def summary_from(text,title):
 	return "完整实验记录与原理分析。"
 
 
+def prerequisite_from(text):
+	for line in text.splitlines():
+		if "前置知识" not in line:
+			continue
+		match=re.search(r"前置知识\**\s*[:：]\s*(.+)$",line)
+		if not match:
+			continue
+		value=match.group(1).strip()
+		value=re.sub(r"\s*\|.*$","",value).strip()
+		value=re.sub(r"^[*_\s]+|[*_\s]+$","",value)
+		return value
+	return ""
+
+
+def clean_metadata_lines(text):
+	metadata_markers=("作者", "分类", "标签", "阅读时间", "前置知识")
+	lines=[]
+	for line in text.splitlines():
+		if line.startswith(">") and any(marker in line for marker in metadata_markers):
+			continue
+		lines.append(line)
+	return "\n".join(lines)
+
+
 def word_count(text):
 	return len(re.findall(r"[\u4e00-\u9fff]|[A-Za-z0-9_]+",text))
 
@@ -269,6 +295,8 @@ def article_template(article,body_html,toc_html):
 		"author":{"@type":"Person","name":"Rray"},
 		"mainEntityOfPage":canonical
 	},ensure_ascii=False).replace("<","\\u003c").replace(">","\\u003e").replace("&","\\u0026")
+	prerequisite=article.get("prerequisite","")
+	prerequisite_html=(f'<aside class="article_prerequisite"><span>前置知识</span><p>{inline_markup(prerequisite)}</p></aside>' if prerequisite else "")
 	return f'''<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -293,7 +321,7 @@ def article_template(article,body_html,toc_html):
 	<header class="site_header"><a class="brand" href="../../index.html"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
 	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a href="../../projects/index.html">项目</a><a class="active" href="../index.html">博客</a><a href="../../about.html">关于我</a></nav>
 	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
-	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="{article["slug"]}" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>{html.escape(article["category"])}</span><span>发布日期：{html.escape(article["date"])}</span><span>{article["word_count"]} 字 · {article["reading_time"]} 分钟</span></div><h1>{html.escape(article["title"])}</h1><p class="article_lead">{html.escape(article["summary"])}</p><a class="source_link" href="{article["csdn_url"]}" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span>{toc_html}</aside><div class="article_body">{body_html}</div></div></article></main>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><nav class="article_pager" id="articlePager" data-current="{article["slug"]}" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>作者：Rray</span><span>{html.escape(article["category"])}</span><span>发布日期：{html.escape(article["date"])}</span><span>{article["word_count"]} 字 · {article["reading_time"]} 分钟</span></div><h1>{html.escape(article["title"])}</h1>{prerequisite_html}<p class="article_lead">{html.escape(article["summary"])}</p><a class="source_link" href="{article["csdn_url"]}" target="_blank" rel="noopener">查看 CSDN 原文 ↗</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span>{toc_html}</aside><div class="article_body">{body_html}</div></div></article></main>
 	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回博客列表</a></footer>
 	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
@@ -353,10 +381,12 @@ def build():
 		body=strip_heading(body,title)
 		if relative not in published_meta:
 			continue
+		prerequisite=prerequisite_from(body)
+		body=clean_metadata_lines(body)
 		date,csdn_url=published_meta[relative]
 		category=category_names.get(relative.split("/",1)[0],metadata.get("categories","技术记录"))
 		count=word_count(body)
-		article={"title":title,"date":date,"category":category,"csdn_url":csdn_url,"slug":slug_map[relative],"word_count":count,"reading_time":max(1,round(count/450)),"summary":summary_from(body,title),"source_path":relative}
+		article={"title":title,"date":date,"category":category,"csdn_url":csdn_url,"slug":slug_map[relative],"word_count":count,"reading_time":max(1,round(count/450)),"summary":summary_from(body,title),"prerequisite":prerequisite,"source_path":relative}
 		articles.append(article)
 		heading_items=[]
 		body_html=render_markdown(body,heading_items)

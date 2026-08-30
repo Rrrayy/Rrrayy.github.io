@@ -1,5 +1,4 @@
 window.blog_articles=[
-	{date:'2026-08-30',title:'C++ 移动语义与完美转发',category:'C++ 新特性',reading_time:5,slug:'cpp-move-forward',summary:'从移动构造、右值引用到完美转发，结合 Buffer、参数包和 emplace_back 理解资源转移与值类别。'},
 	{date:'2026-08-15',title:'lambda 闭包原理',category:'C++ 新特性',reading_time:6,slug:'lambda-closure',summary:'在写代码时经常要给 std::sort 传比较器，本文从编译器视角拆解 lambda 的匿名类、捕获成员与生命周期。'},
 	{date:'2026-07-27',title:'零拷贝到底快在哪？',category:'IO 模型',reading_time:5,slug:'zero-copy',summary:'通过 sendfile 与 read+write 的对照实验，分析数据路径、系统调用次数和用户态拷贝成本。'},
 	{date:'2026-07-21',title:'锁的进阶：从自旋锁到手写实现，再到死锁与条件变量',category:'并发编程',reading_time:9,slug:'locks-and-condition-variables',summary:'从自旋锁原理到死锁定位，再到条件变量生产者消费者模型，完整记录实验过程和数据。'},

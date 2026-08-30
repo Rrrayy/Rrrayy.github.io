@@ -6,6 +6,13 @@
 		<description>Rray 的 C++、系统编程与后端工程实践。</description>
 		<language>zh-CN</language>
 		<item>
+			<title>C++ 移动语义与完美转发</title>
+			<link>https://rrrayy.github.io/blog/posts/cpp-move-forward.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/cpp-move-forward.html</guid>
+			<pubDate>2026-08-30</pubDate>
+			<description>copied 会复制字符串内容，moved 则可能直接接管 name 的内部资源。</description>
+		</item>
+		<item>
 			<title>lambda 闭包原理</title>
 			<link>https://rrrayy.github.io/blog/posts/lambda-closure.html</link>
 			<guid>https://rrrayy.github.io/blog/posts/lambda-closure.html</guid>
