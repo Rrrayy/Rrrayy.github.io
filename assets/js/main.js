@@ -2,14 +2,6 @@
 	function escape_html(value){
 		return String(value).replace(/[&<>\"']/g,function(character){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[character];});
 	}
-	function set_theme(){
-		var button=document.getElementById('themeToggle');
-		if(!button)return;
-		button.addEventListener('click',function(){
-			document.documentElement.classList.toggle('light');
-			localStorage.setItem('v2-theme',document.documentElement.classList.contains('light')?'light':'dark');
-		});
-	}
 	function set_mobile_menu(){
 		var button=document.getElementById('menuToggle');
 		var menu=document.getElementById('mobileNav');
@@ -22,8 +14,10 @@
 	}
 	function render_latest_articles(){
 		var list=document.getElementById('homeWritingList');
-		if(!list)return;
 		var articles=window.blog_articles||[];
+		var home_post_count=document.getElementById('homePostCount');
+		if(home_post_count)home_post_count.textContent=articles.length;
+		if(!list)return;
 		list.innerHTML=articles.slice(0,5).map(function(article){
 			return '<a class="writing_item" href="blog/posts/'+encodeURIComponent(article.slug)+'.html"><span>'+escape_html(article.date)+'</span><strong>'+escape_html(article.title)+'</strong><em>'+escape_html(article.category)+' · CSDN 已发布</em><i data-lucide="arrow-up-right"></i></a>';
 		}).join('');
@@ -109,7 +103,6 @@
 		});
 		if(window.lucide)lucide.createIcons();
 	}
-	set_theme();
 	set_mobile_menu();
 	if(window.lucide)lucide.createIcons();
 	render_latest_articles();

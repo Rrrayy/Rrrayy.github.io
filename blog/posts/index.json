@@ -1,8 +1,32 @@
 [
   {
+    "title": "一致性哈希详解：从哈希环到分布式缓存",
+    "date": "2026-09-03",
+    "category": "分布式系统",
+    "tags": [
+      "分布式系统",
+      "一致性哈希",
+      "缓存",
+      "哈希"
+    ],
+    "csdn_url": "https://blog.csdn.net/rr666888/article/details/164331090",
+    "slug": "consistent-hashing",
+    "word_count": 3123,
+    "reading_time": 7,
+    "summary": "假设有一个分布式缓存集群，三台缓存服务器保存用户数据：",
+    "prerequisite": "",
+    "source_path": "C++新特性/一致性哈希详解——从哈希环到分布式缓存.md"
+  },
+  {
     "title": "C++ 移动语义与完美转发",
     "date": "2026-08-30",
     "category": "C++ 新特性",
+    "tags": [
+      "C++",
+      "C++11",
+      "移动语义",
+      "完美转发"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/164191908",
     "slug": "cpp-move-forward",
     "word_count": 2161,
@@ -15,6 +39,11 @@
     "title": "lambda 闭包原理",
     "date": "2026-08-15",
     "category": "C++ 新特性",
+    "tags": [
+      "C++",
+      "C++11",
+      "lambda"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/163764597",
     "slug": "lambda-closure",
     "word_count": 2907,
@@ -27,6 +56,11 @@
     "title": "零拷贝到底快在哪？",
     "date": "2026-07-27",
     "category": "IO 模型",
+    "tags": [
+      "网络编程",
+      "零拷贝",
+      "性能优化"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/163222717",
     "slug": "zero-copy",
     "word_count": 2194,
@@ -39,6 +73,11 @@
     "title": "锁的进阶：从自旋锁到手写实现，再到死锁与条件变量",
     "date": "2026-07-21",
     "category": "并发编程",
+    "tags": [
+      "C++",
+      "并发",
+      "同步原语"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/163084384",
     "slug": "locks-and-condition-variables",
     "word_count": 4132,
@@ -51,6 +90,11 @@
     "title": "C++ 多线程入门：创建线程、加锁、计数",
     "date": "2026-07-17",
     "category": "并发编程",
+    "tags": [
+      "C++",
+      "多线程",
+      "并发"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/162950541",
     "slug": "cpp-threads",
     "word_count": 2621,
@@ -63,6 +107,11 @@
     "title": "ext4文件系统详解：用dd和mkfs.ext4从零解剖",
     "date": "2026-07-14",
     "category": "文件系统",
+    "tags": [
+      "文件系统",
+      "ext4",
+      "inode"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/162878654",
     "slug": "ext4-layout",
     "word_count": 4052,
@@ -75,6 +124,11 @@
     "title": "硬链接和软链接的区别--inode 详解",
     "date": "2026-07-13",
     "category": "文件系统",
+    "tags": [
+      "文件系统",
+      "inode",
+      "链接"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/162816776",
     "slug": "inode-links",
     "word_count": 3882,
@@ -87,6 +141,11 @@
     "title": "malloc(1) 背后的 brk 与 mmap",
     "date": "2026-07-11",
     "category": "内存管理",
+    "tags": [
+      "glibc",
+      "malloc",
+      "内存管理"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/162793574",
     "slug": "malloc-brk-mmap",
     "word_count": 4763,
@@ -99,6 +158,11 @@
     "title": "Linux CFS 完全公平调度器（Completely Fair Scheduler）深度拆解",
     "date": "2026-07-09",
     "category": "操作系统",
+    "tags": [
+      "Linux",
+      "CFS",
+      "进程调度"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/162712345",
     "slug": "linux-cfs",
     "word_count": 5338,
@@ -111,6 +175,11 @@
     "title": "g++ 从入门到忘记",
     "date": "2026-07-07 01:30:44",
     "category": "编译器工具链",
+    "tags": [
+      "C++",
+      "GCC",
+      "编译链接"
+    ],
     "csdn_url": "https://blog.csdn.net/rr666888/article/details/162645027",
     "slug": "gcc-from-zero",
     "word_count": 2667,

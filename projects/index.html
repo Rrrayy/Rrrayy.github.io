@@ -12,13 +12,13 @@
 	<title>项目档案 | Rray</title>
 	<link rel="stylesheet" href="../assets/css/style.css">
 	<script src="https://unpkg.com/lucide@0.468.0"></script>
-	<script>(function(){if(localStorage.getItem('v2-theme')==='light')document.documentElement.classList.add('light');})();</script>
+
 </head>
 <body>
-	<header class="site_header"><a class="brand" href="../index.html" aria-label="返回首页"><span class="brand_mark">R/</span><span>Rray<span class="brand_cursor">_</span></span></a><nav class="site_nav" aria-label="主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav><div class="header_actions"><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false">菜单</button><button class="icon_button" id="themeToggle" type="button" aria-label="切换主题"><i data-lucide="sun"></i></button></div></header>
-	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a class="active" href="index.html">项目</a><a href="../blog/index.html">博客</a><a href="../about.html">关于我</a></nav>
+	<header class="site_header"><a class="brand" href="../index.html">Rray</a><nav class="site_nav" aria-label="主导航"><a href="../index.html">首页</a><a href="../blog/index.html">文章</a><a href="../blog/categories/index.html">分类</a><a href="../blog/tags/index.html">标签</a><a class="active" href="index.html">项目</a></nav><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false"><i data-lucide="menu"></i></button></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a href="../blog/index.html">文章</a><a href="../blog/categories/index.html">分类</a><a href="../blog/tags/index.html">标签</a><a class="active" href="index.html">项目</a></nav>
 	<main>
-		<section class="project_intro"><p class="section_kicker">PROJECT ARCHIVE / 2026</p><h1>项目档案，<br><em>按系统问题整理。</em></h1><p>这里记录我实际写过、调过和复盘过的工程。每个项目页只保留能被源码、实验或 benchmark 支撑的内容，完整代码继续放在 GitHub。</p></section>
+		<section class="project_intro"><h1>项目</h1><p>记录实际写过、调过和复盘过的工程。项目详情只保留能被源码、实验或 benchmark 支撑的内容。</p></section>
 		<section class="project_archive" aria-label="项目列表">
 			<a class="project_archive_row" href="rpc-framework.html"><div><h2>RPC Framework</h2><p>C++17 RPC 框架：从 Protobuf 协议、muduo 网络层到 Zookeeper 服务发现，串起一次远程调用。</p></div><span class="project_archive_meta">已完成<br>分布式通信</span><span class="project_archive_tags">C++17 · TCP<br>Protobuf · ZK</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="cache-system.html"><div><h2>Cache-System</h2><p>纯头文件缓存策略库，在统一接口下实现 FIFO、LRU、LRU-K、Hash-LRU、LFU 和 ARC。</p></div><span class="project_archive_meta">已完成<br>缓存策略</span><span class="project_archive_tags">C++17 · STL<br>Benchmark</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
@@ -32,9 +32,9 @@
 			<a class="project_archive_row" href="algorithm-problems.html"><div><h2>Algorithm-Problems</h2><p>按数据结构与算法模块持续整理的 C++ 解题仓库，覆盖数组、链表、树、回溯、贪心和动态规划。</p></div><span class="project_archive_meta">进行中<br>算法训练</span><span class="project_archive_tags">C++ · DSA<br>持续更新</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="mysql-lab.html"><div><h2>MySQL Lab</h2><p>数据库学习与实验记录，整理 SQL、索引、事务和存储引擎等基础主题。</p></div><span class="project_archive_meta">学习中<br>数据库</span><span class="project_archive_tags">MySQL · SQL<br>实验记录</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 		</section>
-		<section class="section_block"><p class="section_kicker">SOURCE</p><h2>代码和提交记录</h2><p class="project_archive_note">项目详情页用于解释设计和实验，仓库中的源码、构建文件与提交历史才是最终实现。</p><div class="project_footer_links"><a class="button button_primary" href="https://github.com/Rrrayy" target="_blank" rel="noopener">打开 GitHub <i data-lucide="github"></i></a><a class="button button_ghost" href="../index.html">返回首页 <i data-lucide="arrow-left"></i></a></div></section>
+		<section class="section_block"><h2>代码和提交记录</h2><p class="project_archive_note">项目详情页用于解释设计和实验，仓库中的源码、构建文件与提交历史才是最终实现。</p><div class="project_footer_links"><a class="button button_primary" href="https://github.com/Rrrayy" target="_blank" rel="noopener">打开 GitHub <i data-lucide="github"></i></a><a class="button button_ghost" href="../index.html">返回首页 <i data-lucide="arrow-left"></i></a></div></section>
 	</main>
-	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">站点访问 <strong id="busuanzi_value_site_pv">--</strong> · 本页浏览 <strong id="busuanzi_value_page_pv">--</strong></span><a href="https://github.com/Rrrayy" target="_blank" rel="noopener">GitHub</a></footer>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">访问 <strong id="busuanzi_value_site_pv">--</strong> · 本页 <strong id="busuanzi_value_page_pv">--</strong></span><a href="https://github.com/Rrrayy" target="_blank" rel="noopener">GitHub</a></footer>
 	<script src="../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>

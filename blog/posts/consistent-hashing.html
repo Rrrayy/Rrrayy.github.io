@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="假设有一个分布式缓存集群，三台缓存服务器保存用户数据：">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="一致性哈希详解：从哈希环到分布式缓存">
+	<meta property="og:description" content="假设有一个分布式缓存集群，三台缓存服务器保存用户数据：">
+	<meta property="og:url" content="https://rrrayy.github.io/blog/posts/consistent-hashing.html">
+	<link rel="canonical" href="https://rrrayy.github.io/blog/posts/consistent-hashing.html">
+	<link rel="alternate" type="application/rss+xml" title="Rray 博客 RSS" href="../rss.xml">
+	<title>一致性哈希详解：从哈希环到分布式缓存 | Rray</title>
+	<link rel="stylesheet" href="../../assets/css/style.css">
+	<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "一致性哈希详解：从哈希环到分布式缓存", "description": "假设有一个分布式缓存集群，三台缓存服务器保存用户数据：", "datePublished": "2026-09-03", "author": {"@type": "Person", "name": "Rray"}, "mainEntityOfPage": "https://rrrayy.github.io/blog/posts/consistent-hashing.html"}</script>
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../../index.html">Rray</a><nav class="site_nav" aria-label="主导航"><a href="../../index.html">首页</a><a class="active" href="../index.html">文章</a><a href="../categories/index.html">分类</a><a href="../tags/index.html">标签</a><a href="../../projects/index.html">项目</a></nav><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false"><i data-lucide="menu"></i></button></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../../index.html">首页</a><a class="active" href="../index.html">文章</a><a href="../categories/index.html">分类</a><a href="../tags/index.html">标签</a><a href="../../projects/index.html">项目</a></nav>
+	<div class="reading_progress" aria-hidden="true"><span id="readingProgress"></span></div>
+	<main class="article_shell"><article class="article_page"><header class="article_header"><div class="article_meta"><span class="status_badge">CSDN 已发布</span><span>作者：Rray</span><span><a href="../categories/distributed-systems.html">分布式系统</a></span><span>发布日期：2026-09-03</span><span>3123 字 · 7 分钟</span></div><h1>一致性哈希详解：从哈希环到分布式缓存</h1><p class="article_lead">假设有一个分布式缓存集群，三台缓存服务器保存用户数据：</p><div class="article_tags"><span>标签</span><a href="../tags/distributed-systems.html">分布式系统</a> <a href="../tags/consistent-hashing.html">一致性哈希</a> <a href="../tags/cache.html">缓存</a> <a href="../tags/hash.html">哈希</a></div><a class="source_link" href="https://blog.csdn.net/rr666888/article/details/164331090" target="_blank" rel="noopener">查看 CSDN 原文</a></header><div class="article_layout"><aside class="article_toc" aria-label="文章目录"><span class="article_toc_label">文章目录</span><a class="toc_level_2" href="#section-1">问题背景</a><a class="toc_level_2" href="#section-2">一、取模哈希为什么会导致大量迁移</a><a class="toc_level_2" href="#section-3">二、把节点和 key 放到同一个哈希环</a><a class="toc_level_2" href="#section-4">三、节点变化为什么只影响局部 key</a><a class="toc_level_2" href="#section-5">四、虚拟节点如何改善负载分布</a><a class="toc_level_3" href="#section-6">1. 只有真实节点时的问题</a><a class="toc_level_3" href="#section-7">2. 为一个节点放置多个位置</a><a class="toc_level_3" href="#section-8">3. 虚拟节点数量不是越多越好</a><a class="toc_level_2" href="#section-9">五、一个完整的缓存扩容例子</a><a class="toc_level_3" href="#section-10">1. 初始集群</a><a class="toc_level_3" href="#section-11">2. 增加 Cache D</a><a class="toc_level_3" href="#section-12">3. 删除 Cache B</a><a class="toc_level_3" href="#section-13">4. 数据副本</a><a class="toc_level_2" href="#section-14">六、哈希环的典型实现</a><a class="toc_level_3" href="#section-15">哈希冲突的处理</a><a class="toc_level_2" href="#section-16">七、适用条件与实现边界</a><a class="toc_level_2" href="#section-17">总结</a><a class="toc_level_2" href="#section-18">参考资料</a></aside><div class="article_body"><h2 id="section-1">问题背景</h2>
+<p>假设有一个分布式缓存集群，三台缓存服务器保存用户数据：</p>
+<pre class="code_block text"><code class="language-text">Cache A
+Cache B
+Cache C</code></pre>
+<p>客户端需要根据 key 找到负责它的服务器。例如：</p>
+<pre class="code_block text"><code class="language-text">user:1001
+user:1002
+order:9527</code></pre>
+<p>最简单的分配方式是取模哈希：</p>
+<pre class="code_block cpp"><code class="language-cpp">std::size_t index=std::hash&lt;std::string&gt;{}(key)%node_count;</code></pre>
+<p>三台服务器时使用 <code>hash(key)%3</code>。如果增加一台服务器，计算方式变成 <code>hash(key)%4</code>，大部分 key 的结果都会改变。原来保存在 Cache A、Cache B、Cache C 中的数据需要重新加载，缓存命中率会在扩容后明显下降。</p>
+<p>一致性哈希不把哈希值直接转换成节点下标，而是把节点和 key 放到同一个哈希环中。节点数量变化时，只有受影响的一小段 key 需要重新分配。</p>
+<hr>
+<h2 id="section-2">一、取模哈希为什么会导致大量迁移</h2>
+<p>假设有三个节点：</p>
+<p>| 下标 | 节点 | |:--:|:--| | 0 | Cache A | | 1 | Cache B | | 2 | Cache C |</p>
+<p>使用：</p>
+<pre class="code_block cpp"><code class="language-cpp">node_index=hash(key)%3;</code></pre>
+<p>一批 key 的分配结果可能是：</p>
+<p>| Key | <code>hash(key)%3</code> | 节点 | |:--|:--:|:--| | <code>user:1001</code> | 0 | A | | <code>user:1002</code> | 1 | B | | <code>order:9527</code> | 2 | C | | <code>order:9528</code> | 0 | A |</p>
+<p>现在加入 Cache D：</p>
+<pre class="code_block cpp"><code class="language-cpp">node_index=hash(key)%4;</code></pre>
+<p>同一批 key 需要重新计算：</p>
+<p>| Key | <code>hash(key)%4</code> | 新节点 | |:--|:--:|:--| | <code>user:1001</code> | 2 | C | | <code>user:1002</code> | 0 | A | | <code>order:9527</code> | 1 | B | | <code>order:9528</code> | 3 | D |</p>
+<p>节点 A、B、C 并没有全部失效，但 key 的归属仍然发生了大范围变化。</p>
+<p>当 key 的哈希结果近似均匀时，从 <code>N</code> 个节点增加到 <code>N+1</code> 个节点，平均约有：</p>
+<pre class="code_block text"><code class="language-text">N/(N+1)</code></pre>
+<p>的 key 会改变节点。原有节点越多，这个比例越接近 100%。</p>
+<p>因此，取模哈希的主要问题不是查询慢，而是节点集合变化后会产生大规模缓存迁移。</p>
+<hr>
+<h2 id="section-3">二、把节点和 key 放到同一个哈希环</h2>
+<p>以 32 位无符号整数为例，哈希值范围是：</p>
+<pre class="code_block text"><code class="language-text">0 ~ 2^32-1</code></pre>
+<p>把最大值和 0 连接起来，就得到了哈希环。</p>
+<p>节点加入哈希环时，计算节点标识的哈希值：</p>
+<pre class="code_block cpp"><code class="language-cpp">uint32_t node_hash=hash_func("Cache-A");</code></pre>
+<p>请求 key 也使用同一个哈希函数：</p>
+<pre class="code_block cpp"><code class="language-cpp">uint32_t key_hash=hash_func("user:1001");</code></pre>
+<p>节点和 key 原本是不同的字符串，不能直接比较。哈希之后，它们都变成哈希环上的一个整数位置，因而可以进行位置比较。</p>
+<p>假设三个节点在环上的位置如下：</p>
+<pre class="code_block text"><code class="language-text">位置 1000：Cache A
+位置 3000：Cache B
+位置 7000：Cache C</code></pre>
+<p>某个 key 的哈希值为 2500。沿顺时针方向查找，遇到的第一个节点是位置 3000 的 Cache B，因此该 key 由 B 负责。</p>
+<p>如果 key 的哈希值为 9000，顺时针方向已经没有更大的节点位置，就绕回环的起点，交给位置 1000 的 Cache A。</p>
+<p>下面的图把这个查找过程画在一起。<code>key=2500</code> 位于 Cache A 和 Cache B 之间，沿顺时针方向遇到的第一个节点是 Cache B：</p>
+<pre class="code_block mermaid"><code class="language-mermaid">flowchart LR
+	cache_a((Cache A&lt;br/&gt;1000)) --&gt; key([key&lt;br/&gt;2500]) --&gt; cache_b((Cache B&lt;br/&gt;3000)) --&gt; cache_c((Cache C&lt;br/&gt;7000))
+	cache_c -. 顺时针绕回 .-&gt; cache_a
+
+	classDef cache fill:#18181b,stroke:#ef4444,stroke-width:2px,color:#fafafa
+	classDef request fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#18181b
+	class cache_a,cache_b,cache_c cache
+	class key request
+	linkStyle 0,1,2 stroke:#ef4444,stroke-width:2px
+	linkStyle 3 stroke:#a1a1aa,stroke-width:1.5px,stroke-dasharray:5 5</code></pre>
+<p>一致性哈希的节点选择规则可以概括为：</p>
+<blockquote><p>key 映射到环上的位置后，顺时针找到的第一个节点就是它的负责节点。</p></blockquote>
+<hr>
+<h2 id="section-4">三、节点变化为什么只影响局部 key</h2>
+<p>继续使用前面的环：</p>
+<pre class="code_block text"><code class="language-text">1000：Cache A
+3000：Cache B
+7000：Cache C</code></pre>
+<p>节点 B 负责的区间是 <code>(1000,3000]</code>。这个区间内的 key 会顺时针遇到 B，区间外的 key 不由 B 负责。</p>
+<p>如果删除 B，<code>(1000,3000]</code> 这段区间会交给顺时针方向的下一个节点 C。A 和 C 原有的其他区间不变。</p>
+<p>如果在 2000 的位置加入 D，只有 <code>(1000,2000]</code> 区间内的 key 会从 A 转移给 D，D 不会影响 B 和 C 负责的区间。</p>
+<p>这就是一致性哈希中“局部迁移”的含义：</p>
+<ul><li>删除一个节点，只需要处理这个节点原来负责的区间；</li><li>增加一个节点，只需要从某个已有节点的区间中切出一部分；</li><li>其他区间的 key 不需要改变目标节点。</li></ul>
+<p>这里的“局部”描述的是 key 到节点的映射变化，不代表更新哈希环的代码一定只修改一个数组元素。具体实现可以选择增量更新，也可以在节点列表变化后重建整个内存结构。</p>
+<hr>
+<h2 id="section-5">四、虚拟节点如何改善负载分布</h2>
+<h3 id="section-6">1. 只有真实节点时的问题</h3>
+<p>如果每个服务器只在环上放置一个位置，节点可能分布得很不均匀：</p>
+<pre class="code_block text"><code class="language-text">Cache A                         Cache B       Cache C
+|-------------------------------|-------------|</code></pre>
+<p>A 和 B 之间的区间很大，A 负责的 key 数量会明显多于 C。</p>
+<h3 id="section-7">2. 为一个节点放置多个位置</h3>
+<p>虚拟节点把一个真实服务器拆成多个环上位置：</p>
+<pre class="code_block text"><code class="language-text">Cache-A#0
+Cache-A#1
+Cache-A#2
+Cache-B#0
+Cache-B#1
+Cache-C#0</code></pre>
+<p>每个虚拟节点都有独立的哈希值，但最终都映射回同一个真实节点：</p>
+<p>| 虚拟节点 | 真实节点 | |:--|:--| | <code>Cache-A#0</code> | Cache A | | <code>Cache-A#1</code> | Cache A | | <code>Cache-A#2</code> | Cache A | | <code>Cache-B#0</code> | Cache B | | <code>Cache-B#1</code> | Cache B | | <code>Cache-C#0</code> | Cache C |</p>
+<p>这些虚拟节点分散在哈希环上，Cache A 负责的总区间是所有 <code>Cache-A#*</code> 区间之和。</p>
+<h3 id="section-8">3. 虚拟节点数量不是越多越好</h3>
+<p>增加虚拟节点通常可以降低负载波动，但也会增加：</p>
+<ul><li>哈希环占用的内存；</li><li>节点加入和删除时的更新成本；</li><li>哈希冲突处理的复杂度；</li><li>动态调整时的路由变化次数。</li></ul>
+<p>实际系统需要根据节点数量、key 分布和更新频率选择副本数，而不是盲目设置一个很大的值。</p>
+<hr>
+<h2 id="section-9">五、一个完整的缓存扩容例子</h2>
+<h3 id="section-10">1. 初始集群</h3>
+<p>假设缓存集群有三个节点，每个节点创建 100 个虚拟节点：</p>
+<pre class="code_block text"><code class="language-text">Cache A：A#0 ~ A#99
+Cache B：B#0 ~ B#99
+Cache C：C#0 ~ C#99</code></pre>
+<p>将 300 个虚拟节点排序后，任意 key 都能通过顺时针查找找到一个负责节点。</p>
+<p>例如，经过哈希计算后，缓存键和负责节点的对应关系可能是：</p>
+<p>| 缓存键 | 负责节点 | |:--|:--| | <code>user:1001</code> | Cache A | | <code>user:1002</code> | Cache C | | <code>order:9527</code> | Cache B |</p>
+<p>实际实现中保存的是哈希值和节点地址的对应关系，而不是直接保存这张业务表。</p>
+<h3 id="section-11">2. 增加 Cache D</h3>
+<p>扩容时只为 D 创建新的虚拟节点：</p>
+<pre class="code_block text"><code class="language-text">Cache D：D#0 ~ D#99</code></pre>
+<p>这些虚拟节点插入环后，每个 D 虚拟节点会从其顺时针后继节点的负责区间中切出一段。</p>
+<p>原来属于 A、B、C 的 key，只有落在这些新增区间内的部分会转移到 D。其他 key 仍然访问原来的缓存节点，因此大部分缓存不需要重新加载。</p>
+<h3 id="section-12">3. 删除 Cache B</h3>
+<p>如果 B 故障或主动下线，删除 <code>B#0 ~ B#99</code>。B 原来负责的所有区间会交给对应的顺时针后继节点，通常是 A、C 或 D 中的某一个。</p>
+<p>客户端只需要让新的查询不再命中 B。对于已经失效的缓存数据，可以在访问新节点时重新从数据库加载。</p>
+<h3 id="section-13">4. 数据副本</h3>
+<p>一致性哈希只决定一个 key 的主节点，并不自动提供数据副本。</p>
+<p>如果希望 Cache B 故障后仍能快速读取，可以让 key 同时保存到主节点和后继节点：</p>
+<pre class="code_block text"><code class="language-text">主节点：Cache B
+副本节点：Cache C</code></pre>
+<p>此时需要额外定义副本写入、读取降级和数据一致性策略。哈希环负责节点定位，副本机制负责数据冗余，二者不能混为一谈。</p>
+<hr>
+<h2 id="section-14">六、哈希环的典型实现</h2>
+<p>一种简单实现使用有序哈希数组和映射表：</p>
+<pre class="code_block cpp"><code class="language-cpp">class ConsistentHash{
+public:
+	void add_node(const std::string&amp; node,int replicas){
+		for(int index=0;index&lt;replicas;index++){
+			std::string virtual_node=node+"#"+std::to_string(index);
+			uint32_t hash_value=hash_func(virtual_node);
+			hash_keys_.push_back(hash_value);
+			hash_to_node_[hash_value]=node;
+		}
+
+		std::sort(hash_keys_.begin(),hash_keys_.end());
+	}
+
+	std::string get_node(const std::string&amp; key)const{
+		if(hash_keys_.empty()){
+			return {};
+		}
+
+		uint32_t hash_value=hash_func(key);
+		auto iterator=std::lower_bound(hash_keys_.begin(),hash_keys_.end(),hash_value);
+
+		if(iterator==hash_keys_.end()){
+			iterator=hash_keys_.begin();
+		}
+
+		return hash_to_node_.at(*iterator);
+	}
+
+private:
+	uint32_t hash_func(const std::string&amp; value)const;
+
+	std::vector&lt;uint32_t&gt; hash_keys_;
+	std::unordered_map&lt;uint32_t,std::string&gt;hash_to_node_;
+};</code></pre>
+<p>查询过程分为四步：</p>
+<ol><li>计算 key 的哈希值；</li><li>在有序数组中查找第一个不小于该值的位置；</li><li>如果到达数组末尾，就回到数组开头；</li><li>根据虚拟节点哈希值取得真实节点。</li></ol>
+<p>设环上共有 <code>V</code> 个虚拟节点，查询复杂度为 <code>O(log V)</code>。节点更新后重新排序的复杂度通常为 <code>O(V log V)</code>。</p>
+<h3 id="section-15">哈希冲突的处理</h3>
+<p>上面的示例使用 <code>hash_value</code> 作为唯一 key。如果两个虚拟节点产生相同哈希值，后写入的节点会覆盖前一个节点。</p>
+<p>更稳妥的实现可以保存：</p>
+<pre class="code_block cpp"><code class="language-cpp">std::vector&lt;std::pair&lt;uint32_t,std::string&gt;&gt; ring_points;</code></pre>
+<p>排序时先比较哈希值，再比较节点标识；查询时使用二分查找定位哈希区间。也可以使用更大的哈希空间降低冲突概率，但不能把“概率很低”当作“绝对不会发生”。</p>
+<hr>
+<h2 id="section-16">七、适用条件与实现边界</h2>
+<p>一致性哈希首先要求路由 key 稳定。以缓存为例，<code>user:1001</code> 每次都应该使用同一个 key，这样它才能在节点集合不变时持续命中同一个节点。如果 key 每次都随机生成，哈希环只能把请求分散开，无法提供稳定的缓存定位。</p>
+<p>哈希环保存的是节点列表，不是节点健康状态。节点已经宕机但仍留在环上时，查询仍可能返回这个节点。因此，节点摘除必须依赖健康检查、注册中心事件或连接失败反馈；超时、重试和熔断也不属于一致性哈希本身。</p>
+<p>虚拟节点数量还需要和节点能力匹配。服务器容量相同，可以为每个节点配置相近的副本数；如果节点的内存、CPU 或网络能力不同，就应该使用不同的权重。权重越高的节点放置更多虚拟节点，但这会同时增加环的大小和更新成本。</p>
+<p>节点列表频繁变化时，局部迁移仍可能变成持续抖动。尤其是动态调整虚拟节点数量，每次调整都会改变部分 key 的归属。实际实现需要限制调整频率和单次调整幅度，并保留足够长的统计窗口，避免根据短时流量波动反复改环。</p>
+<p>一致性哈希并不是所有负载均衡场景的默认选择。完全无状态的服务如果只关心连接数或当前响应压力，轮询、随机或最少连接通常更直接；需要根据稳定 key 定位缓存、分片数据或会话状态时，一致性哈希才更有优势。</p>
+<hr>
+<h2 id="section-17">总结</h2>
+<ol><li><strong>取模哈希</strong>直接依赖节点数量，扩容或缩容时会导致大量 key 重新映射。</li><li><strong>一致性哈希</strong>把节点和 key 映射到同一个哈希环，按照顺时针方向找到目标节点，节点变化时主要影响相邻区间。</li><li><strong>虚拟节点</strong>把一个真实节点分散到环上的多个位置，用于减小节点分布不均造成的负载偏差。</li><li><strong>分布式缓存场景</strong>中，稳定的缓存 key 可以让同一份数据长期访问同一个节点，扩容时只迁移部分缓存。</li><li><strong>一致性哈希只负责节点定位</strong>，数据副本、健康检查、故障转移和重试都需要额外设计。</li><li><strong>实现时需要处理</strong>哈希冲突、节点权重、更新抖动和查询结构并发访问等工程问题。</li></ol>
+<p>本人能力有限，文章如有错误或遗漏之处，欢迎指正。</p>
+<hr>
+<h2 id="section-18">参考资料</h2>
+<ol><li>《Designing Data-Intensive Applications》</li><li>《大型网站技术架构：核心原理与案例分析》</li></ol></div></div><nav class="article_pager" id="articlePager" data-current="consistent-hashing" aria-label="文章导航"><div class="article_pager_side"><a class="article_pager_button" id="prevArticle" href="#" aria-label="上一篇" title="上一篇"><i data-lucide="arrow-left"></i></a><span><small class="article_pager_label">上一篇</small><strong class="article_pager_title">加载中</strong></span></div><div class="article_pager_side article_pager_side_next"><span><small class="article_pager_label">下一篇</small><strong class="article_pager_title">加载中</strong></span><a class="article_pager_button" id="nextArticle" href="#" aria-label="下一篇" title="下一篇"><i data-lucide="arrow-right"></i></a></div></nav></article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats" aria-label="访问统计">访问 <strong id="busuanzi_value_site_pv">--</strong> · 本篇 <strong id="busuanzi_value_page_pv">--</strong></span><a href="../index.html">返回文章</a></footer>
+	<script src="../../assets/js/article-data.js"></script><script src="../../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

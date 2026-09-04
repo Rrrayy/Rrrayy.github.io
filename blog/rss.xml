@@ -6,6 +6,13 @@
 		<description>Rray 的 C++、系统编程与后端工程实践。</description>
 		<language>zh-CN</language>
 		<item>
+			<title>一致性哈希详解：从哈希环到分布式缓存</title>
+			<link>https://rrrayy.github.io/blog/posts/consistent-hashing.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/consistent-hashing.html</guid>
+			<pubDate>2026-09-03</pubDate>
+			<description>假设有一个分布式缓存集群，三台缓存服务器保存用户数据：</description>
+		</item>
+		<item>
 			<title>C++ 移动语义与完美转发</title>
 			<link>https://rrrayy.github.io/blog/posts/cpp-move-forward.html</link>
 			<guid>https://rrrayy.github.io/blog/posts/cpp-move-forward.html</guid>

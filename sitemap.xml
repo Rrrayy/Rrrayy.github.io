@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url><loc>https://rrrayy.github.io/index.html</loc></url>
-	<url><loc>https://rrrayy.github.io/about.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/index.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/index.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/algorithm-problems.html</loc></url>
@@ -15,6 +14,45 @@
 	<url><loc>https://rrrayy.github.io/projects/stl-internals.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/thread-pool.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/unix-internals.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/index.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/index.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/archives/index.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/compiler-toolchain.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/operating-systems.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/memory-management.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/file-systems.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/concurrency.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/cpp-features.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/distributed-systems.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/io-models.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/cpp.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/cpp11.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/cfs.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/gcc.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/linux.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/ext4.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/glibc.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/inode.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/lambda.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/malloc.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/consistent-hashing.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/memory.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/distributed-systems.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/synchronization.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/hash.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/multithreading.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/perfect-forwarding.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/concurrency.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/performance.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/file-system.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/move-semantics.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/cache.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/compile-link.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/networking.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/process-scheduling.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/links.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/zero-copy.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/consistent-hashing.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/posts/cpp-move-forward.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/posts/lambda-closure.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/posts/zero-copy.html</loc></url>
