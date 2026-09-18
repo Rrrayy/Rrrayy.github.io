@@ -4,6 +4,7 @@
 	<url><loc>https://rrrayy.github.io/projects/index.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/index.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/algorithm-problems.html</loc></url>
+	<url><loc>https://rrrayy.github.io/projects/ai-python-service-lab.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/cache-system.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/cpp-internals.html</loc></url>
 	<url><loc>https://rrrayy.github.io/projects/memory-pool.html</loc></url>
@@ -25,11 +26,15 @@
 	<url><loc>https://rrrayy.github.io/blog/categories/cpp-features.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/categories/distributed-systems.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/categories/io-models.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/categories/ai-backend.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/agent.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/cpp.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/cpp11.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/cfs.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/fastapi.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/gcc.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/linux.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/python.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/ext4.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/glibc.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/inode.html</loc></url>
@@ -43,6 +48,7 @@
 	<url><loc>https://rrrayy.github.io/blog/tags/multithreading.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/perfect-forwarding.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/concurrency.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/tags/asyncio.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/performance.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/file-system.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/move-semantics.html</loc></url>
@@ -52,6 +58,7 @@
 	<url><loc>https://rrrayy.github.io/blog/tags/process-scheduling.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/links.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/tags/zero-copy.html</loc></url>
+	<url><loc>https://rrrayy.github.io/blog/posts/python-async-fastapi-agent.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/posts/consistent-hashing.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/posts/cpp-move-forward.html</loc></url>
 	<url><loc>https://rrrayy.github.io/blog/posts/lambda-closure.html</loc></url>

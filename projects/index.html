@@ -3,10 +3,10 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="Rray 的 C++ 系统架构、缓存和内存管理项目档案。">
+<meta name="description" content="Rray 的 C++ 系统工程、分布式通信、网络实验与 AI 后端项目档案。">
 	<meta property="og:type" content="website">
 	<meta property="og:title" content="项目档案 | Rray">
-	<meta property="og:description" content="Rray 的 C++ 系统架构、缓存和内存管理项目档案。">
+<meta property="og:description" content="Rray 的 C++ 系统工程、分布式通信、网络实验与 AI 后端项目档案。">
 	<meta property="og:url" content="https://rrrayy.github.io/projects/">
 	<link rel="canonical" href="https://rrrayy.github.io/projects/">
 	<title>项目档案 | Rray</title>
@@ -19,16 +19,27 @@
 	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a href="../blog/index.html">文章</a><a href="../blog/categories/index.html">分类</a><a href="../blog/tags/index.html">标签</a><a class="active" href="index.html">项目</a></nav>
 	<main>
 		<section class="project_intro"><h1>项目</h1><p>记录实际写过、调过和复盘过的工程。项目详情只保留能被源码、实验或 benchmark 支撑的内容。</p></section>
-		<section class="project_archive" aria-label="项目列表">
+		<section class="project_archive" aria-label="核心工程">
+			<div class="project_group_label">核心工程</div>
 			<a class="project_archive_row" href="rpc-framework.html"><div><h2>RPC Framework</h2><p>C++17 RPC 框架：从 Protobuf 协议、muduo 网络层到 Zookeeper 服务发现，串起一次远程调用。</p></div><span class="project_archive_meta">已完成<br>分布式通信</span><span class="project_archive_tags">C++17 · TCP<br>Protobuf · ZK</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="cache-system.html"><div><h2>Cache-System</h2><p>纯头文件缓存策略库，在统一接口下实现 FIFO、LRU、LRU-K、Hash-LRU、LFU 和 ARC。</p></div><span class="project_archive_meta">已完成<br>缓存策略</span><span class="project_archive_tags">C++17 · STL<br>Benchmark</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="memory-pool.html"><div><h2>memory-pool</h2><p>按大小分桶的内存池实验，记录 CAS 无锁 free list 在并发复用场景中的 ABA 问题。</p></div><span class="project_archive_meta">进行中<br>内存管理</span><span class="project_archive_tags">CAS · ABA<br>size-class</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="thread-pool.html"><div><h2>ThreadPool</h2><p>C++17 手写线程池：任务队列、工作线程、packaged_task/future 和可排空的优雅停机。</p></div><span class="project_archive_meta">已完成<br>并发编程</span><span class="project_archive_tags">C++17 · 线程池<br>future</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
-			<a class="project_archive_row" href="os-lab.html"><div><h2>os_lab</h2><p>操作系统核心机制实验：系统调用、进程调度、虚拟内存、文件系统、并发与零拷贝。</p></div><span class="project_archive_meta">已完成<br>操作系统</span><span class="project_archive_tags">C++ · Linux<br>实验验证</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
-			<a class="project_archive_row" href="net-lab.html"><div><h2>Net_lab</h2><p>网络机制验证合集：HTTP 服务器、DNS 解析、TCP 状态、拥塞控制和 Socket 编程。</p></div><span class="project_archive_meta">已完成<br>计算机网络</span><span class="project_archive_tags">C++ · Socket<br>TCP · epoll</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+		</section>
+		<section class="project_archive" aria-label="C++ 内部机制">
+			<div class="project_group_label">C++ 内部机制</div>
 			<a class="project_archive_row" href="stl-internals.html"><div><h2>STL-internals</h2><p>手写 vector 与 unordered_map，记录扩容、rehash、负载因子和 benchmark 验证。</p></div><span class="project_archive_meta">进行中<br>容器实现</span><span class="project_archive_tags">C++ · STL<br>Benchmark</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="cpp-internals.html"><div><h2>cpp-internals</h2><p>围绕虚函数表、RAII、const 正确性和异常安全的 C++ 语言机制实验。</p></div><span class="project_archive_meta">进行中<br>C++ 机制</span><span class="project_archive_tags">C++17 · ASan<br>底层原理</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+		</section>
+		<section class="project_archive" aria-label="系统与网络实验">
+			<div class="project_group_label">系统与网络实验</div>
+			<a class="project_archive_row" href="os-lab.html"><div><h2>OS Lab</h2><p>操作系统核心机制实验：系统调用、进程调度、虚拟内存、文件系统、并发与零拷贝。</p></div><span class="project_archive_meta">已完成<br>操作系统</span><span class="project_archive_tags">C++ · Linux<br>实验验证</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+			<a class="project_archive_row" href="net-lab.html"><div><h2>Network Lab</h2><p>网络机制验证合集：HTTP 服务器、DNS 解析、TCP 状态、拥塞控制和 Socket 编程。</p></div><span class="project_archive_meta">已完成<br>计算机网络</span><span class="project_archive_tags">C++ · Socket<br>TCP · epoll</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="unix-internals.html"><div><h2>unix-internals</h2><p>Unix 系统编程实验：文件 I/O、进程、IPC、线程同步、epoll 和内存管理。</p></div><span class="project_archive_meta">进行中<br>系统编程</span><span class="project_archive_tags">Linux · C<br>系统调用</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+		</section>
+		<section class="project_archive" aria-label="AI 与长期学习">
+			<div class="project_group_label">AI 与长期学习</div>
+			<a class="project_archive_row" href="ai-python-service-lab.html"><div><h2>AI Service Lab</h2><p>异步 Python 服务与 LLM Agent Runtime 实验，当前从 Mock Agent Loop 和测试闭环开始。</p></div><span class="project_archive_meta">进行中<br>AI 后端</span><span class="project_archive_tags">Python · asyncio<br>FastAPI · Agent</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="algorithm-problems.html"><div><h2>Algorithm-Problems</h2><p>按数据结构与算法模块持续整理的 C++ 解题仓库，覆盖数组、链表、树、回溯、贪心和动态规划。</p></div><span class="project_archive_meta">进行中<br>算法训练</span><span class="project_archive_tags">C++ · DSA<br>持续更新</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 			<a class="project_archive_row" href="mysql-lab.html"><div><h2>MySQL Lab</h2><p>数据库学习与实验记录，整理 SQL、索引、事务和存储引擎等基础主题。</p></div><span class="project_archive_meta">学习中<br>数据库</span><span class="project_archive_tags">MySQL · SQL<br>实验记录</span><i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
 		</section>

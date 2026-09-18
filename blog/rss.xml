@@ -6,6 +6,13 @@
 		<description>Rray 的 C++、系统编程与后端工程实践。</description>
 		<language>zh-CN</language>
 		<item>
+			<title>Python 异步编程</title>
+			<link>https://rrrayy.github.io/blog/posts/python-async-fastapi-agent.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/python-async-fastapi-agent.html</guid>
+			<pubDate>2026-09-17 12:46:59</pubDate>
+			<description>学习 FastAPI 和 Agent 时，经常会遇到 async、await 和事件循环。理解它们的执行过程，才能判断哪些操作可以并发，哪些代码会阻塞程序。</description>
+		</item>
+		<item>
 			<title>一致性哈希详解：从哈希环到分布式缓存</title>
 			<link>https://rrrayy.github.io/blog/posts/consistent-hashing.html</link>
 			<guid>https://rrrayy.github.io/blog/posts/consistent-hashing.html</guid>

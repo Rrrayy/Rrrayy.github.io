@@ -24,6 +24,7 @@ published_meta={
 	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":("2026-08-15","https://blog.csdn.net/rr666888/article/details/163764597"),
 	"C++新特性/C++移动语义与完美转发.md":("2026-08-30","https://blog.csdn.net/rr666888/article/details/164191908"),
 	"C++新特性/一致性哈希详解——从哈希环到分布式缓存.md":("2026-09-03","https://blog.csdn.net/rr666888/article/details/164331090")
+	,"AI后端/Python异步编程——从FastAPI到Agent.md":("2026-09-17 12:46:59","https://blog.csdn.net/rr666888/article/details/165735864")
 }
 
 slug_map={
@@ -38,6 +39,7 @@ slug_map={
 	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":"lambda-closure",
 	"C++新特性/C++移动语义与完美转发.md":"cpp-move-forward",
 	"C++新特性/一致性哈希详解——从哈希环到分布式缓存.md":"consistent-hashing"
+	,"AI后端/Python异步编程——从FastAPI到Agent.md":"python-async-fastapi-agent"
 }
 
 category_names={
@@ -49,6 +51,7 @@ category_names={
 	"C++新特性":"C++ 新特性",
 	"分布式系统":"分布式系统",
 	"IO模型":"IO 模型"
+	,"AI后端":"AI 后端"
 }
 
 category_slugs={
@@ -60,6 +63,7 @@ category_slugs={
 	"C++ 新特性":"cpp-features",
 	"分布式系统":"distributed-systems",
 	"IO 模型":"io-models"
+	,"AI 后端":"ai-backend"
 }
 
 article_tags={
@@ -74,6 +78,7 @@ article_tags={
 	"C++新特性/lambda闭包原理——函数怎么能带走局部变量.md":["C++","C++11","lambda"],
 	"C++新特性/C++移动语义与完美转发.md":["C++","C++11","移动语义","完美转发"],
 	"C++新特性/一致性哈希详解——从哈希环到分布式缓存.md":["分布式系统","一致性哈希","缓存","哈希"]
+	,"AI后端/Python异步编程——从FastAPI到Agent.md":["Python","异步编程","FastAPI","Agent"]
 }
 
 tag_slugs={
@@ -85,6 +90,7 @@ tag_slugs={
 	"同步原语":"synchronization",
 	"网络编程":"networking","IO":"io","零拷贝":"zero-copy","sendfile":"sendfile","性能优化":"performance","ptmalloc":"ptmalloc",
 	"C++11":"cpp11","lambda":"lambda","闭包":"closure","函数对象":"function-object","移动语义":"move-semantics","右值引用":"rvalue-reference","完美转发":"perfect-forwarding","分布式系统":"distributed-systems","一致性哈希":"consistent-hashing","缓存":"cache","哈希":"hash"
+	,"Python":"python","异步编程":"asyncio","FastAPI":"fastapi","Agent":"agent"
 }
 
 

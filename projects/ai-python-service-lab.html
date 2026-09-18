@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Rray 的 AI Service Lab：异步 Python 服务与 LLM Agent Runtime 实验。">
+	<link rel="canonical" href="https://rrrayy.github.io/projects/ai-python-service-lab.html">
+	<title>AI Service Lab | Rray</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<script src="https://unpkg.com/lucide@0.468.0"></script>
+</head>
+<body>
+	<header class="site_header"><a class="brand" href="../index.html">Rray</a><nav class="site_nav" aria-label="主导航"><a href="../index.html">首页</a><a href="../blog/index.html">文章</a><a href="../blog/categories/index.html">分类</a><a href="../blog/tags/index.html">标签</a><a class="active" href="index.html">项目</a></nav><button class="menu_button" id="menuToggle" type="button" aria-label="打开菜单" aria-expanded="false"><i data-lucide="menu"></i></button></header>
+	<nav class="mobile_nav" id="mobileNav" aria-label="移动端主导航"><a href="../index.html">首页</a><a href="../blog/index.html">文章</a><a href="../blog/categories/index.html">分类</a><a href="../blog/tags/index.html">标签</a><a class="active" href="index.html">项目</a></nav>
+	<main class="project_shell"><article class="project_page">
+		<header class="project_header"><div class="project_meta"><span class="status_badge">进行中</span><span>AI 后端</span><span>Python 3.14</span><span>项目 12</span></div><h1>AI Service Lab</h1><p class="project_lead">把异步服务、模型调用和 Agent Loop 拆成可测试的最小工程，记录从 Python 后端到 LLM Agent Runtime 的实践过程。</p><div class="project_facts"><div class="project_fact"><span>当前模块</span><strong>asyncio · Provider · Tool</strong></div><div class="project_fact"><span>运行入口</span><strong>FastAPI · Mock Agent Loop</strong></div><div class="project_fact"><span>验证方式</span><strong>pytest · 异步回归测试</strong></div></div></header>
+		<section class="project_section"><h2>当前做了什么</h2><p>仓库从异步 Python 服务基础开始，逐步加入模型 Provider、工具调用和 Agent Loop。当前已经有 <strong>Mock Agent Loop</strong>，先用确定性结果验证调度流程，再接入真实模型。</p></section>
+		<section class="project_section"><h2>工程边界</h2><ul><li>当前重点是请求生命周期、异步调度和工具编排，不包装成完整 Agent 框架。</li><li>优先验证超时、异常、取消和阻塞调用等失败路径，再扩展 RAG 与 MCP。</li><li>模型调用使用接口隔离，避免业务逻辑直接绑定某一家 API。</li></ul></section>
+		<section class="project_section"><h2>下一步</h2><p>补充 Tool Calling 的参数校验、超时和重试策略，增加 trace 与成本记录，再把 Agent Runtime 接入可重复运行的评测样例。</p></section>
+		<div class="project_footer_links"><a class="button button_primary" href="https://github.com/Rrrayy/ai-python-service-lab" target="_blank" rel="noopener">查看源码 <i data-lucide="github"></i></a><a class="button button_ghost" href="index.html">返回项目档案 <i data-lucide="arrow-left"></i></a></div>
+	</article></main>
+	<footer class="site_footer"><span>© 2026 Rray</span><span class="footer_rule"></span><span class="site_stats">访问 <strong id="busuanzi_value_site_pv">--</strong> · 本页 <strong id="busuanzi_value_page_pv">--</strong></span></footer>
+	<script src="../assets/js/main.js"></script><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+</body>
+</html>

@@ -1,5 +1,23 @@
 window.blog_articles=[
   {
+    "title": "Python 异步编程",
+    "date": "2026-09-17 12:46:59",
+    "category": "AI 后端",
+    "tags": [
+      "Python",
+      "异步编程",
+      "FastAPI",
+      "Agent"
+    ],
+    "csdn_url": "https://blog.csdn.net/rr666888/article/details/165735864",
+    "slug": "python-async-fastapi-agent",
+    "word_count": 2448,
+    "reading_time": 5,
+    "summary": "学习 FastAPI 和 Agent 时，经常会遇到 async、await 和事件循环。理解它们的执行过程，才能判断哪些操作可以并发，哪些代码会阻塞程序。",
+    "prerequisite": "",
+    "source_path": "AI后端/Python异步编程——从FastAPI到Agent.md"
+  },
+  {
     "title": "一致性哈希详解：从哈希环到分布式缓存",
     "date": "2026-09-03",
     "category": "分布式系统",
