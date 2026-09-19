@@ -14,6 +14,7 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+html,body{max-width:100%;overflow-x:hidden}
 body{
 	margin:0;
 	background:var(--bg);
@@ -254,6 +255,8 @@ main{width:min(calc(100% - 48px),var(--max));margin:0 auto}
 .project_archive_tags{grid-column:2;margin-top:8px;color:var(--dim);font-size:11px}
 .project_archive_row>svg{display:none}
 .project_archive_row:hover h2{color:var(--red-dark)}
+.project_archive_row>div,.project_archive_meta,.project_archive_tags{min-width:0}
+.project_archive_row h2,.project_archive_row p,.project_archive_tags{overflow-wrap:break-word;word-break:normal}
 .project_archive_note{max-width:700px;color:var(--muted)}
 .project_shell{max-width:900px}
 .project_page{padding:64px 0 86px}
@@ -354,9 +357,12 @@ main{width:min(calc(100% - 48px),var(--max));margin:0 auto}
 	.article_body p{font-size:15px}
 	.article_pager{gap:18px}
 	.project_intro{padding-top:50px}
-	.project_archive_row{grid-template-columns:28px minmax(0,1fr)}
-	.project_archive_meta{grid-column:2;grid-row:auto;text-align:left}
-	.project_archive_tags{grid-column:2}
+	.project_archive{width:100%;min-width:0}
+	.project_archive_row{display:grid;grid-template-columns:28px minmax(0,1fr);width:100%;min-width:0;gap:12px;padding:18px 0}
+	.project_archive_row::before{grid-column:1;grid-row:1 / span 3}
+	.project_archive_row>div{grid-column:2;grid-row:1;min-width:0;width:100%}
+	.project_archive_meta{grid-column:2;grid-row:2;text-align:left;min-width:0;width:100%;line-height:1.55}
+	.project_archive_tags{grid-column:2;grid-row:3;min-width:0;width:100%;line-height:1.55}
 	.project_facts{grid-template-columns:1fr}
 	.project_fact,.project_fact+.project_fact{padding:12px 0;border-right:0;border-bottom:1px solid var(--line)}
 	.project_fact:last-child{border-bottom:0}
