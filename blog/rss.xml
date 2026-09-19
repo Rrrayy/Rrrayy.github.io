@@ -6,6 +6,13 @@
 		<description>Rray 的 C++、系统编程与后端工程实践。</description>
 		<language>zh-CN</language>
 		<item>
+			<title>Pydantic对象——从数据校验到Agent工程化</title>
+			<link>https://rrrayy.github.io/blog/posts/pydantic-agent-engineering.html</link>
+			<guid>https://rrrayy.github.io/blog/posts/pydantic-agent-engineering.html</guid>
+			<pubDate>2026-09-19</pubDate>
+			<description>在 FastAPI 和 Agent 中，程序经常要处理来自 HTTP 请求、环境变量和大模型的外部数据。这些数据可能缺少字段、类型错误，或者包含未约定的内容。</description>
+		</item>
+		<item>
 			<title>Python 异步编程</title>
 			<link>https://rrrayy.github.io/blog/posts/python-async-fastapi-agent.html</link>
 			<guid>https://rrrayy.github.io/blog/posts/python-async-fastapi-agent.html</guid>

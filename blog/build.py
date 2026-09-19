@@ -25,6 +25,7 @@ published_meta={
 	"C++新特性/C++移动语义与完美转发.md":("2026-08-30","https://blog.csdn.net/rr666888/article/details/164191908"),
 	"C++新特性/一致性哈希详解——从哈希环到分布式缓存.md":("2026-09-03","https://blog.csdn.net/rr666888/article/details/164331090")
 	,"AI后端/Python异步编程——从FastAPI到Agent.md":("2026-09-17 12:46:59","https://blog.csdn.net/rr666888/article/details/165735864")
+	,"AI后端/Pydantic对象——从数据校验到Agent工程化.md":("2026-09-19","https://blog.csdn.net/rr666888/article/details/166009491")
 }
 
 slug_map={
@@ -40,6 +41,7 @@ slug_map={
 	"C++新特性/C++移动语义与完美转发.md":"cpp-move-forward",
 	"C++新特性/一致性哈希详解——从哈希环到分布式缓存.md":"consistent-hashing"
 	,"AI后端/Python异步编程——从FastAPI到Agent.md":"python-async-fastapi-agent"
+	,"AI后端/Pydantic对象——从数据校验到Agent工程化.md":"pydantic-agent-engineering"
 }
 
 category_names={
@@ -79,6 +81,7 @@ article_tags={
 	"C++新特性/C++移动语义与完美转发.md":["C++","C++11","移动语义","完美转发"],
 	"C++新特性/一致性哈希详解——从哈希环到分布式缓存.md":["分布式系统","一致性哈希","缓存","哈希"]
 	,"AI后端/Python异步编程——从FastAPI到Agent.md":["Python","异步编程","FastAPI","Agent"]
+	,"AI后端/Pydantic对象——从数据校验到Agent工程化.md":["Python","Pydantic","数据校验","FastAPI","Agent"]
 }
 
 tag_slugs={
@@ -90,7 +93,7 @@ tag_slugs={
 	"同步原语":"synchronization",
 	"网络编程":"networking","IO":"io","零拷贝":"zero-copy","sendfile":"sendfile","性能优化":"performance","ptmalloc":"ptmalloc",
 	"C++11":"cpp11","lambda":"lambda","闭包":"closure","函数对象":"function-object","移动语义":"move-semantics","右值引用":"rvalue-reference","完美转发":"perfect-forwarding","分布式系统":"distributed-systems","一致性哈希":"consistent-hashing","缓存":"cache","哈希":"hash"
-	,"Python":"python","异步编程":"asyncio","FastAPI":"fastapi","Agent":"agent"
+	,"Python":"python","异步编程":"asyncio","FastAPI":"fastapi","Agent":"agent","Pydantic":"pydantic","数据校验":"data-validation"
 }
 
 

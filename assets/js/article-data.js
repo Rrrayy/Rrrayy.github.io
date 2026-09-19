@@ -1,5 +1,24 @@
 window.blog_articles=[
   {
+    "title": "Pydantic对象——从数据校验到Agent工程化",
+    "date": "2026-09-19",
+    "category": "AI 后端",
+    "tags": [
+      "Python",
+      "Pydantic",
+      "数据校验",
+      "FastAPI",
+      "Agent"
+    ],
+    "csdn_url": "https://blog.csdn.net/rr666888/article/details/166009491",
+    "slug": "pydantic-agent-engineering",
+    "word_count": 4158,
+    "reading_time": 9,
+    "summary": "在 FastAPI 和 Agent 中，程序经常要处理来自 HTTP 请求、环境变量和大模型的外部数据。这些数据可能缺少字段、类型错误，或者包含未约定的内容。",
+    "prerequisite": "",
+    "source_path": "AI后端/Pydantic对象——从数据校验到Agent工程化.md"
+  },
+  {
     "title": "Python 异步编程",
     "date": "2026-09-17 12:46:59",
     "category": "AI 后端",
