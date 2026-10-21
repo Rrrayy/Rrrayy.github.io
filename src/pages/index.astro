@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { capabilities, evidenceOps, jobDesk, learningFocus, profile, rpcProject, updateLog } from "../data/site";
+import { capabilities, evidenceOps, jobDesk, learningFocus, priorityProjects, profile, updateLog } from "../data/site";
 import { sortedArticles, articleDate } from "../lib/articles";
 
 const latestArticles = sortedArticles.slice(0, 4);
@@ -51,30 +51,46 @@ const latestArticles = sortedArticles.slice(0, 4);
 			<div class="home-stream">
 				<p class="stream-intro">把系统问题做成可复现的工程；把 Agent 的运行过程做成可检查、可回放的证据。</p>
 
+				<section class="stream-section" aria-labelledby="application-heading">
+					<div class="stream-heading">
+						<h2 id="application-heading">已落地应用</h2>
+						<a href="/applications/job-desk/">应用说明与下载</a>
+					</div>
+					<a class="featured-entry" href="/applications/job-desk/">
+						<div class="entry-meta"><span>{jobDesk.category}</span><span>已发布 · {jobDesk.releaseVersion}</span></div>
+						<h3 class="entry-title">{jobDesk.name}</h3>
+						<p class="entry-description">投递、跟进与面试复盘的本地工作台。</p>
+						<div class="entry-tags">{jobDesk.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
+					</a>
+				</section>
+
+				<section class="stream-section" aria-labelledby="building-heading">
+					<div class="stream-heading">
+						<h2 id="building-heading">正在开发</h2>
+						<a href="/projects/evidenceops/">项目说明</a>
+					</div>
+					<a class="featured-entry evidence-entry" href="/projects/evidenceops/">
+						<div class="entry-meta"><span>{evidenceOps.category}</span><span class="status-mark">{evidenceOps.status}</span></div>
+						<h3 class="entry-title">{evidenceOps.name}</h3>
+						<p class="entry-description">{evidenceOps.description}</p>
+						<div class="entry-tags">{evidenceOps.technologies.slice(0, 4).map((technology) => <span>{technology}</span>)}</div>
+					</a>
+				</section>
+
 				<section class="stream-section" aria-labelledby="projects-heading">
 					<div class="stream-heading">
-						<h2 id="projects-heading">项目</h2>
+						<h2 id="projects-heading">优先项目</h2>
 						<a href="/projects/">查看项目档案</a>
 					</div>
 					<div class="home-projects">
-						<a class="home-project" href="/applications/job-desk/">
-							<div class="entry-meta"><span>{jobDesk.category}</span><span>已发布</span></div>
-							<h3 class="entry-title">{jobDesk.name}</h3>
-							<p class="entry-description">投递、跟进与面试复盘的本地工作台。</p>
-							<div class="entry-tags">{jobDesk.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
-						</a>
-						<a class="home-project home-project-building" href="/projects/evidenceops/">
-							<div class="entry-meta"><span>{evidenceOps.category}</span><span class="status-mark">{evidenceOps.status}</span></div>
-							<h3 class="entry-title">{evidenceOps.name}</h3>
-							<p class="entry-description">{evidenceOps.description}</p>
-							<div class="entry-tags">{evidenceOps.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
-						</a>
-						<a class="home-project" href="/projects/rpc/">
-							<div class="entry-meta"><span>{rpcProject.category}</span><span>开源项目</span></div>
-							<h3 class="entry-title">{rpcProject.name}</h3>
-							<p class="entry-description">{rpcProject.description}</p>
-							<div class="entry-tags">{rpcProject.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
-						</a>
+						{priorityProjects.map((project) => (
+							<a class="home-project" href={project.path}>
+								<div class="entry-meta"><span>{project.category}</span><span>项目说明</span></div>
+								<h3 class="entry-title">{project.name}</h3>
+								<p class="entry-description">{project.description}</p>
+								<div class="entry-tags">{project.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
+							</a>
+						))}
 					</div>
 				</section>
 

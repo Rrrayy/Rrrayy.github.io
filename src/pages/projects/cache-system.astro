@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { cacheProject } from "../../data/site";
+---
+
+<BaseLayout title="Cache System | Rray" description="C++17 缓存策略库：七种淘汰策略、固定工作负载对照与实现边界。">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/">首页</a> / <a href="/projects/">项目</a> / Cache System</div>
+		<header class="page-heading">
+			<div class="entry-meta"><span>{cacheProject.category}</span><span>C++17</span></div>
+			<h1>{cacheProject.name}</h1>
+			<p>{cacheProject.description}</p>
+		</header>
+		<section class="project-feature">
+			<div class="entry-tags">{cacheProject.technologies.map((technology) => <span>{technology}</span>)}</div>
+			<dl class="project-facts">
+				<div><dt>策略</dt><dd>FIFO、LRU、LFU、LFU-Aging、LRU-K、Hash-LRU、ARC</dd></div>
+				<div><dt>统一接口</dt><dd>基于模板的 Key / Value 缓存接口</dd></div>
+				<div><dt>对照场景</dt><dd>稳定热点、循环扫描、负载切换</dd></div>
+				<div><dt>测试方式</dt><dd>固定随机种子，对策略回放同一请求序列</dd></div>
+			</dl>
+			<div class="project-links">
+				<a href={cacheProject.repository} target="_blank" rel="noreferrer">查看 GitHub 源码</a>
+				<a href="https://github.com/Rrrayy/Cache-System/blob/main/README.md" target="_blank" rel="noreferrer">阅读仓库 README 与测试结果</a>
+			</div>
+		</section>
+		<div class="detail-content">
+			<h2>实现重点</h2>
+			<ul>
+				<li><strong>LRU：</strong>哈希表定位与双向链表维护访问顺序。</li>
+				<li><strong>LFU 与 Aging：</strong>按访问频次淘汰；Aging 会遍历节点衰减历史频次，复杂度为 O(N)。</li>
+				<li><strong>LRU-K：</strong>新条目先进入历史区，满足访问门槛后再进入主缓存，以降低一次性扫描污染。</li>
+				<li><strong>Hash-LRU：</strong>按 key 分片并使用独立锁，减少不同分片间的锁竞争；代价是分片不能共享空闲容量。</li>
+				<li><strong>ARC：</strong>以 LRU/LFU 分区和幽灵缓存反馈自适应分配容量；仓库说明该实现不是论文 ARC 的严格复刻。</li>
+			</ul>
+			<h2>结果如何解读</h2>
+			<p>仓库 README 中的命中率来自固定访问序列的单线程实验。例如热点场景下 LFU 为 66.71%，负载切换场景下 LRU-K 为 56.87%。这些数据用于比较当前测试负载里的策略表现，不能直接外推到生产流量；单线程测试也无法证明 Hash-LRU 的并发收益。</p>
+			<aside class="boundary-note">
+				<h2>当前边界</h2>
+				<p>缓存命中率依赖访问分布。README 也指出当前测试未观察到 Aging 在所测场景中的命中率变化，需要专门构造热点迁移负载继续验证。</p>
+			</aside>
+		</div>
+	</main>
+</BaseLayout>

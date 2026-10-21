@@ -4,7 +4,7 @@ import { sortedArticles, categorySlug, tagSlug } from "../lib/articles";
 const siteUrl = "https://rrrayy.github.io";
 
 export const GET: APIRoute = () => {
-	const staticPaths = ["/", "/blog/", "/blog/tags/", "/projects/", "/projects/rpc/", "/projects/evidenceops/", "/applications/job-desk/"];
+	const staticPaths = ["/", "/blog/", "/blog/tags/", "/projects/", "/projects/rpc/", "/projects/cache-system/", "/projects/agent-service-lab/", "/projects/evidenceops/", "/applications/job-desk/"];
 	const categoryPaths = [...new Set(sortedArticles.map((article) => article.category))].map((category) => `/blog/category/${categorySlug(category)}/`);
 	const tagPaths = [...new Set(sortedArticles.flatMap((article) => article.tags))].map((tag) => `/blog/tag/${tagSlug(tag)}/`);
 	const articlePaths = sortedArticles.map((article) => `/blog/${article.slug}/`);

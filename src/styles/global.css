@@ -961,6 +961,11 @@ input:focus-visible {
 	background: var(--surface);
 }
 
+.priority-project-list {
+	display: grid;
+	gap: 14px;
+}
+
 .project-feature h2 {
 	margin: 7px 0 6px;
 	font-size: 21px;

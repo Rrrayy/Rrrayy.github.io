@@ -62,11 +62,32 @@ export const rpcProject = {
 	category: "C++ · 分布式通信",
 	description: "从远程调用链路拆解协议、网络、服务发现与连接复用，保留可运行实现和压测边界。",
 	technologies: ["C++", "Protobuf", "muduo", "ZooKeeper", "TCP"],
-	repository: "https://github.com/Rrrayy/RPC"
+	repository: "https://github.com/Rrrayy/RPC",
+	path: "/projects/rpc/"
 };
 
+export const cacheProject = {
+	name: "Cache System",
+	category: "C++ · 缓存策略",
+	description: "C++17 模板缓存库，覆盖 FIFO、LRU、LFU、LRU-K、分片 LRU 与 ARC 等策略，并用固定访问序列比较命中表现。",
+	technologies: ["C++17", "LRU / LFU / ARC", "模板", "CMake"],
+	repository: "https://github.com/Rrrayy/Cache-System",
+	path: "/projects/cache-system/"
+};
+
+export const agentServiceProject = {
+	name: "Agent Service Lab",
+	category: "Python · LLM Agent 后端",
+	description: "可测试的 Agent 服务实验：连接模型 Provider、受限工具运行时和结构化诊断结果，支持 JSON 与 SSE 响应。",
+	technologies: ["Python", "FastAPI", "asyncio", "Tool Runtime", "SSE"],
+	repository: "https://github.com/Rrrayy/ai-python-service-lab",
+	path: "/projects/agent-service-lab/"
+};
+
+export const priorityProjects = [rpcProject, cacheProject, agentServiceProject];
+
 export const updateLog = {
-	date: "2026-10-21",
-	title: "个人网站重构",
-	description: "采用 Astro 与 TypeScript 重建内容站，按最新仓库状态整理 Job Desk、EvidenceOps 和 RPC。"
+	date: "2026-10-22",
+	title: "补充优先项目",
+	description: "首页区分 Job Desk 应用、EvidenceOps 开发中项目与三项优先项目，并增加 Cache System、Agent Service Lab 说明页。"
 };

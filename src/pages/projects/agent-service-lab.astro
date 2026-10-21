@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { agentServiceProject } from "../../data/site";
+---
+
+<BaseLayout title="Agent Service Lab | Rray" description="可测试的 Python Agent 后端：Provider、Agent Loop、受限工具运行时、结构化输出与 SSE。">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/">首页</a> / <a href="/projects/">项目</a> / Agent Service Lab</div>
+		<header class="page-heading">
+			<div class="entry-meta"><span>{agentServiceProject.category}</span><span>GitHub 公开仓库</span></div>
+			<h1>{agentServiceProject.name}</h1>
+			<p>{agentServiceProject.description}</p>
+		</header>
+		<section class="project-feature">
+			<div class="entry-tags">{agentServiceProject.technologies.map((technology) => <span>{technology}</span>)}</div>
+			<dl class="project-facts">
+				<div><dt>模型接入</dt><dd>OpenAI-compatible Provider 与统一内部协议</dd></div>
+				<div><dt>Agent Loop</dt><dd>工具调用、结果回填、调用次数限制</dd></div>
+				<div><dt>工具边界</dt><dd>参数校验、权限、超时、取消与并发执行</dd></div>
+				<div><dt>服务响应</dt><dd>普通 JSON 与 SSE 事件流</dd></div>
+			</dl>
+			<div class="project-links">
+				<a href={agentServiceProject.repository} target="_blank" rel="noreferrer">查看 GitHub 源码</a>
+				<a href="https://github.com/Rrrayy/ai-python-service-lab/blob/main/README.md" target="_blank" rel="noreferrer">阅读仓库 README 与测试说明</a>
+			</div>
+		</section>
+		<div class="detail-content">
+			<h2>请求链路</h2>
+			<p>FastAPI 接收并校验请求，Diagnose Service 组织业务流程；Agent Loop 调用 Provider 并按需执行已注册工具，最终将模型输出解析为结构化诊断报告，再以 JSON 或 SSE 返回。</p>
+			<h2>工程验证</h2>
+			<ul>
+				<li>Provider 将网络、HTTP、认证、限流、上游与协议错误分层处理。</li>
+				<li>Tool Runtime 覆盖未知工具、非法参数、超时、异常、外部取消和多工具并发等路径。</li>
+				<li>结构化输出检查字段、类型、范围与诊断规则；修复尝试有次数上限，失败后停止。</li>
+				<li>SSE 将 Agent 事件送入异步队列，并处理客户端断开后的任务取消。</li>
+				<li>README 当前记录 61 项测试通过；测试使用 pytest 与 httpx MockTransport 建立确定性验证。</li>
+			</ul>
+			<aside class="boundary-note">
+				<h2>结果边界</h2>
+				<p>测试通过说明代码路径与失败行为符合现有测试，不代表真实模型的诊断准确率。README 记录的测试基线还包含一条 Starlette/httpx 弃用警告，项目后续状态以仓库最新内容为准。</p>
+			</aside>
+		</div>
+	</main>
+</BaseLayout>

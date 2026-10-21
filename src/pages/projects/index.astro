@@ -1,24 +1,28 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { rpcProject } from "../../data/site";
+import { priorityProjects } from "../../data/site";
 ---
 
 <BaseLayout title="项目 | Rray" description="Rray 的 C++ 系统工程与分布式通信项目档案。" active="projects">
 	<main id="main-content" class="page-shell">
 		<header class="page-heading">
 			<h1>项目</h1>
-			<p>只保留一个重点项目，其余仓库可在 GitHub 查看。</p>
+			<p>围绕分布式通信、缓存策略与 Agent 服务工程，保留三项优先项目说明。</p>
 		</header>
-		<article class="project-feature">
-			<div class="entry-meta"><span>{rpcProject.category}</span><span>持续维护</span></div>
-			<h2>{rpcProject.name}</h2>
-			<p>{rpcProject.description}</p>
-			<div class="entry-tags">{rpcProject.technologies.map((technology) => <span>{technology}</span>)}</div>
-			<div class="project-links">
-				<a href="/projects/rpc/">项目说明</a>
-				<a href={rpcProject.repository} target="_blank" rel="noreferrer">GitHub 源码</a>
-			</div>
-		</article>
+		<div class="priority-project-list">
+			{priorityProjects.map((project) => (
+				<article class="project-feature">
+					<div class="entry-meta"><span>{project.category}</span></div>
+					<h2>{project.name}</h2>
+					<p>{project.description}</p>
+					<div class="entry-tags">{project.technologies.map((technology) => <span>{technology}</span>)}</div>
+					<div class="project-links">
+						<a href={project.path}>本站项目说明</a>
+						<a href={project.repository} target="_blank" rel="noreferrer">GitHub 源码</a>
+					</div>
+				</article>
+			))}
+		</div>
 		<p class="detail-content"><a href="https://github.com/Rrrayy?tab=repositories" target="_blank" rel="noreferrer">在 GitHub 查看其他公开仓库</a></p>
 	</main>
 </BaseLayout>
