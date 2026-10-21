@@ -1,0 +1,16 @@
+---
+import type { Article } from "../lib/articles";
+import { articleDate, categorySlug } from "../lib/articles";
+
+const { article } = Astro.props as { article: Article };
+---
+
+<article class="article-row" data-title={article.title} data-category={article.category} data-tags={article.tags.join(" ")} data-summary={article.summary}>
+	<time class="article-date" datetime={article.date.slice(0, 10)}>{articleDate(article.date)}</time>
+	<div class="article-main">
+		<h2><a href={`/blog/${article.slug}/`}>{article.title}</a></h2>
+		<p>{article.summary}</p>
+		<div class="article-meta">{article.word_count.toLocaleString("zh-CN")} 字 · {article.reading_time} 分钟 · {article.tags.slice(0, 3).join(" / ")}</div>
+	</div>
+	<a class="article-category" href={`/blog/category/${categorySlug(article.category)}/`}>{article.category}</a>
+</article>

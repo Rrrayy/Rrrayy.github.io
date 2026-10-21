@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { rpcProject } from "../../data/site";
+---
+
+<BaseLayout title="RPC Framework | Rray" description="C++ RPC Framework：Protobuf、muduo、ZooKeeper 服务发现与连接复用。">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/">首页</a> / <a href="/projects/">项目</a> / RPC</div>
+		<header class="page-heading">
+			<div class="entry-meta"><span>{rpcProject.category}</span><span>核心项目</span></div>
+			<h1>{rpcProject.name}</h1>
+			<p>{rpcProject.description}</p>
+		</header>
+		<section class="project-feature">
+			<div class="entry-tags">{rpcProject.technologies.map((technology) => <span>{technology}</span>)}</div>
+			<dl class="project-facts">
+				<div><dt>传输层</dt><dd>TCP 与自定义消息头，处理请求边界和拆包</dd></div>
+				<div><dt>序列化</dt><dd>Protobuf 消息定义与二进制编码</dd></div>
+				<div><dt>网络模型</dt><dd>基于 muduo Reactor 的事件驱动网络层</dd></div>
+				<div><dt>服务治理</dt><dd>ZooKeeper 注册发现、Watcher 与连接复用</dd></div>
+			</dl>
+			<div class="project-links"><a href={rpcProject.repository} target="_blank" rel="noreferrer">查看 GitHub 源码</a></div>
+		</section>
+		<div class="detail-content">
+			<h2>调用链路</h2>
+			<p>调用方通过服务名选择节点，连接池复用 TCP 长连接，Protobuf 编解码请求与响应；服务端将请求分发到目标方法并返回结果。ZooKeeper 负责服务注册与节点变化通知。</p>
+			<h2>实验边界</h2>
+			<p>仓库 README 中记录的压测数据绑定于具体机器、构建参数、并发模型与测试版本。本站不把单次压测数字作为通用性能结论；完整环境、结果和限制以仓库当前 README 为准。</p>
+			<div class="project-links"><a href="https://github.com/Rrrayy/RPC/blob/main/README.md" target="_blank" rel="noreferrer">阅读最新 README 与测试记录</a></div>
+		</div>
+	</main>
+</BaseLayout>

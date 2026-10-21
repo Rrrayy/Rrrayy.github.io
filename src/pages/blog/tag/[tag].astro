@@ -1,0 +1,30 @@
+---
+import ArticleRow from "../../../components/ArticleRow.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { sortedArticles, tagSlug } from "../../../lib/articles";
+
+export function getStaticPaths() {
+	const tags = [...new Set(sortedArticles.flatMap((article) => article.tags))];
+
+	return tags.map((tag) => ({
+		params: { tag: tagSlug(tag) },
+		props: { tag }
+	}));
+}
+
+const { tag } = Astro.props;
+const tagArticles = sortedArticles.filter((article) => article.tags.includes(tag));
+---
+
+<BaseLayout title={`标签：${tag} | Rray`} description={`包含 ${tag} 标签的技术文章。`} active="blog">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/blog/">全部文章</a> / 标签</div>
+		<header class="page-heading">
+			<h1>{tag}</h1>
+			<p>{tagArticles.length} 篇文章</p>
+		</header>
+		<div class="article-index">
+			{tagArticles.map((article) => <ArticleRow article={article} />)}
+		</div>
+	</main>
+</BaseLayout>

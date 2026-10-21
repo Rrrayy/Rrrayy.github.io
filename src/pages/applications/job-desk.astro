@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { jobDesk } from "../../data/site";
+---
+
+<BaseLayout title="Job Desk | Rray" description="Job Desk 本地求职工作台项目说明、源码与 Release 下载入口。" active="applications">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/">首页</a> / 应用</div>
+		<header class="page-heading">
+			<h1>{jobDesk.name}</h1>
+			<p>把求职过程当作一条可跟踪的工作流。</p>
+		</header>
+		<section class="project-feature" aria-label="Job Desk 项目概览">
+			<div class="entry-meta"><span>{jobDesk.category}</span><span>当前版本 {jobDesk.releaseVersion}</span><span>本地优先</span></div>
+			<h2>投递、跟进与复盘，放在同一条线上。</h2>
+			<p>{jobDesk.description}</p>
+			<div class="entry-tags">{jobDesk.technologies.map((technology) => <span>{technology}</span>)}</div>
+			<div class="project-links">
+				<a href={jobDesk.release} target="_blank" rel="noreferrer">查看 Release 与应用下载</a>
+				<a href={jobDesk.repository} target="_blank" rel="noreferrer">查看 GitHub 源码</a>
+			</div>
+		</section>
+		<div class="detail-content">
+			<h2>它解决什么问题</h2>
+			<p>把公司、岗位、投递状态、截止时间和后续动作集中管理。看板用于跟进流程，今日待办与沉默提醒帮助发现停滞，面经复盘则把一次面试沉淀为后续可回顾的记录。</p>
+			<h2>运行方式与数据边界</h2>
+			<ul>
+				<li>仓库提供单个 HTML 文件，解压 Release 后可在本地浏览器打开。</li>
+				<li>不需要账号，也不依赖网站后端；数据保存在当前浏览器本地存储。</li>
+				<li>README 标明应用不发起外部网络请求；更换浏览器或清理站点数据前，应先使用应用提供的数据导出能力。</li>
+			</ul>
+			<h2>获取应用</h2>
+			<p>Release 页面当前发布版本为 {jobDesk.releaseVersion}，包含单文件应用和浏览器扩展等资产。进入 Release 后按 README 的安装说明使用；本网站不托管应用文件。</p>
+			<div class="project-links">
+				<a href={jobDesk.release} target="_blank" rel="noreferrer">打开 v0.7.3 Release</a>
+				<a href="https://github.com/Rrrayy/job-desk/blob/main/README.md" target="_blank" rel="noreferrer">阅读仓库 README</a>
+			</div>
+		</div>
+	</main>
+</BaseLayout>

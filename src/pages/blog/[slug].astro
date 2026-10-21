@@ -1,0 +1,47 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { articles, articleDate, articleSourceId, sortedArticles, categorySlug, tagSlug } from "../../lib/articles";
+
+export async function getStaticPaths() {
+	const entries = await getCollection("articles");
+
+	return entries.flatMap((entry) => {
+		const source = articleSourceId(entry.filePath ?? entry.id);
+		const article = articles.find((item) => articleSourceId(item.source_path) === source);
+		return article ? [{ params: { slug: article.slug }, props: { entry, article } }] : [];
+	});
+}
+
+const { entry, article } = Astro.props;
+const { Content } = await render(entry);
+const currentIndex = sortedArticles.findIndex((item) => item.slug === article.slug);
+const olderArticle = sortedArticles[currentIndex + 1];
+const newerArticle = sortedArticles[currentIndex - 1];
+---
+
+<BaseLayout title={`${article.title} | Rray`} description={article.summary} active="blog" article>
+	<main id="main-content" class="article-shell">
+		<div class="breadcrumbs"><a href="/blog/">全部文章</a> / {article.category}</div>
+		<header class="article-header">
+			<div class="entry-meta">
+				<a class="article-category" href={`/blog/category/${categorySlug(article.category)}/`}>{article.category}</a>
+				<time datetime={article.date.slice(0, 10)}>{articleDate(article.date)}</time>
+				<span>{article.word_count.toLocaleString("zh-CN")} 字</span>
+				<span>{article.reading_time} 分钟阅读</span>
+			</div>
+			<h1>{article.title}</h1>
+			<p class="article-summary">{article.summary}</p>
+			{article.prerequisite && <p class="article-prerequisite"><strong>前置知识</strong>{article.prerequisite}</p>}
+		</header>
+		<article class="article-body"><Content /></article>
+		<div class="article-end-links" aria-label="文章标签">
+			{article.tags.map((tag) => <a href={`/blog/tag/${tagSlug(tag)}/`}>{tag}</a>)}
+			<a href={article.csdn_url} target="_blank" rel="noreferrer">CSDN 原文</a>
+		</div>
+		<nav class="article-pagination" aria-label="切换文章">
+			{olderArticle ? <a href={`/blog/${olderArticle.slug}/`}><small>上一篇</small><strong>{olderArticle.title}</strong></a> : <span></span>}
+			{newerArticle ? <a href={`/blog/${newerArticle.slug}/`}><small>下一篇</small><strong>{newerArticle.title}</strong></a> : <span></span>}
+		</nav>
+	</main>
+</BaseLayout>

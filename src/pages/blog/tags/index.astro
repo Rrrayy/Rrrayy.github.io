@@ -1,0 +1,24 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { sortedArticles, tagSlug } from "../../../lib/articles";
+
+const tags = [...new Set(sortedArticles.flatMap((article) => article.tags))].sort((left, right) => left.localeCompare(right, "zh-CN"));
+const tagCounts = new Map(tags.map((tag) => [tag, sortedArticles.filter((article) => article.tags.includes(tag)).length]));
+---
+
+<BaseLayout title="标签 | Rray" description="按技术主题浏览 Rray 发布的文章。" active="blog">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/blog/">全部文章</a> / 标签</div>
+		<header class="page-heading">
+			<h1>标签</h1>
+			<p>从具体技术主题进入相关内容。</p>
+		</header>
+		<div class="tag-directory">
+			{tags.map((tag) => (
+				<a class="tag-directory-row" href={`/blog/tag/${tagSlug(tag)}/`}>
+					<span>{tag}</span><small>{tagCounts.get(tag)} 篇</small>
+				</a>
+			))}
+		</div>
+	</main>
+</BaseLayout>

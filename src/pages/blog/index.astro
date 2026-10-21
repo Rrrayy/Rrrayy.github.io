@@ -1,0 +1,61 @@
+---
+import ArticleRow from "../../components/ArticleRow.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sortedArticles, categorySlug, tagSlug } from "../../lib/articles";
+
+const categories = [...new Set(sortedArticles.map((article) => article.category))];
+const tags = [...new Set(sortedArticles.flatMap((article) => article.tags))];
+---
+
+<BaseLayout title="文章 | Rray" description="C++ 系统工程、分布式通信、Linux 与 Agent 后端实践文章。" active="blog">
+	<main id="main-content" class="page-shell">
+		<header class="page-heading">
+			<h1>文章</h1>
+			<p>仅收录已公开发布的文章。按主题浏览，或搜索标题与摘要。</p>
+		</header>
+		<div class="blog-controls">
+			<label>
+				<span class="visually-hidden">搜索文章</span>
+				<input class="search-input" id="article-search" type="search" placeholder="搜索文章标题或摘要" autocomplete="off" />
+			</label>
+			<div class="filter-list" aria-label="文章分类">
+				<a class="filter-link is-active" href="/blog/">全部 {sortedArticles.length}</a>
+				{categories.map((category) => (
+					<a class="filter-link" href={`/blog/category/${categorySlug(category)}/`}>{category}</a>
+				))}
+				<a class="filter-link" href="/blog/tags/">标签</a>
+			</div>
+		</div>
+		<div class="article-index" id="article-index">
+			{sortedArticles.map((article) => <ArticleRow article={article} />)}
+		</div>
+		<p class="empty-search" id="empty-search" hidden>没有找到匹配文章。</p>
+		<section class="tag-index-preview" aria-label="常用标签">
+			<h2>按标签浏览</h2>
+			<div class="filter-list">
+				{tags.slice(0, 12).map((tag) => <a class="filter-link" href={`/blog/tag/${tagSlug(tag)}/`}>{tag}</a>)}
+				<a class="filter-link" href="/blog/tags/">全部标签</a>
+			</div>
+		</section>
+	</main>
+	<script>
+		const searchInput = document.querySelector<HTMLInputElement>("#article-search");
+		const articleRows = [...document.querySelectorAll<HTMLElement>(".article-row")];
+		const emptySearch = document.querySelector<HTMLElement>("#empty-search");
+
+		searchInput?.addEventListener("input", () => {
+			const query = searchInput.value.trim().toLocaleLowerCase();
+			let visibleCount = 0;
+
+			for (const row of articleRows) {
+				const searchText = [row.dataset.title, row.dataset.summary, row.dataset.tags, row.dataset.category].join(" ").toLocaleLowerCase();
+				const matches = searchText.includes(query);
+
+				row.hidden = !matches;
+				visibleCount += Number(matches);
+			}
+
+			if (emptySearch) emptySearch.hidden = visibleCount > 0;
+		});
+	</script>
+</BaseLayout>

@@ -1,0 +1,22 @@
+---
+const { active = "home" } = Astro.props;
+
+const links = [
+	{ href: "/", label: "首页", key: "home" },
+	{ href: "/blog/", label: "文章", key: "blog" },
+	{ href: "/projects/", label: "项目", key: "projects" },
+	{ href: "/applications/job-desk/", label: "应用", key: "applications" }
+];
+---
+
+<header class="site-header">
+	<a class="wordmark" href="/" aria-label="Rray 首页">Rray<span>.</span></a>
+	<nav class="site-nav" aria-label="主导航">
+		{links.map((link) => (
+			<a href={link.href} class:list={["nav-link", { "is-active": active === link.key }]} aria-current={active === link.key ? "page" : undefined}>
+				{link.label}
+			</a>
+		))}
+	</nav>
+	<a class="header-github" href="https://github.com/Rrrayy" target="_blank" rel="noreferrer">GitHub</a>
+</header>

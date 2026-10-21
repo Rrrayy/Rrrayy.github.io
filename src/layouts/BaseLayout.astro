@@ -1,0 +1,45 @@
+---
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/global.css";
+
+const {
+	title = "Rray | C++ 系统工程与 Agent 实践",
+	description = "南京邮电大学计算机科学与技术。记录 C++ 系统工程、分布式通信与 LLM Agent 应用实践。",
+	active = "home",
+	article = false,
+	showFooter = true
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const isHome = Astro.url.pathname === "/";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="theme-color" content="#f7f8f6" />
+		<meta name="description" content={description} />
+		<meta property="og:type" content={article ? "article" : "website"} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/jpeg" href="/avatar.jpg" />
+		<link rel="alternate" type="application/rss+xml" title="Rray 技术文章" href="/rss.xml" />
+		<title>{title}</title>
+	</head>
+	<body class={isHome ? "page-home" : undefined}>
+		<a class="skip-link" href="#main-content">跳到主要内容</a>
+		<SiteHeader active={active} />
+		<slot />
+		{showFooter && (
+			<footer class="site-footer">
+				<span>© {new Date().getFullYear()} Rray</span>
+				<span>南京邮电大学 · 计算机科学与技术</span>
+				<a href="/rss.xml">RSS</a>
+			</footer>
+		)}
+	</body>
+</html>

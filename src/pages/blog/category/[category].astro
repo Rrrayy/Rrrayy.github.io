@@ -1,0 +1,30 @@
+---
+import ArticleRow from "../../../components/ArticleRow.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { sortedArticles, categorySlug } from "../../../lib/articles";
+
+export function getStaticPaths() {
+	const categories = [...new Set(sortedArticles.map((article) => article.category))];
+
+	return categories.map((category) => ({
+		params: { category: categorySlug(category) },
+		props: { category }
+	}));
+}
+
+const { category } = Astro.props;
+const categoryArticles = sortedArticles.filter((article) => article.category === category);
+---
+
+<BaseLayout title={`${category} | Rray`} description={`${category} 分类下的技术文章。`} active="blog">
+	<main id="main-content" class="page-shell">
+		<div class="breadcrumbs"><a href="/blog/">全部文章</a> / 分类</div>
+		<header class="page-heading">
+			<h1>{category}</h1>
+			<p>{categoryArticles.length} 篇文章</p>
+		</header>
+		<div class="article-index">
+			{categoryArticles.map((article) => <ArticleRow article={article} />)}
+		</div>
+	</main>
+</BaseLayout>

@@ -1,0 +1,112 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { capabilities, evidenceOps, jobDesk, learningFocus, profile, rpcProject, updateLog } from "../data/site";
+import { sortedArticles, articleDate } from "../lib/articles";
+
+const latestArticles = sortedArticles.slice(0, 4);
+---
+
+<BaseLayout active="home" showFooter={false}>
+	<main id="main-content" class="home-shell">
+		<div class="home-layout">
+			<aside class="profile-panel" aria-label="个人信息与技术栈">
+				<div class="profile-top">
+					<img class="profile-avatar" src="/avatar.jpg" width="76" height="76" alt="Rray 的头像" />
+					<div>
+						<h1>{profile.name}</h1>
+						<p>{profile.university}</p>
+					</div>
+				</div>
+				<p class="profile-positioning">{profile.positioning}</p>
+				<section class="profile-section" aria-labelledby="capability-heading">
+					<h2 id="capability-heading">技术栈</h2>
+					<div class="capability-list">
+						{capabilities.map((group) => (
+							<div class="capability-group">
+								<h3>{group.name}</h3>
+								<p>{group.items.join(" · ")}</p>
+							</div>
+						))}
+					</div>
+					<p class="focus-line" aria-label="正在补充的方向">
+						{learningFocus.map((focus) => <span>{focus}</span>)}
+					</p>
+				</section>
+				<div class="profile-contacts" aria-label="联系方式">
+					<a class="contact-icon" href={`mailto:${profile.email}`} aria-label={`邮件：${profile.email}`} title={`邮件：${profile.email}`}>
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16v11H4z"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>
+						<span class="visually-hidden">邮箱</span>
+					</a>
+					<a class="contact-icon" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub：Rrrayy" title="GitHub：Rrrayy">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-4.2 1.3-4.2-2.1-5.9-2.5M14.9 21v-3.2a2.8 2.8 0 0 0-.8-2.2c2.7-.3 5.5-1.3 5.5-6a4.7 4.7 0 0 0-1.3-3.3 4.4 4.4 0 0 0-.1-3.3s-1-.3-3.3 1.3a11.5 11.5 0 0 0-6 0C6.6 2.7 5.6 3 5.6 3a4.4 4.4 0 0 0-.1 3.3 4.7 4.7 0 0 0-1.3 3.3c0 4.7 2.8 5.7 5.5 6a2.8 2.8 0 0 0-.8 2.2V21"/></svg>
+						<span class="visually-hidden">GitHub</span>
+					</a>
+					<a class="contact-icon contact-csdn" href={profile.csdn} target="_blank" rel="noreferrer" aria-label="CSDN 博客：rr666888" title="CSDN 博客：rr666888">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.8 7.1a7 7 0 1 0 0 9.8"/><path d="M19.5 8.5v7M19.5 9.2c0-1.4-4.2-1.4-4.2.3v4.3c0 1.4 4.2 1.4 4.2-.2"/><path d="M8.5 12h3"/></svg>
+						<span class="visually-hidden">CSDN 博客</span>
+					</a>
+				</div>
+			</aside>
+
+			<div class="home-stream">
+				<p class="stream-intro">把系统问题做成可复现的工程；把 Agent 的运行过程做成可检查、可回放的证据。</p>
+
+				<section class="stream-section" aria-labelledby="projects-heading">
+					<div class="stream-heading">
+						<h2 id="projects-heading">项目</h2>
+						<a href="/projects/">查看项目档案</a>
+					</div>
+					<div class="home-projects">
+						<a class="home-project" href="/applications/job-desk/">
+							<div class="entry-meta"><span>{jobDesk.category}</span><span>已发布</span></div>
+							<h3 class="entry-title">{jobDesk.name}</h3>
+							<p class="entry-description">投递、跟进与面试复盘的本地工作台。</p>
+							<div class="entry-tags">{jobDesk.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
+						</a>
+						<a class="home-project home-project-building" href="/projects/evidenceops/">
+							<div class="entry-meta"><span>{evidenceOps.category}</span><span class="status-mark">{evidenceOps.status}</span></div>
+							<h3 class="entry-title">{evidenceOps.name}</h3>
+							<p class="entry-description">{evidenceOps.description}</p>
+							<div class="entry-tags">{evidenceOps.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
+						</a>
+						<a class="home-project" href="/projects/rpc/">
+							<div class="entry-meta"><span>{rpcProject.category}</span><span>开源项目</span></div>
+							<h3 class="entry-title">{rpcProject.name}</h3>
+							<p class="entry-description">{rpcProject.description}</p>
+							<div class="entry-tags">{rpcProject.technologies.slice(0, 3).map((technology) => <span>{technology}</span>)}</div>
+						</a>
+					</div>
+				</section>
+
+				<section class="stream-section" aria-labelledby="writing-heading">
+					<div class="stream-heading">
+						<h2 id="writing-heading">最近文章</h2>
+						<a href="/blog/">全部 {sortedArticles.length} 篇</a>
+					</div>
+					<div class="writing-list">
+						{latestArticles.map((article) => (
+							<a class="writing-row" href={`/blog/${article.slug}/`}>
+								<time datetime={article.date.slice(0, 10)}>{articleDate(article.date)}</time>
+								<strong>{article.title}</strong>
+								<span class="writing-category">{article.category}</span>
+							</a>
+						))}
+					</div>
+				</section>
+
+				<section class="stream-section" aria-labelledby="update-heading">
+					<div class="stream-heading"><h2 id="update-heading">最近更新</h2></div>
+					<div class="update-line">
+						<time datetime={updateLog.date}>{updateLog.date.replaceAll("-", ".")}</time>
+						<div><strong>{updateLog.title}</strong><p>{updateLog.description}</p></div>
+					</div>
+				</section>
+			<footer class="home-stream-footer">
+				<span>© {new Date().getFullYear()} Rray</span>
+				<span>南京邮电大学 · 计算机科学与技术</span>
+				<a href="/rss.xml">RSS</a>
+			</footer>
+			</div>
+		</div>
+	</main>
+</BaseLayout>
