@@ -273,12 +273,22 @@ input:focus-visible {
 	margin: 13px 0 0;
 }
 
-.focus-line span {
+.focus-line span,
+.focus-line a {
 	padding: 2px 7px;
 	border-radius: 3px;
 	background: var(--rose-soft);
 	color: #79343b;
 	font-size: 11px;
+}
+
+.focus-line a {
+	text-decoration: none;
+}
+
+.focus-line a:hover {
+	background: #f0d9dc;
+	color: var(--ink);
 }
 
 .profile-contacts {
@@ -386,6 +396,13 @@ input:focus-visible {
 	color: var(--muted);
 	font-size: 12px;
 	text-decoration: none;
+}
+
+.stream-heading-links {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 6px 14px;
 }
 
 .home-projects {
@@ -1036,6 +1053,12 @@ input:focus-visible {
 
 .detail-content ul {
 	padding-left: 20px;
+}
+
+.project-index-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 20px;
 }
 
 .boundary-note {

@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { priorityProjects } from "../../data/site";
 ---
 
-<BaseLayout title="项目 | Rray" description="Rray 的 C++ 系统工程与分布式通信项目档案。" active="projects">
+<BaseLayout title="项目 | Rray" description="Rray 的 C++ 系统工程、分布式通信与 Agent 工程项目档案。" active="projects">
 	<main id="main-content" class="page-shell">
 		<header class="page-heading">
 			<h1>项目</h1>
@@ -23,6 +23,9 @@ import { priorityProjects } from "../../data/site";
 				</article>
 			))}
 		</div>
-		<p class="detail-content"><a href="https://github.com/Rrrayy?tab=repositories" target="_blank" rel="noreferrer">在 GitHub 查看其他公开仓库</a></p>
+		<p class="detail-content project-index-links">
+			<a href="https://github.com/Rrrayy/algorithm-problems" target="_blank" rel="noreferrer">算法记录（175 题，Hot 100 完成 89 题）</a>
+			<a href="https://github.com/Rrrayy?tab=repositories" target="_blank" rel="noreferrer">查看全部公开仓库</a>
+		</p>
 	</main>
 </BaseLayout>

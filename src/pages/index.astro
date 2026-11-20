@@ -28,8 +28,9 @@ const latestArticles = sortedArticles.slice(0, 4);
 							</div>
 						))}
 					</div>
-					<p class="focus-line" aria-label="正在补充的方向">
+					<p class="focus-line" aria-label="当前实践与学习重点">
 						{learningFocus.map((focus) => <span>{focus}</span>)}
+						<a href="https://github.com/Rrrayy/Study-Lang-family" target="_blank" rel="noreferrer" title="LangChain、LangGraph 与 LangSmith 学习记录">学习记录</a>
 					</p>
 				</section>
 				<div class="profile-contacts" aria-label="联系方式">
@@ -49,12 +50,15 @@ const latestArticles = sortedArticles.slice(0, 4);
 			</aside>
 
 			<div class="home-stream">
-				<p class="stream-intro">把系统问题做成可复现的工程；把 Agent 的运行过程做成可检查、可回放的证据。</p>
+				<p class="stream-intro">围绕 Run 生命周期、工具边界、上下文预算与运行评测，构建可检查、可回放的 Agent 系统。</p>
 
 				<section class="stream-section" aria-labelledby="application-heading">
 					<div class="stream-heading">
 						<h2 id="application-heading">已落地应用</h2>
-						<a href="/applications/job-desk/">应用说明与下载</a>
+						<div class="stream-heading-links">
+							<a href="/applications/job-desk/">项目说明</a>
+							<a href={jobDesk.release} target="_blank" rel="noreferrer">下载 {jobDesk.releaseVersion}</a>
+						</div>
 					</div>
 					<a class="featured-entry" href="/applications/job-desk/">
 						<div class="entry-meta"><span>{jobDesk.category}</span><span>已发布 · {jobDesk.releaseVersion}</span></div>
@@ -67,7 +71,10 @@ const latestArticles = sortedArticles.slice(0, 4);
 				<section class="stream-section" aria-labelledby="building-heading">
 					<div class="stream-heading">
 						<h2 id="building-heading">正在开发</h2>
-						<a href="/projects/evidenceops/">项目说明</a>
+						<div class="stream-heading-links">
+							<a href="/projects/evidenceops/">项目说明</a>
+							<a href={evidenceOps.repository} target="_blank" rel="noreferrer">GitHub 源码</a>
+						</div>
 					</div>
 					<a class="featured-entry evidence-entry" href="/projects/evidenceops/">
 						<div class="entry-meta"><span>{evidenceOps.category}</span><span class="status-mark">{evidenceOps.status}</span></div>
@@ -94,6 +101,14 @@ const latestArticles = sortedArticles.slice(0, 4);
 					</div>
 				</section>
 
+				<section class="stream-section" aria-labelledby="update-heading">
+					<div class="stream-heading"><h2 id="update-heading">最近更新</h2></div>
+					<div class="update-line">
+						<time datetime={updateLog.date}>{updateLog.date.replaceAll("-", ".")}</time>
+						<div><strong>{updateLog.title}</strong><p>{updateLog.description}</p></div>
+					</div>
+				</section>
+
 				<section class="stream-section" aria-labelledby="writing-heading">
 					<div class="stream-heading">
 						<h2 id="writing-heading">最近文章</h2>
@@ -107,14 +122,6 @@ const latestArticles = sortedArticles.slice(0, 4);
 								<span class="writing-category">{article.category}</span>
 							</a>
 						))}
-					</div>
-				</section>
-
-				<section class="stream-section" aria-labelledby="update-heading">
-					<div class="stream-heading"><h2 id="update-heading">最近更新</h2></div>
-					<div class="update-line">
-						<time datetime={updateLog.date}>{updateLog.date.replaceAll("-", ".")}</time>
-						<div><strong>{updateLog.title}</strong><p>{updateLog.description}</p></div>
 					</div>
 				</section>
 			<footer class="home-stream-footer">

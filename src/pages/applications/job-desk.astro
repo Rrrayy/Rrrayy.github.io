@@ -21,18 +21,24 @@ import { jobDesk } from "../../data/site";
 			</div>
 		</section>
 		<div class="detail-content">
-			<h2>它解决什么问题</h2>
-			<p>把公司、岗位、投递状态、截止时间和后续动作集中管理。看板用于跟进流程，今日待办与沉默提醒帮助发现停滞，面经复盘则把一次面试沉淀为后续可回顾的记录。</p>
+			<h2>主要功能</h2>
+			<ul>
+				<li>看板、今日待办、沉默提醒和日历视图帮助跟进投递流程。</li>
+				<li>Offer 对比、公司档案、简历模板与面经题库覆盖求职记录和复盘。</li>
+				<li>可选 AI 功能使用你配置的模型服务，发送前预览并只提交你选择的内容。</li>
+				<li>浏览器扩展可辅助采集招聘页面文本，单文件版仍可下载后本地打开。</li>
+			</ul>
 			<h2>运行方式与数据边界</h2>
 			<ul>
 				<li>仓库提供单个 HTML 文件，解压 Release 后可在本地浏览器打开。</li>
-				<li>不需要账号，也不依赖网站后端；数据保存在当前浏览器本地存储。</li>
-				<li>README 标明应用不发起外部网络请求；更换浏览器或清理站点数据前，应先使用应用提供的数据导出能力。</li>
+				<li>核心记录无需账号或网站后端，数据保存在当前浏览器；桌面 Chromium 支持可选文件联动。</li>
+				<li>未配置 AI 时应用不发起外部请求；启用 AI 后，只有经你确认的所选内容会发送给配置的模型服务。</li>
+				<li>更换浏览器或清理站点数据前，先使用应用提供的数据导出能力。</li>
 			</ul>
 			<h2>获取应用</h2>
 			<p>Release 页面当前发布版本为 {jobDesk.releaseVersion}，包含单文件应用和浏览器扩展等资产。进入 Release 后按 README 的安装说明使用；本网站不托管应用文件。</p>
 			<div class="project-links">
-				<a href={jobDesk.release} target="_blank" rel="noreferrer">打开 v0.7.3 Release</a>
+				<a href={jobDesk.release} target="_blank" rel="noreferrer">打开 {jobDesk.releaseVersion} Release</a>
 				<a href="https://github.com/Rrrayy/job-desk/blob/main/README.md" target="_blank" rel="noreferrer">阅读仓库 README</a>
 			</div>
 		</div>

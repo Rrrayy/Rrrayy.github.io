@@ -1,7 +1,7 @@
 export const profile = {
 	name: "Rray",
 	university: "南京邮电大学 · 计算机科学与技术",
-	positioning: "C++ 系统工程与 LLM Agent 应用实践。",
+	positioning: "C++ 系统工程与 Agent Harness 实践。",
 	email: "3111937934@qq.com",
 	github: "https://github.com/Rrrayy",
 	csdn: "https://blog.csdn.net/rr666888?type=blog"
@@ -10,7 +10,7 @@ export const profile = {
 export const capabilities = [
 	{
 		name: "C++ 与系统",
-		items: ["C++17", "STL", "RAII", "内存管理", "Linux", "Unix", "系统调用"]
+		items: ["C++17 / C++20", "STL", "RAII", "内存管理", "Linux", "Unix", "系统调用"]
 	},
 	{
 		name: "网络与并发",
@@ -22,39 +22,40 @@ export const capabilities = [
 	},
 	{
 		name: "AI 后端与 Agent",
-		items: ["Python", "asyncio", "FastAPI", "httpx", "pytest", "OpenAI API", "Tool Calling", "RAG", "MCP"]
+		items: ["Python", "asyncio", "FastAPI", "httpx", "Pydantic", "Tool Calling", "Tool Runtime", "Structured Output", "SSE", "RAG", "BM25", "RRF", "MCP"]
 	},
 	{
-		name: "工程工具",
-		items: ["CMake", "Make", "GDB", "Git", "Docker", "VS Code", "Claude Code", "Codex"]
+		name: "数据与工程工具",
+		items: ["MySQL", "PostgreSQL", "Redis", "SQLite", "SQLAlchemy", "Alembic", "CMake", "Make", "GDB", "Git", "Docker", "VS Code", "pytest", "GitHub Actions", "Claude Code", "Codex"]
 	}
 ];
 
-export const learningFocus = ["Linux 内核", "Agent Runtime"];
+export const learningFocus = ["Harness 架构", "LangChain 1.2", "LangGraph", "LangSmith"];
 
 export const jobDesk = {
 	name: "Job Desk",
 	category: "本地求职工作台",
-	description: "把投递当作流程管理：跟进看板、今日待办、沉默提醒、截止倒计时与面经复盘。单文件运行，不需要账号，数据保存在本机浏览器。",
-	technologies: ["HTML", "CSS", "JavaScript", "浏览器本地存储"],
+	description: "本地优先的求职投递工作台，提供看板、日历、沉默提醒、Offer 决策、简历与面经管理。单文件应用无需账号，另有浏览器扩展和可选 AI 功能。",
+	technologies: ["React", "TypeScript", "单文件应用", "浏览器扩展"],
 	repository: "https://github.com/Rrrayy/job-desk",
 	release: "https://github.com/Rrrayy/job-desk/releases/latest",
-	releaseVersion: "v0.7.3"
+	releaseVersion: "v1.0.0"
 };
 
 export const evidenceOps = {
 	name: "EvidenceOps",
 	status: "开发中",
 	category: "本机软件故障诊断",
-	description: "用 Agent 受限查询日志、指标、配置和排障资料，把运行观测与诊断建议关联成可回查的证据链。",
+	description: "围绕 Harness 架构持续演进的本机诊断工作台，把受控工具、Run 生命周期、上下文治理与证据归档组织成可追踪、可回放的 Agent 流程。",
 	capabilities: [
-		"Agent Loop 与白名单工具运行时",
-		"诊断事件、证据报告与历史回放",
-		"20 案例离线评测与检索对照",
+		"Run 生命周期、上下文预算与 Token Ledger",
+		"白名单工具、证据引用与历史事件回放",
+		"20 案例诊断评测与 BM25 / RRF 检索对照",
 		"C++20 日志解析器与 Python Adapter"
 	],
-	technologies: ["Python", "FastAPI", "Next.js", "React", "C++20", "SQLite", "PostgreSQL"],
-	publicRepository: false
+	technologies: ["Python", "FastAPI", "Next.js", "React", "C++20", "SQLAlchemy", "SQLite", "PostgreSQL", "SSE"],
+	publicRepository: true,
+	repository: "https://github.com/Rrrayy/EvidenceOps"
 };
 
 export const rpcProject = {
@@ -81,13 +82,14 @@ export const agentServiceProject = {
 	description: "可测试的 Agent 服务实验：连接模型 Provider、受限工具运行时和结构化诊断结果，支持 JSON 与 SSE 响应。",
 	technologies: ["Python", "FastAPI", "asyncio", "Tool Runtime", "SSE"],
 	repository: "https://github.com/Rrrayy/ai-python-service-lab",
+	readme: "https://github.com/Rrrayy/ai-python-service-lab/blob/master/README.md",
 	path: "/projects/agent-service-lab/"
 };
 
 export const priorityProjects = [rpcProject, cacheProject, agentServiceProject];
 
 export const updateLog = {
-	date: "2026-10-22",
-	title: "补充优先项目",
-	description: "首页区分 Job Desk 应用、EvidenceOps 开发中项目与三项优先项目，并增加 Cache System、Agent Service Lab 说明页。"
+	date: "2026-11-20",
+	title: "同步 Agent 工程进展",
+	description: "更新 Harness 与 LangGraph / LangSmith 学习重点、EvidenceOps 公开仓库信息和 Job Desk v1.0.0。"
 };
